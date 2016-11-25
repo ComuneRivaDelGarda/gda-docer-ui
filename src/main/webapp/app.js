@@ -1,5 +1,4 @@
-var gdadocerui = angular.module('gdadocerui', [])
+var gdadocerapp = angular.module('GDADocerApp', [])
 .controller('MainController', ['$scope', function($scope) {
-	$scope.a = 1;
-	$scope.b = 2;
+	
 }]);

@@ -1,32 +1,123 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="GDADocerApp">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>GDA-DOCER-UI</title>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+<title>GDA-DOCER-UI</title>
 
-    <!-- Bootstrap -->
-    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
+<!-- Bootstrap -->
+<link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-  </head>
-  <body ng-controller="MainController">
-
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="bower_components//jquery/dist/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+</head>
+<body ng-controller="MainController">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8">
+				<div class="btn-group">
+					<button type="button" class="btn btn-default" title="Carica Documento" ng-click="openUploadModals()">
+						<span class="glyphicon glyphicon-plus"></span>
+					</button>
+					
+					<button type="button" class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-click="download(selected)">
+						<span class="glyphicon glyphicon-download-alt"></span>
+					</button>
+					<!--
+					<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-href="api/docer/documents/{{selected.id}}/download" target="_blank">
+						<span class="glyphicon glyphicon-download-alt"></span>
+					</a>
+					-->				
+					<button type="button" class="btn btn-default" title="Elimina Documento">
+						<span class="glyphicon glyphicon-trash"></span>
+					</button>
+				</div>
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Nome</th>
+							<th>Titolo</th>
+							<th>Versione</th>
+							<th>Dimensioni</th>
+							<th>Data Creazione</th>
+							<th>Data Modifica</th>
+							<th>Tipo</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="doc in docs" ng-click="select(doc)" ng-class="{'info':doc.selected}">
+							<td>
+								<span class="glyphicon glyphicon-file" ng-if="!doc.directory"></span>
+								<span class="glyphicon glyphicon-folder-open" ng-if="doc.directory"></span>
+							</td>
+							<td ng-bind="doc.nome"></td>
+							<td ng-bind="doc.titolo"></td>
+							<td ng-bind="doc.versione"></td>
+							<td ng-bind="doc.dimensioni"></td>
+							<td ng-bind="doc.dataCreazione|date:'dd/MM/yyyy HH:mm'"></td>
+							<td ng-bind="doc.dataModifica|date:'dd/MM/yyyy HH:mm'"></td>
+							<td ng-bind="doc.contentType"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-4">
+				<div class="panel panel-default">
+					<div class="panel-heading">Attributi</div>
+					<div>
+					<div class="panel-body">
+						<div class="form-group">
+							<label for="titolo">Titolo</label>
+							<input type="text" class="form-control" id="titolo" placeholder="titolo" ng-model="selected.titolo">
+						</div>
+						<div class="form-group">
+							<label for="descrizione">Descrizione</label>
+							<input type="text" class="form-control" id="descrizione" placeholder="descrizione" ng-model="selected.nome">
+						</div>
+					</div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading">Versioni</div>
+					<div class="panel-body">
+						<table class="table table-condended">
+							<thead>
+								<tr>
+									<th>Versione</th>
+									<th>Note</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="ver in versions">
+									<td>{{ver.versione}}</td>
+									<td>{{ver.note}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
     
-    <script src="bower_components/angular/angular.min.js"></script>
-    <script src="app.js"></script>
-  </body>
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="bower_components//jquery/dist/jquery.min.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+	<script src="bower_components/angular/angular.min.js"></script>
+	<script src="bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script src="bower_components/ng-file-upload-shim/ng-file-upload-shim.min.js"></script>
+	<script src="bower_components/ng-file-upload/ng-file-upload.min.js"></script>
+	<script src="app.js"></script>
+</body>
 </html>

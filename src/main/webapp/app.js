@@ -97,21 +97,25 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.resetSelection();
 	
 	$scope.select = function(doc) {
-		if ($scope.selected && $scope.selected.id === doc.id)
-			return;
-		
-		if ($scope.selected)
-			$scope.selected.selected = false;
-		$scope.resetSelection();
-		if (doc) {
-			doc.selected = true;
-			$scope.selected = doc;
-			$log.debug('loading version for ' + doc.nome);
-			docerService.versions({
-				id : doc.id
-			}, function(versions) {
-				$scope.versions = versions;
-			});
+		// se stesso file lo deseleziono
+		if ($scope.selected && $scope.selected.id === doc.id) {
+			$scope.selected.selected = false; // equivale a doc.selected = false
+			$scope.resetSelection();
+		} else {
+			// deseleziono vecchio
+			if ($scope.selected)
+				$scope.selected.selected = false;
+			if (doc) {
+				// seleziono corrente
+				doc.selected = true;
+				$scope.selected = doc;
+				$log.debug('loading version for ' + doc.nome);
+				docerService.versions({
+					id : doc.id
+				}, function(versions) {
+					$scope.versions = versions;
+				});
+			}
 		}
 	}
 	

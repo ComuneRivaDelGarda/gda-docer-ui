@@ -15,12 +15,15 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			url: './api/docer/documents/:id/versions',
 			method : 'get',
 			isArray : true
-		},
+		}
+		/*
+		,
 		'download' : {
 			url: './api/docer/documents/:id/download',
 			method : 'get',
 			responseType: 'arraybuffer'
-		}		
+		}
+		*/
 	});
 	return docerResource;
 }])
@@ -33,7 +36,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 //	$ctrl.selected = {
 //		item : $ctrl.items[0]
 //	};
-
+	
 	$ctrl.ok = function() {
 		$scope.submit();
 		// $uibModalInstance.close();
@@ -61,9 +64,9 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 				file : file,
 			}
         }).then(function (resp) {
-        	$scope.uploading = false;
+        	// $scope.uploading = false;
         	$log.debug('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
-            // $uibModalInstance.close();
+            $uibModalInstance.close();
         }, function (resp) {
         	$log.error('Error status: ' + resp.status);
         }, function (evt) {
@@ -89,26 +92,34 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.loadData();
 
 	$scope.versions = [];
-	$scope.selected = null;
+	$scope.selectedDoc = null;
 	$scope.resetSelection = function(doc) {
 		$scope.versions = [];
-		$scope.selected = null;
+		$scope.selectedDoc = null;
 	};
 	$scope.resetSelection();
 	
-	$scope.select = function(doc) {
+	$scope.unselectCurrentDoc = function() {
+		if ($scope.selectedDoc) {
+			$scope.selectedDoc.selected = false; // equivale a doc.selected = false
+			$scope.resetSelection();			
+		}
+	}
+	$scope.selectDoc = function(doc) {
+		$log.debug("selectDoc");
 		// se stesso file lo deseleziono
-		if ($scope.selected && $scope.selected.id === doc.id) {
-			$scope.selected.selected = false; // equivale a doc.selected = false
-			$scope.resetSelection();
+		if ($scope.selectedDoc && $scope.selectedDoc.id === doc.id) {
+			$scope.unselectCurrentDoc();
+			// $scope.selectedDoc.selected = false; // equivale a doc.selected = false
+			// $scope.resetSelection();
 		} else {
 			// deseleziono vecchio
-			if ($scope.selected)
-				$scope.selected.selected = false;
+			if ($scope.selectedDoc)
+				$scope.selectedDoc.selected = false;
 			if (doc) {
 				// seleziono corrente
 				doc.selected = true;
-				$scope.selected = doc;
+				$scope.selectedDoc = doc;
 				$log.debug('loading version for ' + doc.nome);
 				docerService.versions({
 					id : doc.id
@@ -118,20 +129,29 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			}
 		}
 	}
-	
+	$scope.browseDoc = function(doc) {
+		$scope.unselectCurrentDoc();
+		$log.debug("browseDoc");
+	}
+	/*
 	$scope.download = function(doc) {
 		$log.debug('download for ' + doc.nome);
 		docerService.download({
 			id : doc.id
-		}, function(data) {
-			var url = URL.createObjectURL(new Blob([ data ]));
-			var a = document.createElement('a');
-			a.href = url;
-			a.download = doc.nome;
-			a.target = '_blank';
-			a.click();
+		}, function(response) {
+			
+			var data = new Blob([response], { type: doc.contentType + ';charset=utf-8' });
+		    FileSaver.saveAs(data, doc.nome);
+					    
+//			var url = URL.createObjectURL(new Blob([ data ]));
+//			var a = document.createElement('a');
+//			a.href = url;
+//			a.download = doc.nome;
+//			a.target = '_blank';
+//			a.click();
 		});
 	}
+	*/
 	
 	$scope.openUploadModals = function() {
 		$log.debug('openUploadModals');

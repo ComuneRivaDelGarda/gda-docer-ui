@@ -7,6 +7,9 @@
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <title>GDA-DOCER-UI</title>
 
+<!-- Startup configuration -->
+<link rel="manifest" href="manifest.json">
+
 <!-- Bootstrap -->
 <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
@@ -26,15 +29,22 @@
 					<button type="button" class="btn btn-default" title="Carica Documento" ng-click="openUploadModals()">
 						<span class="glyphicon glyphicon-plus"></span>
 					</button>
-					
+					<!--
 					<button type="button" class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-click="download(selected)">
 						<span class="glyphicon glyphicon-download-alt"></span>
 					</button>
-					<!--
-					<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-href="api/docer/documents/{{selected.id}}/download" target="_blank">
+					-->
+					
+					<!-- TEST DOWNLOAD LINK DIRETTO x WEBKIT -->
+					<!-- 
+					<a class="btn btn-default" title="Scarica Documento TEST" href="test-docer/test.pdf">
 						<span class="glyphicon glyphicon-download-alt"></span>
 					</a>
-					-->				
+					 -->
+					<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-href="api/docer/documents/{{selectedDoc.id}}/download">
+						<span class="glyphicon glyphicon-download-alt"></span>
+					</a>
+									
 					<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selected" ng-click="delete(selected)">
 						<span class="glyphicon glyphicon-trash"></span>
 					</button>
@@ -44,7 +54,7 @@
 						<tr>
 							<th></th>
 							<th>Nome</th>
-							<th>Titolo</th>
+							<!-- <th>Titolo</th> -->
 							<th>Versione</th>
 							<th>Dimensioni</th>
 							<th>Data Creazione</th>
@@ -53,18 +63,31 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="doc in docs" ng-click="select(doc)" ng-class="{'info':doc.selected}">
+						<tr ng-repeat="doc in docs" ng-click="(doc.directory)?browseDoc(doc):selectDoc(doc)" ng-class="{'info':doc.selected}">
 							<td>
 								<span class="glyphicon glyphicon-file" ng-if="!doc.directory"></span>
 								<span class="glyphicon glyphicon-folder-open" ng-if="doc.directory"></span>
 							</td>
-							<td ng-bind="doc.nome"></td>
-							<td ng-bind="doc.titolo"></td>
-							<td ng-bind="doc.versione"></td>
-							<td ng-bind="doc.dimensioni"></td>
-							<td ng-bind="doc.dataCreazione|date:'dd/MM/yyyy HH:mm'"></td>
-							<td ng-bind="doc.dataModifica|date:'dd/MM/yyyy HH:mm'"></td>
-							<td ng-bind="doc.contentType"></td>
+							<td>
+								<span ng-bind="doc.nome"></span>
+								<span ng-bind="doc.titolo"></span>
+							</td>
+							<!-- <td ng-bind="doc.titolo"></td> -->
+							<td>
+								<span ng-bind="doc.versione" ng-if="!doc.directory"></span>
+							</td>
+							<td>
+								<span ng-bind="doc.dimensioni" ng-if="!doc.directory"></span>
+							</td>
+							<td>
+								<span ng-bind="doc.dataCreazione|date:'dd/MM/yyyy HH:mm'"></span>
+							</td>
+							<td>
+								<span ng-bind="doc.dataModifica|date:'dd/MM/yyyy HH:mm'"></span>
+							</td>
+							<td>
+								<span ng-bind="doc.contentType" ng-if="!doc.directory"></span>
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -76,11 +99,11 @@
 					<div class="panel-body">
 						<div class="form-group">
 							<label for="titolo">Titolo</label>
-							<input type="text" class="form-control" id="titolo" placeholder="titolo" ng-model="selected.titolo">
+							<input type="text" class="form-control" id="titolo" placeholder="titolo" ng-model="selectedDoc.titolo">
 						</div>
 						<div class="form-group">
 							<label for="descrizione">Descrizione</label>
-							<input type="text" class="form-control" id="descrizione" placeholder="descrizione" ng-model="selected.nome">
+							<input type="text" class="form-control" id="descrizione" placeholder="descrizione" ng-model="selectedDoc.nome">
 						</div>
 					</div>
 					</div>
@@ -118,6 +141,9 @@
 	<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 	<script src="bower_components/ng-file-upload-shim/ng-file-upload-shim.min.js"></script>
 	<script src="bower_components/ng-file-upload/ng-file-upload.min.js"></script>
+	
+	<!-- <script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.min.js"></script> -->
+	<!-- <script src="bower_components/angular-file-saver/dist/angular-file-saver.min.js"></script> -->
 	
 	<script src="app.js"></script>
 </body>

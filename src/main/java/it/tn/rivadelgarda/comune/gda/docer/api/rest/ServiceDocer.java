@@ -1,10 +1,8 @@
 package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,16 +23,12 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.DocumentResponse;
-import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoRequest;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 
 @Path("/docer")
@@ -65,8 +59,7 @@ public class ServiceDocer {
 
 		Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
@@ -87,8 +80,7 @@ public class ServiceDocer {
 
 		Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
@@ -102,18 +94,20 @@ public class ServiceDocer {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("{}", documentId);
 
-//			File fileToDownload = null;
-//			String path = restServletContext.getRealPath("/WEB-INF/test-docer");
-//			File[] directories = new File(path).listFiles();
-//			for (File f : directories) {
-//				if (f.hashCode() == documentId) {
-//					fileToDownload = f;
-//					break;
-//				}
-//			}
-			
-			final String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/test.pdf");
-			// final String filePath = fileToDownload.getPath();
+			File fileToDownload = null;
+			String path = restServletContext.getRealPath("/WEB-INF/test-docer");
+			File[] directories = new File(path).listFiles();
+			for (File f : directories) {
+				if (f.hashCode() == documentId) {
+					fileToDownload = f;
+					break;
+				}
+			}
+
+			// final String filePath =
+			// restServletContext.getRealPath("/WEB-INF/test-docer/test.pdf");
+			final String fileName = fileToDownload.getName();
+			final String filePath = fileToDownload.getPath();
 			StreamingOutput fileStream = new StreamingOutput() {
 				@Override
 				public void write(java.io.OutputStream output) throws IOException, WebApplicationException {
@@ -126,13 +120,11 @@ public class ServiceDocer {
 						throw new WebApplicationException("File Not Found !!");
 					}
 				}
-			};			
-			return Response.ok(fileStream, MediaType.APPLICATION_OCTET_STREAM)
-					.header("content-disposition", "attachment; filename = test.pdf").build();
+			};
+			return Response.ok(fileStream, MediaType.APPLICATION_OCTET_STREAM).header("content-disposition", "attachment;filename=\"" + fileName + "\"").build();
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
@@ -141,11 +133,9 @@ public class ServiceDocer {
 	@Path("/documents/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response upload(@FormDataParam("titolo") String titolo,
-			@FormDataParam("file") InputStream file,
-			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
-//	public Response upload(@FormDataParam("file") InputStream file,
-//			@FormDataParam("file") FormDataContentDisposition fileDisposition) {		
+	public Response upload(@FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream file, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+		// public Response upload(@FormDataParam("file") InputStream file,
+		// @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
 		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
 		try {
@@ -158,7 +148,7 @@ public class ServiceDocer {
 			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileDisposition.getFileName());
 			File f = new File(filePath);
 			FileUtils.copyInputStreamToFile(file, f);
-			
+
 			// responseData.setId(allegato.getId());
 			response = Response.ok(responseData).build();
 
@@ -168,8 +158,7 @@ public class ServiceDocer {
 			// Response.status(Response.Status.PRECONDITION_FAILED).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}

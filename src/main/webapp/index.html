@@ -36,16 +36,16 @@
 					-->
 					
 					<!-- TEST DOWNLOAD LINK DIRETTO x WEBKIT -->
-					<!-- 
-					<a class="btn btn-default" title="Scarica Documento TEST" href="test-docer/test.pdf">
-						<span class="glyphicon glyphicon-download-alt"></span>
+					
+					<a class="btn btn-default" title="Scarica Documento TEST" href="test-docer/test.pdf" target="_blank">
+						<span class="glyphicon glyphicon-download-alt"></span> TEST DOWNLOAD
 					</a>
-					 -->
-					<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-href="api/docer/documents/{{selectedDoc.id}}/download">
+					
+					<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.id}}/download">
 						<span class="glyphicon glyphicon-download-alt"></span>
 					</a>
 									
-					<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selected" ng-click="delete(selected)">
+					<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc" ng-click="delete(selected)">
 						<span class="glyphicon glyphicon-trash"></span>
 					</button>
 				</div>
@@ -63,7 +63,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="doc in docs" ng-click="(doc.directory)?browseDoc(doc):selectDoc(doc)" ng-class="{'info':doc.selected}">
+						<tr ng-repeat="doc in docs" ng-click="clickRow(doc)" ng-class="{'info':doc.selected}" ng-dblclick="doubleClickRow(doc)">
 							<td>
 								<span class="glyphicon glyphicon-file" ng-if="!doc.directory"></span>
 								<span class="glyphicon glyphicon-folder-open" ng-if="doc.directory"></span>

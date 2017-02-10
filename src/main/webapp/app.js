@@ -104,22 +104,27 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			$scope.selectedDoc.selected = false; // equivale a doc.selected = false
 			$scope.resetSelection();			
 		}
-	}
+	};
 	$scope.selectDoc = function(doc) {
 		$log.debug("selectDoc");
 		// se stesso file lo deseleziono
-		if ($scope.selectedDoc && $scope.selectedDoc.id === doc.id) {
+		// TODO: se seleziono da file a cartella, da file a file, stesso file
+		if ($scope.selectedDoc && $scope.selectedDoc.id === doc.id)
+			return;
+		else
 			$scope.unselectCurrentDoc();
-			// $scope.selectedDoc.selected = false; // equivale a doc.selected = false
-			// $scope.resetSelection();
-		} else {
+		
+//			// $scope.selectedDoc.selected = false; // equivale a doc.selected = false
+//			// $scope.resetSelection();
+//		} else {
 			// deseleziono vecchio
-			if ($scope.selectedDoc)
-				$scope.selectedDoc.selected = false;
-			if (doc) {
-				// seleziono corrente
-				doc.selected = true;
-				$scope.selectedDoc = doc;
+		
+
+		if (doc) {
+			// seleziono corrente
+			doc.selected = true;
+			$scope.selectedDoc = doc;
+			if (!doc.directory) {
 				$log.debug('loading version for ' + doc.nome);
 				docerService.versions({
 					id : doc.id
@@ -128,11 +133,24 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 				});
 			}
 		}
-	}
+		
+	};
 	$scope.browseDoc = function(doc) {
 		$scope.unselectCurrentDoc();
 		$log.debug("browseDoc");
+	};
+	$scope.clickRow = function(doc) {
+		$log.debug("clickRow");
+		if (doc.directory) {
+			$scope.browseDoc(doc)
+		}
+		else {
+			$scope.selectDoc(doc)
+		}
 	}
+	$scope.doubleClickRow = function(doc) {
+		$log.debug("doubleClickRow");
+	};
 	/*
 	$scope.download = function(doc) {
 		$log.debug('download for ' + doc.nome);

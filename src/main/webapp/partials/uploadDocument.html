@@ -11,7 +11,7 @@
 			<div class="input-group">
 				<input type="text" ng-model="file.name" class="form-control" placeholder="seleziona un file">
 				<span class="input-group-btn">
-					<button class="btn btn-default" type="button" ngf-select ng-model="file" name="file" >Sfoglia...</button>
+					<button class="btn btn-default" type="button" ngf-select ng-model="file" name="file" ><i class="fa fa-search"></i> Sfoglia...</button>
 				</span>
 			</div>
 		  	<!-- <div class="btn btn-default" ngf-select ng-model="file" name="file" id="file">Seleziona ...</div> -->
@@ -44,6 +44,6 @@
 	</form>
 </div>
 <div class="modal-footer">
-	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!file">OK</button>
-	<button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!file"><i class="fa fa-upload"></i> OK</button>
+	<button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()"><i class="fa fa-ban"></i> Cancel</button>
 </div>

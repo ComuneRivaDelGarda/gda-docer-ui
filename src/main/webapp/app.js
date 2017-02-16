@@ -1,8 +1,18 @@
 var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bootstrap', 'ngFileUpload', 'angular-loading-bar'])
 /**
+ * Service SESSIONE passaggio dati per MODAL
+ */
+.service('SessionService', ['$log', function($log) {
+	$log.debug('SessionService');
+	var SessionService = this;
+	SessionService.folderId = 0;
+	return SessionService;
+}])
+/**
  * Service per risorse REST DOCER
  */
-.service('DocerService', ['$resource', function($resource) {
+.service('DocerService', ['$resource', '$log', function($resource, $log) {
+	$log.debug('DocerService');
 	var docerResource = $resource('./api/docer/documents/:id', {
 		id : '@id'
 	}, {
@@ -33,72 +43,23 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
 	return docerResource;
 }])
 /**
- * Controller per POPUP UPLOAD
- */
-.controller('UploadController', ['$log', '$scope', '$uibModalInstance', 'Upload', function($log, $scope, $uibModalInstance, Upload) {
-	var $ctrl = this;
-//	$ctrl.items = items;
-//	$ctrl.selected = {
-//		item : $ctrl.items[0]
-//	};
-	
-	$ctrl.ok = function() {
-		$scope.submit();
-		// $uibModalInstance.close();
-	};
-
-	$ctrl.cancel = function() {
-		$uibModalInstance.dismiss('cancel');
-	};
-
-	// upload later on form submit or something similar
-    $scope.submit = function() {
-		if ($scope.form.file.$valid && $scope.file) {
-			$scope.upload($scope.file);
-		}
-	};
-
-	$scope.uploading = false;
-	$scope.progressPercentage = 0;
-	// upload on file select or drop
-    $scope.upload = function (file) {
-        Upload.upload({
-            url : './api/docer/documents/upload',
-			data : {
-				titolo : $scope.titolo,
-				file : file,
-			}
-        }).then(function (resp) {
-        	// $scope.uploading = false;
-        	$log.debug('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
-            $uibModalInstance.close();
-        }, function (resp) {
-        	$log.error('Error status: ' + resp.status);
-        }, function (evt) {
-        	$scope.uploading = true;
-            $scope.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-            $log.debug('progress: ' + $scope.progressPercentage + '% ' + evt.config.data.file.name);
-        });
-    };
-    
-}])
-/**
  * Controller della pagina MAIN
  */
-.controller('MainController', ['$log', '$scope', '$location', '$routeParams', 'DocerService', '$uibModal', function($log, $scope, $location, $routeParams, docerService, $uibModal) {
+.controller('MainController', ['$log', '$scope', '$location', '$routeParams', 'DocerService', '$uibModal', 'SessionService', function($log, $scope, $location, $routeParams, docerService, $uibModal, SessionService) {
 	// var $ctrl = this;
-	id = $location.search().id;
-	if (!id) {
-		id = 885160;
+	var folderId = $location.search().id;
+	if (!folderId) {
+		folderId = 885160;
 	}
 	
-	$log.debug('id='+angular.toJson(id));
+	$log.debug('id='+folderId);
 	$scope.docs = [];
 	
 	$scope.loadData = function() {
 		$log.debug('loading data');
+		$scope.docs = [];
 		docerService.query({
-			id : id
+			id : folderId
 		}, function (folderData) {
 			if (folderData) {
 				$log.debug('data loaded');
@@ -211,21 +172,24 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
 //			controller : 'UploadController',
 //			controllerAs : '$ctrl',
 //		});
-		    
+		
+		$log.debug('SessionService.folderId='+folderId);
+		SessionService.folderId = folderId;
+		
 		var modalInstance = $uibModal.open({
 			animation : true,
 			ariaLabelledBy : 'modal-title',
 			ariaDescribedBy : 'modal-body',
 			templateUrl : 'partials/uploadDocument.html',
 			controller : 'UploadController',
-			controllerAs : '$ctrl',
+			controllerAs : '$ctrl'
 			// size : 'lg',
 			// appendTo : parentElem,
-	//		resolve : {
-	//			items : function() {
-	//				return $ctrl.items;
-	//			}
-	//		}
+//			resolve : {
+//				folderId : function() {
+//					return $ctrl.items;
+//				}
+//			}
 		});
 	
 		modalInstance.result.then(function () {
@@ -235,5 +199,56 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
     		$log.info('Modal dismissed at: ' + new Date());
 	    });
 	};
+}])
+/**
+ * Controller per POPUP UPLOAD
+ */
+.controller('UploadController', ['$log', '$scope', '$uibModalInstance', 'Upload', 'SessionService', function($log, $scope, $uibModalInstance, Upload, SessionService) {
+	var $ctrl = this;
+	$ctrl.folderId = SessionService.folderId;
+	// $scope.folderId = SessionService.folderId;
+//	$ctrl.selected = {
+//		item : $ctrl.items[0]
+//	};
+	// $ctrl.folderId = $ctrl.folderId;
 	
+	$ctrl.ok = function() {
+		$scope.submit();
+		// $uibModalInstance.close();
+	};
+
+	$ctrl.cancel = function() {
+		$uibModalInstance.dismiss('cancel');
+	};
+
+	// upload later on form submit or something similar
+    $scope.submit = function() {
+		if ($scope.form.file.$valid && $scope.file) {
+			$scope.upload($scope.file);
+		}
+	};
+
+	$scope.uploading = false;
+	$scope.progressPercentage = 0;
+	// upload on file select or drop
+    $scope.upload = function (file) {
+        Upload.upload({
+            url : './api/docer/documents/'+$ctrl.folderId+'/upload',
+			data : {
+				titolo : $scope.titolo,
+				file : file,
+			}
+        }).then(function (resp) {
+        	// $scope.uploading = false;
+        	$log.debug('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+            $uibModalInstance.close();
+        }, function (resp) {
+        	$log.error('Error status: ' + resp.status);
+        }, function (evt) {
+        	$scope.uploading = true;
+            $scope.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            $log.debug('progress: ' + $scope.progressPercentage + '% ' + evt.config.data.file.name);
+        });
+    };
+    
 }]);

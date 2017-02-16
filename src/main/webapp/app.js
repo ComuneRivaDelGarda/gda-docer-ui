@@ -24,7 +24,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
 		'profiles' : {
 			url: './api/docer/documents/:id/profiles',
 			method : 'get',
-			isArray : false
+			isArray : true
 		},		
 		'profile' : {
 			url: './api/docer/documents/:id/profile',
@@ -114,7 +114,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
 		$log.debug("selectDoc");
 		// se stesso file lo deseleziono
 		// TODO: se seleziono da file a cartella, da file a file, stesso file
-		if ($scope.selectedDoc && $scope.selectedDoc.id === doc.id)
+		if ($scope.selectedDoc && $scope.selectedDoc.DOCNUM === doc.DOCNUM)
 			return;
 		else
 			$scope.unselectCurrentDoc();
@@ -129,14 +129,14 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
 			// seleziono corrente
 			doc.selected = true;
 			$scope.selectedDoc = doc;
-			if (!doc.directory) {
-				$log.debug('loading version for ' + doc.DOCNUM);
-				docerService.versions({
-					id : doc.DOCNUM
-				}, function(versions) {
-					$scope.versions = versions;
-				});
-			}
+//			if (!doc.directory) {
+//				$log.debug('loading version for ' + doc.DOCNUM);
+//				docerService.versions({
+//					id : doc.DOCNUM
+//				}, function(versions) {
+//					$scope.versions = versions;
+//				});
+//			}
 		}
 		
 	};

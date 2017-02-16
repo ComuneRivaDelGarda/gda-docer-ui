@@ -92,11 +92,13 @@ public class ServiceDocer {
 			logger.debug("{}", folderId);
 
 			if (StringUtils.isNoneBlank(folderId)) {
-				Map<String, Map<String, String>> data = new HashMap<>();
+				// Map<String, Map<String, String>> data = new HashMap<>();
+				List<Map<String, String>> data = new ArrayList<>();
 				List<String> documents = docer.getFolderDocuments(folderId);
 				for (String documentId : documents) {
 					Map<String, String> documentProfile = docer.getProfileDocumentMap(documentId);
-					data.put(documentId, documentProfile);
+					// data.put(documentId, documentProfile);
+					data.add(documentProfile);
 				}
 				String json = new Gson().toJson(data);
 				response = Response.ok(json).build();

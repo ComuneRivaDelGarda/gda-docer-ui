@@ -26,6 +26,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tools.ant.types.resources.selectors.Date;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import it.kdm.docer.webservices.DocerServicesStub.KeyValuePair;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.DocumentResponse;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
+import it.tn.rivadelgarda.comune.gda.docer.keys.DocumentKeysEnum.TIPO_COMPONENTE;
 
 @Path("/docer")
 public class ServiceDocer {
@@ -164,25 +166,38 @@ public class ServiceDocer {
 	}
 
 	@POST
-	@Path("/documents/upload")
+	@Path("/documents/{folderId}/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response upload(@FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream file, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+	public Response upload(@PathParam("folderId") String folderId, @FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream file, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		// public Response upload(@FormDataParam("file") InputStream file,
 		// @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
 		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
 		try {
 			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("folderId={}", folderId);
+			logger.debug("titolo={}", titolo);
 			// logger.debug("{}", new Gson().toJson(allegatoRequest));
 
 			// AllegatoPec allegato = MessaggioPecBL.saveFile(getContextEmf(),
 			// allegatoRequest, file);
-
-			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileDisposition.getFileName());
+			final String fileName = fileDisposition.getFileName();
+			
+			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileName);
 			File f = new File(filePath);
 			FileUtils.copyInputStreamToFile(file, f);
 
+			try (DocerHelper docer = getDocerHelper()) {
+				logger.debug("invio file '{}' a docer", fileName);
+				// String documentId = docer.createDocument(fileName, f, TIPO_COMPONENTE.PRINCIPALE, titolo);
+				String timestamp = String.valueOf(new Date().getMillis());
+				String documentId = docer.createDocument("DOCUMENTO", fileName, f, TIPO_COMPONENTE.PRINCIPALE, titolo);
+				logger.debug("creato in docer con id {}", documentId);
+				docer.addToFolderDocuments(folderId, documentId);
+				logger.debug("aggiunto document {} a folder {}", documentId, folderId);
+			}
+			
 			// responseData.setId(allegato.getId());
 			response = Response.ok(responseData).build();
 

@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
@@ -23,11 +25,16 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+
+import it.kdm.docer.webservices.DocerServicesStub.KeyValuePair;
+import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.DocumentResponse;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 
@@ -43,21 +50,29 @@ public class ServiceDocer {
 	protected UriInfo uriInfo;
 
 	@GET
-	@Path("/documents")
+	@Path("/documents/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getLista() {
+	public Response getFolderDocuments(@PathParam("id") String documentId) {
 		Response response = null;
-		try {
+		try (DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("{}", documentId);
 
-			String path = restServletContext.getRealPath("/WEB-INF/test-docer");
-			File[] directories = new File(path).listFiles();
-			List<DocumentResponse> responseData = DocumentResponse.fromFiles(directories);
-			response = Response.ok(responseData).build();
-
-		} catch (
-
-		Exception ex) {
+			if (StringUtils.isNoneBlank(documentId)) {
+				List<String> documents = docer.getFolderDocuments(documentId);
+				String json = new Gson().toJson(documents);
+				response = Response.ok(json).build();
+			}
+			// else {
+			// // TEST CARTELLA PREDEFINITA
+			// String path =
+			// restServletContext.getRealPath("/WEB-INF/test-docer");
+			// File[] directories = new File(path).listFiles();
+			// List<DocumentResponse> responseData =
+			// DocumentResponse.fromFiles(directories);
+			// response = Response.ok(responseData).build();
+			// }
+		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
 			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		}
@@ -65,20 +80,39 @@ public class ServiceDocer {
 	}
 
 	@GET
-	@Path("/documents/{documentId}/versions")
+	@Path("/documents/{id}/profile")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getVersions(@PathParam("documentId") int documentId) {
+	public Response getProfileDocument(@PathParam("id") String documentId) {
 		Response response = null;
-		try {
+		try (DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("{}", documentId);
+			if (StringUtils.isNoneBlank(documentId)) {
+				Map<String, String> documentData = docer.getProfileDocumentMap(documentId);
+				String json = new Gson().toJson(documentData);
+				response = Response.ok(json).build();
+			}
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
+	}
 
-			List<DocumentResponse> responseData = new ArrayList<>();
-			response = Response.ok(responseData).build();
-
-		} catch (
-
-		Exception ex) {
+	@GET
+	@Path("/documents/{id}/versions")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getVersions(@PathParam("id") String documentId) {
+		Response response = null;
+		try (DocerHelper docer = getDocerHelper()) {
+			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("{}", documentId);
+			if (StringUtils.isNoneBlank(documentId)) {
+				List<String> documentVersions = docer.getVersions(documentId);
+				String json = new Gson().toJson(documentVersions);
+				response = Response.ok(json).build();
+			}
+		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
 			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		}
@@ -161,5 +195,31 @@ public class ServiceDocer {
 			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
+	}
+
+	DocerHelper docer = null;
+	String token = null;
+
+	private DocerHelper getDocerHelper() throws Exception {
+		if (docer == null) {
+			Properties p = new Properties();
+			// String path =
+			// restServletContext.getRealPath("WEB-INF/config.properties");
+			// p.load(getClass().getResourceAsStream("config.properties"));
+			// p.load(fileProperties);
+			InputStream fileProperties = restServletContext.getResourceAsStream("/WEB-INF/config.properties");
+			p.load(fileProperties);
+			fileProperties.close();
+			logger.debug("caricato configurazione docer da /WEB-INF/config.properties");
+
+			String docerSerivcesUrl = p.getProperty("url");
+			String docerUsername = p.getProperty("username");
+			String docerPassword = p.getProperty("password");
+			docer = new DocerHelper(docerSerivcesUrl, docerUsername, docerPassword);
+
+			token = docer.login();
+			logger.debug("connesso a docer con tocken {}", token);
+		}
+		return docer;
 	}
 }

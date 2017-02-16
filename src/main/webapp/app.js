@@ -1,4 +1,4 @@
-var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', 'ngFileUpload'])
+var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bootstrap', 'ngFileUpload', 'angular-loading-bar'])
 /**
  * Service per risorse REST DOCER
  */
@@ -10,6 +10,11 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		query : {
 			method : 'get',
 			isArray : true
+		},
+		'profile' : {
+			url: './api/docer/documents/:id/profile',
+			method : 'get',
+			isArray : false
 		},
 		'versions' : {
 			url: './api/docer/documents/:id/versions',
@@ -52,7 +57,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			$scope.upload($scope.file);
 		}
 	};
-	
+
 	$scope.uploading = false;
 	$scope.progressPercentage = 0;
 	// upload on file select or drop
@@ -80,14 +85,38 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 /**
  * Controller della pagina MAIN
  */
-.controller('MainController', ['$log', '$scope', 'DocerService', '$uibModal', function($log, $scope, docerService, $uibModal) {
+.controller('MainController', ['$log', '$scope', '$location', '$routeParams', 'DocerService', '$uibModal', function($log, $scope, $location, $routeParams, docerService, $uibModal) {
 	// var $ctrl = this;
-
+	id = $location.search().id;
+	if (!id) {
+		id = 885160;
+	}
+	
+	$log.debug('id='+angular.toJson(id));
 	$scope.docs = [];
 	
 	$scope.loadData = function() {
 		$log.debug('loading data');
-		$scope.docs = docerService.query();
+		docerService.query({
+			id : id
+		}, function (folderData) {
+			if (folderData) {
+				$log.debug('data loaded');
+				// $scope.docs = folderData;
+				angular.forEach(folderData, function(childDocumenId) {
+					docerService.profile({
+						id : childDocumenId
+					}, function (documentProfile) {
+						if (documentProfile) {
+							$scope.docs.push(documentProfile);
+						}
+					});
+				});
+			} else {
+				$log.debug('no data loaded');
+				// TODO: messaggio noda
+			}
+		});
 	};
 	$scope.loadData();
 
@@ -125,9 +154,9 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			doc.selected = true;
 			$scope.selectedDoc = doc;
 			if (!doc.directory) {
-				$log.debug('loading version for ' + doc.nome);
+				$log.debug('loading version for ' + doc.DOCNUM);
 				docerService.versions({
-					id : doc.id
+					id : doc.DOCNUM
 				}, function(versions) {
 					$scope.versions = versions;
 				});

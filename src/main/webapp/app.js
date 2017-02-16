@@ -21,6 +21,11 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
 			method : 'get',
 			isArray : true
 		},
+		'profiles' : {
+			url: './api/docer/documents/:id/profiles',
+			method : 'get',
+			isArray : false
+		},		
 		'profile' : {
 			url: './api/docer/documents/:id/profile',
 			method : 'get',
@@ -58,6 +63,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
 	$scope.loadData = function() {
 		$log.debug('loading data');
 		$scope.docs = [];
+		/* versione 1 */
+		/*
 		docerService.query({
 			id : folderId
 		}, function (folderData) {
@@ -77,6 +84,14 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
 				$log.debug('no data loaded');
 				// TODO: messaggio noda
 			}
+		});
+		*/
+		/* versione 2 */
+		docerService.profiles({
+			id : folderId
+		}, function (profiles) {
+			$log.debug('profiles loaded');
+			$scope.docs = profiles;
 		});
 	};
 	$scope.loadData();

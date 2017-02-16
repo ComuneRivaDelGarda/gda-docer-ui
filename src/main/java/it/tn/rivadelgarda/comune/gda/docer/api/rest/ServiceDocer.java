@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -81,6 +82,41 @@ public class ServiceDocer {
 		return response;
 	}
 
+	@GET
+	@Path("/documents/{id}/profiles")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getFolderDocumentsProfiles(@PathParam("id") String folderId) {
+		Response response = null;
+		try (DocerHelper docer = getDocerHelper()) {
+			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("{}", folderId);
+
+			if (StringUtils.isNoneBlank(folderId)) {
+				Map<String, Map<String, String>> data = new HashMap<>();
+				List<String> documents = docer.getFolderDocuments(folderId);
+				for (String documentId : documents) {
+					Map<String, String> documentProfile = docer.getProfileDocumentMap(documentId);
+					data.put(documentId, documentProfile);
+				}
+				String json = new Gson().toJson(data);
+				response = Response.ok(json).build();
+			}
+			// else {
+			// // TEST CARTELLA PREDEFINITA
+			// String path =
+			// restServletContext.getRealPath("/WEB-INF/test-docer");
+			// File[] directories = new File(path).listFiles();
+			// List<DocumentResponse> responseData =
+			// DocumentResponse.fromFiles(directories);
+			// response = Response.ok(responseData).build();
+			// }
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
+	}
+	
 	@GET
 	@Path("/documents/{id}/profile")
 	@Produces(MediaType.APPLICATION_JSON)

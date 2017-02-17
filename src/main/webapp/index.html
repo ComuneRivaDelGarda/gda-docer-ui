@@ -14,6 +14,7 @@
 <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
 <link href="bower_components/angular-loading-bar/build/loading-bar.min.css" rel="stylesheet">
+<link href="bower_components/AngularJS-Toaster/toaster.min.css" rel="stylesheet" />
 
 <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
 
@@ -27,6 +28,7 @@
 <body ng-controller="MainController">
 	<div class="container-fluid">
 		<div class="row">
+			<toaster-container></toaster-container>
 			<div class="col-md-8">
 				<div class="btn-toolbar">
 					<div class="btn-group">
@@ -35,7 +37,7 @@
 						</button>
 					</div>
 					<div class="btn-group">
-						<button type="button" class="btn btn-default" title="Carica Documento" ng-click="openUploadModals()">
+						<button type="button" class="btn btn-default" title="Carica Documento" ng-click="openUploadModals()" ng-disabled="!folderId">
 							<span class="glyphicon glyphicon-plus"></span>
 						</button>
 						<!--
@@ -49,6 +51,7 @@
 						<a class="btn btn-default" title="Scarica Documento TEST" href="test-docer/test.pdf" target="_blank">
 							<span class="glyphicon glyphicon-download-alt"></span> TEST DOWNLOAD
 						</a>
+						<!-- <button ng-click="pop()">Show a Toaster</button> -->
 						
 						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.id}}/download">
 							<span class="glyphicon glyphicon-download-alt"></span>
@@ -154,6 +157,8 @@
 	<script src="bower_components/ng-file-upload-shim/ng-file-upload-shim.min.js"></script>
 	<script src="bower_components/ng-file-upload/ng-file-upload.min.js"></script>
 	<script src="bower_components/angular-loading-bar/build/loading-bar.min.js"></script>
+	<script src="bower_components/angular-animate/angular-animate.min.js" ></script>
+	<script src="bower_components/AngularJS-Toaster/toaster.min.js"></script>
 	
 	<!-- <script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.min.js"></script> -->
 	<!-- <script src="bower_components/angular-file-saver/dist/angular-file-saver.min.js"></script> -->

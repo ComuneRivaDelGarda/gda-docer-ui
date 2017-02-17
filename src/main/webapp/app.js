@@ -1,4 +1,4 @@
-var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bootstrap', 'ngFileUpload', 'angular-loading-bar'])
+var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', 'ngFileUpload', 'angular-loading-bar'])
 /**
  * Service SESSIONE passaggio dati per MODAL
  */
@@ -50,14 +50,15 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngRoute', 'ngResource', 'ui.bo
 /**
  * Controller della pagina MAIN
  */
-.controller('MainController', ['$log', '$scope', '$location', '$routeParams', 'DocerService', '$uibModal', 'SessionService', function($log, $scope, $location, $routeParams, docerService, $uibModal, SessionService) {
+.controller('MainController', ['$log', '$scope', '$location', 'DocerService', '$uibModal', 'SessionService', function($log, $scope, $location, docerService, $uibModal, SessionService) {
 	// var $ctrl = this;
 	var folderId = $location.search().id;
 	if (!folderId) {
-		folderId = 885160;
+		// folderId = 885160;
+		folderId = "";
 	}
-	
 	$log.debug('id='+folderId);
+	
 	$scope.docs = [];
 	
 	$scope.loadData = function() {

@@ -28,29 +28,36 @@
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-8">
-				<div class="btn-group">
-					<button type="button" class="btn btn-default" title="Carica Documento" ng-click="openUploadModals()">
-						<span class="glyphicon glyphicon-plus"></span>
-					</button>
-					<!--
-					<button type="button" class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-click="download(selected)">
-						<span class="glyphicon glyphicon-download-alt"></span>
-					</button>
-					-->
-					
-					<!-- TEST DOWNLOAD LINK DIRETTO x WEBKIT -->
-					
-					<a class="btn btn-default" title="Scarica Documento TEST" href="test-docer/test.pdf" target="_blank">
-						<span class="glyphicon glyphicon-download-alt"></span> TEST DOWNLOAD
-					</a>
-					
-					<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.id}}/download">
-						<span class="glyphicon glyphicon-download-alt"></span>
-					</a>
-									
-					<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc" ng-click="delete(selected)">
-						<span class="glyphicon glyphicon-trash"></span>
-					</button>
+				<div class="btn-toolbar">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" title="Su" ng-click="levelUp()" ng-disabled="!folderIdParent">
+							<i class="fa fa-level-up"></i>
+						</button>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" title="Carica Documento" ng-click="openUploadModals()">
+							<span class="glyphicon glyphicon-plus"></span>
+						</button>
+						<!--
+						<button type="button" class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-click="download(selected)">
+							<span class="glyphicon glyphicon-download-alt"></span>
+						</button>
+						-->
+						
+						<!-- TEST DOWNLOAD LINK DIRETTO x WEBKIT -->
+						
+						<a class="btn btn-default" title="Scarica Documento TEST" href="test-docer/test.pdf" target="_blank">
+							<span class="glyphicon glyphicon-download-alt"></span> TEST DOWNLOAD
+						</a>
+						
+						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.id}}/download">
+							<span class="glyphicon glyphicon-download-alt"></span>
+						</a>
+										
+						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc" ng-click="delete(selected)">
+							<span class="glyphicon glyphicon-trash"></span>
+						</button>
+					</div>
 				</div>
 				<table class="table table-hover">
 					<thead>
@@ -66,15 +73,15 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="doc in docs" ng-click="clickRow(doc)" ng-class="{'info':doc.selected}" ng-dblclick="doubleClickRow(doc)">
+						<tr ng-repeat="doc in docs" ng-class="{'info':doc.selected}" ng-click="clickRow(doc)" ng-dblclick="doubleClickRow(doc)">
 							<td>
-								<i class="fa fa-file-o" ng-if="doc.TIPO_COMPONENTE != 'PRINCIPALE'" title="{{doc.TIPO_COMPONENTE}}"></i>
-								<i class="fa fa-file" ng-if="doc.TIPO_COMPONENTE == 'PRINCIPALE'" title="{{doc.TIPO_COMPONENTE}}"></i>
-								<i class="fa fa-folder" ng-if="doc.directory"></i>
+								<i class="fa fa-file-o" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE != 'PRINCIPALE'" title="{{doc.TIPO_COMPONENTE}}"></i>
+								<i class="fa fa-file" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE == 'PRINCIPALE'" title="{{doc.TIPO_COMPONENTE}}"></i>
+								<i class="fa fa-folder" ng-if="doc.FOLDER_ID"></i>
 							</td>
 							<td>
-								<span ng-bind="doc.DOCNAME" title="{{doc.DOC_HASH}}"></span>
-								<span ng-bind=""></span>
+								<span ng-bind="doc.DOCNAME" title="{{doc.ABSTRACT}}" ng-if="doc.DOCNUM"></span>
+								<span ng-bind="doc.FOLDER_NAME" title="{{doc.DES_FOLDER}}" ng-if="doc.FOLDER_ID"></span>
 							</td>
 							<!-- <td ng-bind="doc.titolo"></td> -->
 							<td>

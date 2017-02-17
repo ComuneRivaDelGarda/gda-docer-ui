@@ -25,6 +25,11 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			url: './api/docer/documents/:id/profiles',
 			method : 'get',
 			isArray : true
+		},
+		'childs' : {
+			url: './api/docer/documents/:id/childs',
+			method : 'get',
+			isArray : true
 		},		
 		'profile' : {
 			url: './api/docer/documents/:id/profile',
@@ -52,12 +57,13 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
  */
 .controller('MainController', ['$log', '$scope', '$location', 'DocerService', '$uibModal', 'SessionService', function($log, $scope, $location, docerService, $uibModal, SessionService) {
 	// var $ctrl = this;
-	var folderId = $location.search().id;
-	if (!folderId) {
+	$scope.folderIdParent = null;
+	$scope.folderId = $location.search().id;
+	if (!$scope.folderId) {
 		// folderId = 885160;
-		folderId = "";
+		$scope.folderId = "";
 	}
-	$log.debug('id='+folderId);
+	$log.debug('id='+$scope.folderId);
 	
 	$scope.docs = [];
 	
@@ -88,11 +94,11 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		});
 		*/
 		/* versione 2 */
-		docerService.profiles({
-			id : folderId
-		}, function (profiles) {
-			$log.debug('profiles loaded');
-			$scope.docs = profiles;
+		docerService.childs({
+			id : $scope.folderId
+		}, function (childs) {
+			$log.debug('childs loaded');
+			$scope.docs = childs;
 		});
 	};
 	$scope.loadData();
@@ -144,18 +150,24 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.browseDoc = function(doc) {
 		$scope.unselectCurrentDoc();
 		$log.debug("browseDoc");
+		$scope.folderIdParent = $scope.folderId;
+		$scope.folderId = doc.FOLDER_ID;
+		$scope.loadData();
 	};
 	$scope.clickRow = function(doc) {
 		$log.debug("clickRow");
-		if (doc.directory) {
-			$scope.browseDoc(doc)
-		}
-		else {
+		//if (doc.FOLDER_ID) {
+			//$scope.browseDoc(doc)
+		//}
+		if (doc.DOCNUM) {
 			$scope.selectDoc(doc)
 		}
 	}
 	$scope.doubleClickRow = function(doc) {
 		$log.debug("doubleClickRow");
+		if (doc.FOLDER_ID) {
+			$scope.browseDoc(doc)
+		}
 	};
 	/*
 	$scope.download = function(doc) {
@@ -176,6 +188,14 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		});
 	}
 	*/
+	$scope.levelUp = function() {
+		$scope.unselectCurrentDoc();
+		$log.debug("levelUp");
+		if ($scope.folderIdParent) {
+			$scope.folderId = $scope.folderIdParent;
+			$scope.loadData();
+		}
+	};
 	
 	$scope.openUploadModals = function() {
 		$log.debug('openUploadModals');

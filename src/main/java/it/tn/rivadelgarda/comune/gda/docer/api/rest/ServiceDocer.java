@@ -124,7 +124,6 @@ public class ServiceDocer {
 			logger.debug("{}", folderId);
 
 			if (StringUtils.isNoneBlank(folderId)) {
-				// Map<String, Map<String, String>> data = new HashMap<>();
 				List<Map<String, String>> data = new ArrayList<>();
 				
 				List<Map<String, String>> childFolders = docer.searchFoldersByParentMap(folderId);
@@ -136,15 +135,6 @@ public class ServiceDocer {
 				String json = new Gson().toJson(data);
 				response = Response.ok(json).build();
 			}
-			// else {
-			// // TEST CARTELLA PREDEFINITA
-			// String path =
-			// restServletContext.getRealPath("/WEB-INF/test-docer");
-			// File[] directories = new File(path).listFiles();
-			// List<DocumentResponse> responseData =
-			// DocumentResponse.fromFiles(directories);
-			// response = Response.ok(responseData).build();
-			// }
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
 			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();

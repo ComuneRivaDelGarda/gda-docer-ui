@@ -92,14 +92,47 @@ public class ServiceDocer {
 			logger.debug("{}", folderId);
 
 			if (StringUtils.isNoneBlank(folderId)) {
+				List<Map<String, String>> data = new ArrayList<>();				
+				List<Map<String, String>> childDocuments = docer.getProfileDocumentMapByParentFolder(folderId);
+				data.addAll(childDocuments);
+				String json = new Gson().toJson(data);
+				response = Response.ok(json).build();
+			}
+			// else {
+			// // TEST CARTELLA PREDEFINITA
+			// String path =
+			// restServletContext.getRealPath("/WEB-INF/test-docer");
+			// File[] directories = new File(path).listFiles();
+			// List<DocumentResponse> responseData =
+			// DocumentResponse.fromFiles(directories);
+			// response = Response.ok(responseData).build();
+			// }
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
+	}
+	
+	@GET
+	@Path("/documents/{id}/childs")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getFolderDocumentsChilds(@PathParam("id") String folderId) {
+		Response response = null;
+		try (DocerHelper docer = getDocerHelper()) {
+			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("{}", folderId);
+
+			if (StringUtils.isNoneBlank(folderId)) {
 				// Map<String, Map<String, String>> data = new HashMap<>();
 				List<Map<String, String>> data = new ArrayList<>();
-				List<String> documents = docer.getFolderDocuments(folderId);
-				for (String documentId : documents) {
-					Map<String, String> documentProfile = docer.getProfileDocumentMap(documentId);
-					// data.put(documentId, documentProfile);
-					data.add(documentProfile);
-				}
+				
+				List<Map<String, String>> childFolders = docer.searchFoldersByParentMap(folderId);
+				data.addAll(childFolders);
+				
+				List<Map<String, String>> childDocuments = docer.getProfileDocumentMapByParentFolder(folderId);
+				data.addAll(childDocuments);
+				
 				String json = new Gson().toJson(data);
 				response = Response.ok(json).build();
 			}

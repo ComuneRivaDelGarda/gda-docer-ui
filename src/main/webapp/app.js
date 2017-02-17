@@ -1,4 +1,4 @@
-var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', 'ngFileUpload', 'angular-loading-bar'])
+var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', 'ngFileUpload', 'angular-loading-bar', 'toaster', 'ngAnimate'])
 /**
  * Service SESSIONE passaggio dati per MODAL
  */
@@ -55,15 +55,13 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 /**
  * Controller della pagina MAIN
  */
-.controller('MainController', ['$log', '$scope', '$location', 'DocerService', '$uibModal', 'SessionService', function($log, $scope, $location, docerService, $uibModal, SessionService) {
+.controller('MainController', ['$log', '$scope', '$location', 'DocerService', '$uibModal', 'SessionService', '$timeout', 'toaster', function($log, $scope, $location, docerService, $uibModal, SessionService, $timeout, toaster) {
 	// var $ctrl = this;
 	$scope.folderIdParent = null;
-	$scope.folderId = $location.search().id;
-	if (!$scope.folderId) {
-		// folderId = 885160;
-		$scope.folderId = "";
+	$scope.folderId = null;
+	if ($location.search().id) {
+		$scope.folderId = $location.search().id;
 	}
-	$log.debug('id='+$scope.folderId);
 	
 	$scope.docs = [];
 	
@@ -101,7 +99,6 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			$scope.docs = childs;
 		});
 	};
-	$scope.loadData();
 
 	$scope.versions = [];
 	$scope.selectedDoc = null;
@@ -209,8 +206,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 //			controllerAs : '$ctrl',
 //		});
 		
-		$log.debug('SessionService.folderId='+folderId);
-		SessionService.folderId = folderId;
+		$log.debug('SessionService.folderId='+$scope.folderId);
+		SessionService.folderId = $scope.folderId;
 		
 		var modalInstance = $uibModal.open({
 			animation : true,
@@ -233,13 +230,29 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			$scope.loadData();
 	    }, function () {
     		$log.info('Modal dismissed at: ' + new Date());
-	    });
+	    });	
 	};
+	
+	if ($scope.folderId) {
+		$scope.loadData();
+		// folderId = 885160; 885161
+	} else {
+		$log.debug('id='+$scope.folderId);
+		$scope.folderId = "";
+		$timeout(function() {
+			toaster.pop('warning', "Nessuna cartella specificata", "");
+		}, 250);
+		
+	}
+	
+	$scope.pop = function(){
+        toaster.pop('warning', "title", "text");
+    };	
 }])
 /**
  * Controller per POPUP UPLOAD
  */
-.controller('UploadController', ['$log', '$scope', '$uibModalInstance', 'Upload', 'SessionService', function($log, $scope, $uibModalInstance, Upload, SessionService) {
+.controller('UploadController', ['$log', '$scope', '$uibModalInstance', 'Upload', 'SessionService', 'toaster', function($log, $scope, $uibModalInstance, Upload, SessionService, toaster) {
 	var $ctrl = this;
 	$ctrl.folderId = SessionService.folderId;
 	// $scope.folderId = SessionService.folderId;
@@ -277,9 +290,22 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
         }).then(function (resp) {
         	// $scope.uploading = false;
         	$log.debug('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+        	toaster.pop({
+                type: 'success',
+                title: 'File caricato',
+                body: '',
+                showCloseButton: true
+            });
             $uibModalInstance.close();
         }, function (resp) {
-        	$log.error('Error status: ' + resp.status);
+        	// $log.error('Error status: ' + resp.status);
+        	$log.error(resp);
+        	toaster.pop({
+                type: 'error',
+                title: 'Errore caricamento file',
+                body: 'Errore: ' + resp.status + ' - ' + resp.data,
+                showCloseButton: true
+            });
         }, function (evt) {
         	$scope.uploading = true;
             $scope.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);

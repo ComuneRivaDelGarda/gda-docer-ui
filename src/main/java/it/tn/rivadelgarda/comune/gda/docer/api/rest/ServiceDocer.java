@@ -255,7 +255,7 @@ public class ServiceDocer {
 				String timestamp = String.valueOf(new Date().getMillis());
 				String documentId = docer.createDocument("DOCUMENTO", fileName, f, TIPO_COMPONENTE.PRINCIPALE, titolo);
 				logger.debug("creato in docer con id {}", documentId);
-				docer.addToFolderDocuments(folderId, documentId);
+				docer.addToFolderDocument(folderId, documentId);
 				logger.debug("aggiunto document {} a folder {}", documentId, folderId);
 			}
 			

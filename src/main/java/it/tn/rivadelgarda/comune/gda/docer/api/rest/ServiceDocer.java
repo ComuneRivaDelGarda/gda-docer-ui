@@ -126,7 +126,7 @@ public class ServiceDocer {
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<Map<String, String>> data = new ArrayList<>();
 
-				List<Map<String, String>> childFolders = docer.searchFoldersByParentMap(folderId);
+				List<Map<String, String>> childFolders = docer.searchFolders(null, folderId);
 				data.addAll(childFolders);
 
 				List<Map<String, String>> childDocuments = docer.getProfileDocumentMapByParentFolder(folderId);

@@ -277,6 +277,10 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 //		item : $ctrl.items[0]
 //	};
 	// $ctrl.folderId = $ctrl.folderId;
+	$ctrl.titolo = "Documento";
+	if (SessionService.versione) {
+		$ctrl.titolo = "Versione";
+	}
 	
 	$ctrl.ok = function() {
 		$scope.submit();

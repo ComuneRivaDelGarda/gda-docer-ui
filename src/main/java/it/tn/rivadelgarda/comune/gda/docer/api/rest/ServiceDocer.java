@@ -3,10 +3,7 @@ package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -35,11 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
-import it.kdm.docer.webservices.DocerServicesStub.KeyValuePair;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
-import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.DocumentResponse;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
-import it.tn.rivadelgarda.comune.gda.docer.keys.DocumentKeysEnum.TIPO_COMPONENTE;
+import it.tn.rivadelgarda.comune.gda.docer.keys.DocumentoMetadatiGenericiEnum;
+import it.tn.rivadelgarda.comune.gda.docer.keys.DocumentoMetadatiGenericiEnum.TIPO_COMPONENTE;
 
 @Path("/docer")
 public class ServiceDocer {
@@ -57,7 +53,8 @@ public class ServiceDocer {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getFolderDocuments(@PathParam("id") String documentId) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
+		try (
+			DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("{}", documentId);
 
@@ -87,12 +84,13 @@ public class ServiceDocer {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getFolderDocumentsProfiles(@PathParam("id") String folderId) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
+		try (
+			DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("{}", folderId);
 
 			if (StringUtils.isNoneBlank(folderId)) {
-				List<Map<String, String>> data = new ArrayList<>();				
+				List<Map<String, String>> data = new ArrayList<>();
 				List<Map<String, String>> childDocuments = docer.getProfileDocumentMapByParentFolder(folderId);
 				data.addAll(childDocuments);
 				String json = new Gson().toJson(data);
@@ -113,25 +111,26 @@ public class ServiceDocer {
 		}
 		return response;
 	}
-	
+
 	@GET
 	@Path("/documents/{id}/childs")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getFolderDocumentsChilds(@PathParam("id") String folderId) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
+		try (
+			DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("{}", folderId);
 
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<Map<String, String>> data = new ArrayList<>();
-				
+
 				List<Map<String, String>> childFolders = docer.searchFoldersByParentMap(folderId);
 				data.addAll(childFolders);
-				
+
 				List<Map<String, String>> childDocuments = docer.getProfileDocumentMapByParentFolder(folderId);
 				data.addAll(childDocuments);
-				
+
 				String json = new Gson().toJson(data);
 				response = Response.ok(json).build();
 			}
@@ -141,13 +140,14 @@ public class ServiceDocer {
 		}
 		return response;
 	}
-	
+
 	@GET
 	@Path("/documents/{id}/profile")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getProfileDocument(@PathParam("id") String documentId) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
+		try (
+			DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("{}", documentId);
 			if (StringUtils.isNoneBlank(documentId)) {
@@ -167,7 +167,8 @@ public class ServiceDocer {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getVersions(@PathParam("id") String documentId) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
+		try (
+			DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("{}", documentId);
 			if (StringUtils.isNoneBlank(documentId)) {
@@ -183,42 +184,63 @@ public class ServiceDocer {
 	}
 
 	@GET
-	@Path("/documents/{documentId}/download")
+	@Path("/documents/{documentId}/download/")
 	// @Produces(MediaType.APPLICATION_JSON)
-	public Response getDownload(@PathParam("documentId") int documentId) {
+	public Response getDownload(@PathParam("documentId") String documentId) {
 		Response response = null;
 		try {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("{}", documentId);
 
-			File fileToDownload = null;
-			String path = restServletContext.getRealPath("/WEB-INF/test-docer");
-			File[] directories = new File(path).listFiles();
-			for (File f : directories) {
-				if (f.hashCode() == documentId) {
-					fileToDownload = f;
-					break;
+			// File fileToDownload = null;
+			// String path =
+			// restServletContext.getRealPath("/WEB-INF/test-docer");
+			// File[] directories = new File(path).listFiles();
+			// for (File f : directories) {
+			// if (f.hashCode() == documentId) {
+			// fileToDownload = f;
+			// break;
+			// }
+			// }
+			if (StringUtils.isNoneBlank(documentId)) {
+				try (
+					DocerHelper docer = getDocerHelper()) {
+					Map<String, String> documentMetadata = docer.getProfileDocumentMap(documentId);
+					final String fileName = documentMetadata.get(DocumentoMetadatiGenericiEnum.DOCNAME.getValue());
+
+					String versionNumber = "";
+					if (StringUtils.isBlank(versionNumber)) {
+						List<String> versioni = docer.getVersions(documentId);
+						for (String v : versioni) {
+							versionNumber = v;
+							break;
+						}
+					}
+
+					// lettura del file
+					final byte[] documentStream = docer.getDocument(documentId, versionNumber);
+
+					// final String filePath =
+					// restServletContext.getRealPath("/WEB-INF/test-docer/test.pdf");
+					// final String fileName = fileToDownload.getName();
+					// final String filePath = fileToDownload.getPath();
+					StreamingOutput fileStream = new StreamingOutput() {
+						@Override
+						public void write(java.io.OutputStream output) throws IOException, WebApplicationException {
+							try {
+								// java.nio.file.Path path =
+								// Paths.get(filePath);
+								byte[] data = documentStream; // Files.readAllBytes(path);
+								output.write(data);
+								output.flush();
+							} catch (Exception e) {
+								throw new WebApplicationException("File Not Found !!");
+							}
+						}
+					};
+					response = Response.ok(fileStream, MediaType.APPLICATION_OCTET_STREAM).header("content-disposition", "attachment;filename=\"" + fileName + "\"").build();
 				}
 			}
-
-			// final String filePath =
-			// restServletContext.getRealPath("/WEB-INF/test-docer/test.pdf");
-			final String fileName = fileToDownload.getName();
-			final String filePath = fileToDownload.getPath();
-			StreamingOutput fileStream = new StreamingOutput() {
-				@Override
-				public void write(java.io.OutputStream output) throws IOException, WebApplicationException {
-					try {
-						java.nio.file.Path path = Paths.get(filePath);
-						byte[] data = Files.readAllBytes(path);
-						output.write(data);
-						output.flush();
-					} catch (Exception e) {
-						throw new WebApplicationException("File Not Found !!");
-					}
-				}
-			};
-			return Response.ok(fileStream, MediaType.APPLICATION_OCTET_STREAM).header("content-disposition", "attachment;filename=\"" + fileName + "\"").build();
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
 			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
@@ -244,21 +266,23 @@ public class ServiceDocer {
 			// AllegatoPec allegato = MessaggioPecBL.saveFile(getContextEmf(),
 			// allegatoRequest, file);
 			final String fileName = fileDisposition.getFileName();
-			
+
 			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileName);
 			File f = new File(filePath);
 			FileUtils.copyInputStreamToFile(file, f);
 
-			try (DocerHelper docer = getDocerHelper()) {
+			try (
+				DocerHelper docer = getDocerHelper()) {
 				logger.debug("invio file '{}' a docer", fileName);
-				// String documentId = docer.createDocument(fileName, f, TIPO_COMPONENTE.PRINCIPALE, titolo);
+				// String documentId = docer.createDocument(fileName, f,
+				// TIPO_COMPONENTE.PRINCIPALE, titolo);
 				String timestamp = String.valueOf(new Date().getMillis());
 				String documentId = docer.createDocument("DOCUMENTO", fileName, f, TIPO_COMPONENTE.PRINCIPALE, titolo);
 				logger.debug("creato in docer con id {}", documentId);
 				docer.addToFolderDocument(folderId, documentId);
 				logger.debug("aggiunto document {} a folder {}", documentId, folderId);
 			}
-			
+
 			// responseData.setId(allegato.getId());
 			response = Response.ok(responseData).build();
 

@@ -47,13 +47,14 @@
 						-->
 						
 						<!-- TEST DOWNLOAD LINK DIRETTO x WEBKIT -->
-						
+						<!--
 						<a class="btn btn-default" title="Scarica Documento TEST" href="test-docer/test.pdf" target="_blank">
 							<span class="glyphicon glyphicon-download-alt"></span> TEST DOWNLOAD
 						</a>
+						-->
 						<!-- <button ng-click="pop()">Show a Toaster</button> -->
 						
-						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.id}}/download">
+						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download">
 							<span class="glyphicon glyphicon-download-alt"></span>
 						</a>
 										

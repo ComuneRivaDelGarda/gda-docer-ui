@@ -133,14 +133,14 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			// seleziono corrente
 			doc.selected = true;
 			$scope.selectedDoc = doc;
-//			if (!doc.directory) {
-//				$log.debug('loading version for ' + doc.DOCNUM);
-//				docerService.versions({
-//					id : doc.DOCNUM
-//				}, function(versions) {
-//					$scope.versions = versions;
-//				});
-//			}
+			if (doc.DOCNUM) {
+				$log.debug('loading version for ' + doc.DOCNUM);
+				docerService.versions({
+					id : doc.DOCNUM
+				}, function(versions) {
+					$scope.versions = versions;
+				});
+			}
 		}
 		
 	};

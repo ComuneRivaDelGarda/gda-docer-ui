@@ -35,10 +35,9 @@
 						<button type="button" class="btn btn-default" title="Su" ng-click="levelUp()" ng-disabled="!folderIdParent">
 							<i class="fa fa-level-up"></i>
 						</button>
-					</div>
-					<div class="btn-group">
-						<button type="button" class="btn btn-default" title="Carica Documento" ng-click="openUploadModals()" ng-disabled="!folderId">
-							<span class="glyphicon glyphicon-plus"></span>
+						
+						<button type="button" class="btn btn-default" title="Carica Documento" ng-click="addFile()" ng-disabled="!folderId">
+							<i class="fa fa-plus"></i>
 						</button>
 						<!--
 						<button type="button" class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-click="download(selected)">
@@ -53,13 +52,17 @@
 						</a>
 						-->
 						<!-- <button ng-click="pop()">Show a Toaster</button> -->
-						
+					</div>
+					
+					<div class="btn-group">
 						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download">
-							<span class="glyphicon glyphicon-download-alt"></span>
-						</a>
-										
-						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc" ng-click="delete(selected)">
-							<span class="glyphicon glyphicon-trash"></span>
+							<i class="fa fa-download"></i>
+						</a>		
+						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc" ng-click="delete()">
+							<i class="fa fa-trash"></i>
+						</button>
+						<button type="button" class="btn btn-default" title="Carica una nuova versione" ng-disabled="!selectedDoc" ng-click="versione()">
+							<i class="fa fa-refresh"></i>
 						</button>
 					</div>
 				</div>
@@ -131,12 +134,18 @@
 								<tr>
 									<th>Versione</th>
 									<th>Note</th>
+									<th></th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr ng-repeat="ver in versions">
 									<td>{{ver}}</td>
-									<td>{{ver.note}}</td>
+									<td></td>
+									<th>
+										<a class="btn btn-default" title="Scarica Versione" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download/{{ver}}">
+											<i class="fa fa-download"></i>
+										</a>
+									</th>
 								</tr>
 							</tbody>
 						</table>

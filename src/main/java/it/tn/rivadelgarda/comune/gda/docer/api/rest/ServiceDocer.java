@@ -23,6 +23,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.ant.types.resources.selectors.Date;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -184,31 +185,21 @@ public class ServiceDocer {
 	}
 
 	@GET
-	@Path("/documents/{documentId}/download/")
+	@Path("/documents/{documentId}/download/{versionNumber}")
 	// @Produces(MediaType.APPLICATION_JSON)
-	public Response getDownload(@PathParam("documentId") String documentId) {
+	public Response downloadVersion(@PathParam("documentId") String documentId, @PathParam("versionNumber") String versionNumber) {
 		Response response = null;
 		try {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("{}", documentId);
-
-			// File fileToDownload = null;
-			// String path =
-			// restServletContext.getRealPath("/WEB-INF/test-docer");
-			// File[] directories = new File(path).listFiles();
-			// for (File f : directories) {
-			// if (f.hashCode() == documentId) {
-			// fileToDownload = f;
-			// break;
-			// }
-			// }
+			
 			if (StringUtils.isNoneBlank(documentId)) {
 				try (
 					DocerHelper docer = getDocerHelper()) {
 					Map<String, String> documentMetadata = docer.getProfileDocumentMap(documentId);
 					final String fileName = documentMetadata.get(DocumentoMetadatiGenericiEnum.DOCNAME.getValue());
 
-					String versionNumber = "";
+					// String versionNumber = "";
 					if (StringUtils.isBlank(versionNumber)) {
 						List<String> versioni = docer.getVersions(documentId);
 						for (String v : versioni) {
@@ -240,19 +231,57 @@ public class ServiceDocer {
 					};
 					response = Response.ok(fileStream, MediaType.APPLICATION_OCTET_STREAM).header("content-disposition", "attachment;filename=\"" + fileName + "\"").build();
 				}
-			}
+			}			
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
 			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
+	
+	@GET
+	@Path("/documents/{documentId}/download")
+	// @Produces(MediaType.APPLICATION_JSON)
+	public Response download(@PathParam("documentId") String documentId) {
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("{}", documentId);
+		return downloadVersion(documentId, "");
+	}
 
+	@POST
+	@Path("/documents/{documentId}/versione")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response versione(@PathParam("documentId") String documentId, @FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+		Response response = null;
+		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
+		try {
+			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("documentId={}", documentId);
+			logger.debug("titolo={}", titolo);
+			final String fileName = fileDisposition.getFileName();
+			try (
+				DocerHelper docer = getDocerHelper()) {
+				logger.debug("invio versione '{}' a docer {}", fileName, documentId);
+				// String documentId = docer.createDocument(fileName, f,
+				// TIPO_COMPONENTE.PRINCIPALE, titolo);
+				String timestamp = String.valueOf(new Date().getMillis());
+				String versioneId = docer.createVersion(documentId, IOUtils.toByteArray(fileInputStream));
+				logger.debug("creato versione con id {}", versioneId);
+			}
+			response = Response.ok(responseData).build();
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
+	}
+	
 	@POST
 	@Path("/documents/{folderId}/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response upload(@PathParam("folderId") String folderId, @FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream file, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+	public Response upload(@PathParam("folderId") String folderId, @FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		// public Response upload(@FormDataParam("file") InputStream file,
 		// @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
@@ -269,7 +298,7 @@ public class ServiceDocer {
 
 			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileName);
 			File f = new File(filePath);
-			FileUtils.copyInputStreamToFile(file, f);
+			FileUtils.copyInputStreamToFile(fileInputStream, f);
 
 			try (
 				DocerHelper docer = getDocerHelper()) {

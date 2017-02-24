@@ -5,7 +5,8 @@
 	<artifactId>gda-docer-ui</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-
+	<url>https://github.com/ComuneRivaDelGarda/gda-docer-ui</url>
+	
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>

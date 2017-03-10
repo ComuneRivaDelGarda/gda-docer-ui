@@ -69,11 +69,32 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
  */
 .controller('MainController', ['$log', '$scope', '$location', 'DocerService', '$uibModal', 'SessionService', '$timeout', 'toaster', '$filter', function($log, $scope, $location, docerService, $uibModal, SessionService, $timeout, toaster, $filter) {
 	// var $ctrl = this;
+	
+	// caricamento profilo utente
+	// view, delete, download, parent, upload, version
+	// default tutto abilitato
+	$scope.profile = {
+		view:true, delete:true, download:true, parent:true, upload:true, version:true
+	};
+	if ($location.search().profile) {
+		 var profile = $location.search().profile;
+		 $log.debug('param profile='+profile);
+		 $scope.profile = {
+			 view:(profile[0]==='1'),delete:(profile[1]==='1'),download:(profile[2]==='1'),parent:(profile[3]==='1'),upload:(profile[4]==='1'),version:(profile[5]==='1')
+		 };
+	}
+	$log.debug('profile='+angular.toJson($scope.profile));
+	
 	$scope.folderIdParent = null;
 	$scope.folderId = null;
 	if ($location.search().id) {
 		$scope.folderId = $location.search().id;
+		$log.debug('folderId='+$scope.folderId);
+	} else {
+		// mancato parametro id inibisce visualizzazione
+		$scope.profile.view = false;
 	}
+		
 	// elenco dei documenti della cartella
 	$scope.docs = [];
 	// indica se la cartella ha un documento principale, utile per il popup upload disabilita opzione principale
@@ -87,6 +108,10 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.isLoadingVersioni = false;
 	
 	$scope.loadData = function() {
+		if (!$scope.profile.view) {
+			$log.debug('not profile view');
+			return;
+		}
 		$log.debug('loading data');
 		$scope.isLoadingData = true;
 		$scope.docs = [];

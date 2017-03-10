@@ -33,11 +33,11 @@
 			<div class="col-md-8">
 				<div class="btn-toolbar">
 					<div class="btn-group">
-						<button type="button" class="btn btn-default" title="Su" ng-click="levelUp()" ng-disabled="!folderIdParent">
+						<button type="button" class="btn btn-default" title="Su" ng-click="levelUp()" ng-disabled="!folderIdParent || !profile.parent">
 							<i class="fa fa-level-up"></i>
 						</button>
 						
-						<button type="button" class="btn btn-default" title="Carica Documento" ng-click="addFile()" ng-disabled="!folderId">
+						<button type="button" class="btn btn-default" title="Carica Documento" ng-click="addFile()" ng-disabled="!folderId || !profile.upload">
 							<i class="fa fa-plus"></i>
 						</button>
 						<!--
@@ -56,19 +56,19 @@
 					</div>
 					
 					<div class="btn-group">
-						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download">
+						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc || !profile.download" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download">
 							<i class="fa fa-download"></i>
 						</a>		
-						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc" ng-click="deleteFile()">
+						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc || !profile.delete" ng-click="deleteFile()">
 							<i class="fa fa-trash"></i>
 						</button>
-						<button type="button" class="btn btn-default" title="Carica una nuova versione" ng-disabled="!selectedDoc" ng-click="versione()">
+						<button type="button" class="btn btn-default" title="Carica una nuova versione" ng-disabled="!selectedDoc || !profile.version" ng-click="versione()">
 							<i class="fa fa-refresh"></i>
 						</button>
 					</div>
 				</div>
 				<!-- <i class="fa fa-spinner fa-pulse fa-2x fa-fw" ng-if="isLoadingData"></i> -->
-				<table class="table table-hover">
+				<table class="table table-hover" ng-if="profile.view">
 					<thead>
 						<tr>
 							<th></th>
@@ -142,7 +142,7 @@
 					<div class="panel-heading">Versioni</div>
 					<!-- <i class="fa fa-spinner fa-pulse fa-2x fa-fw" ng-if="isLoadingVersions"></i> -->
 					<div class="panel-body">
-						<table class="table table-condended">
+						<table class="table table-condended" ng-if="profile.view">
 							<thead>
 								<tr>
 									<th>Versione</th>

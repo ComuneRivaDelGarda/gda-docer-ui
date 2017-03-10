@@ -71,14 +71,14 @@
 					<thead>
 						<tr>
 							<th></th>
-							<th><a href="" ng-click="orderByField='DOCNAME';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}"></i> Nome</a></th>
+							<th><a href="" ng-click="orderByField='DOCNAME';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}" ng-if="orderByField=='DOCNAME'"></i> Nome</a></th>
 							<!--
 							<th>Versione</th>
 							<th>Dimensioni</th>
 							-->
-							<th><a href="" ng-click="orderByField='CREATED';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}"></i> Data Creazione</a></th>
-							<th><a href="" ng-click="orderByField='MODIFIED';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}"></i> Data Modifica</a></th>
-							<th>Tipo</th>
+							<th><a href="" ng-click="orderByField='CREATED';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}" ng-if="orderByField=='CREATED'"></i> Data Creazione</a></th>
+							<th><a href="" ng-click="orderByField='MODIFIED';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}" ng-if="orderByField=='MODIFIED'"></i> Data Modifica</a></th>
+							<th><a href="" ng-click="orderByField='TIPO_COMPONENTE';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}" ng-if="orderByField=='TIPO_COMPONENTE'"></i> Tipo</a></th>
 						</tr>
 					</thead>
 					<tbody>

@@ -67,6 +67,7 @@
 						</button>
 					</div>
 				</div>
+				<!-- <i class="fa fa-spinner fa-pulse fa-2x fa-fw" ng-if="isLoadingData"></i> -->
 				<table class="table table-hover">
 					<thead>
 						<tr>
@@ -127,18 +128,19 @@
 					<div>
 					<div class="panel-body">
 						<div class="form-group">
-							<label for="titolo">Titolo (Abstract)</label>
-							<input type="text" class="form-control" id="titolo" placeholder="titolo" ng-model="selectedDoc.ABSTRACT" readonly="readonly">
+							<label for="abstract">Descrizione del documento</label>
+							<input type="text" class="form-control" id="abstract" ng-model="selectedDoc.ABSTRACT" readonly="readonly">
 						</div>
 						<div class="form-group">
 							<label for="descrizione">Nome</label>
-							<input type="text" class="form-control" id="descrizione" placeholder="descrizione" ng-model="selectedDoc.DOCNAME"  readonly="readonly">
+							<input type="text" class="form-control" id="descrizione" ng-model="selectedDoc.DOCNAME"  readonly="readonly">
 						</div>
 					</div>
 					</div>
 				</div>
 				<div class="panel panel-default">
 					<div class="panel-heading">Versioni</div>
+					<!-- <i class="fa fa-spinner fa-pulse fa-2x fa-fw" ng-if="isLoadingVersions"></i> -->
 					<div class="panel-body">
 						<table class="table table-condended">
 							<thead>

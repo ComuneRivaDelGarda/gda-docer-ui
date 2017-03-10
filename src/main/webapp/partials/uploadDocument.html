@@ -23,7 +23,7 @@
 			<div ngf-drop ng-model="files" class="drop-box">Drop</div>
 		</div>
 		-->
-		<div class="form-group" ng-show="file">
+		<div class="form-group" ng-show="file && !$ctrl.revisione">
 			<label for="tipoComponente">Tipo Componente</label>
 			<select class="form-control" id="tipoComponente" ng-model="tipoComponente">
 				 <option value="PRINCIPALE">Principale</option>
@@ -33,7 +33,7 @@
 			</select>
 		</div>
 				
-		<div class="form-group" ng-show="file">
+		<div class="form-group" ng-show="file && !$ctrl.revisione">
 			<label for="abstract">Descrizione</label>
 			<input type="text" class="form-control" id="abstract" placeholder="descrizione del documento" ng-model="abstract">
 		</div>

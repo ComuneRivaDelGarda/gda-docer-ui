@@ -71,33 +71,39 @@
 					<thead>
 						<tr>
 							<th></th>
-							<th>Nome</th>
-							<!-- <th>Titolo</th> -->
+							<th><a href="" ng-click="orderByField='DOCNAME';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}"></i> Nome</a></th>
+							<!--
 							<th>Versione</th>
 							<th>Dimensioni</th>
-							<th>Data Creazione</th>
-							<th>Data Modifica</th>
+							-->
+							<th><a href="" ng-click="orderByField='CREATED';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}"></i> Data Creazione</a></th>
+							<th><a href="" ng-click="orderByField='MODIFIED';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}"></i> Data Modifica</a></th>
 							<th>Tipo</th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="doc in docs" ng-class="{'info':doc.selected}" ng-click="clickRow(doc)" ng-dblclick="doubleClickRow(doc)">
+						<tr ng-repeat="doc in docs|orderBy:orderByField:sortAsc" ng-class="{'info':doc.selected}" ng-click="clickRow(doc)" ng-dblclick="doubleClickRow(doc)">
 							<td>
 								<i class="fa fa-file-o" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE != 'PRINCIPALE'" title="{{doc.TIPO_COMPONENTE}}"></i>
 								<i class="fa fa-file" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE == 'PRINCIPALE'" title="{{doc.TIPO_COMPONENTE}}"></i>
+								<!--							
+								<i class="fa fa-check-square-o" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE == 'PRINCIPALE'" title="Principale"></i>
+								<i class="fa fa-check-square" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE != 'PRINCIPALE'" title=""></i>
+								-->
 								<i class="fa fa-folder" ng-if="doc.FOLDER_ID"></i>
 							</td>
 							<td>
 								<span ng-bind="doc.DOCNAME" title="{{doc.ABSTRACT}}" ng-if="doc.DOCNUM"></span>
 								<span ng-bind="doc.FOLDER_NAME" title="{{doc.DES_FOLDER}}" ng-if="doc.FOLDER_ID"></span>
 							</td>
-							<!-- <td ng-bind="doc.titolo"></td> -->
+							<!--
 							<td>
 								<span ng-bind="doc.versione" ng-if="doc.TYPE_ID != 'DOCUMENTO'"></span>
 							</td>
 							<td>
 								<span ng-bind="doc.dimensioni" ng-if="doc.TYPE_ID != 'DOCUMENTO'"></span>
 							</td>
+							-->
 							<td>
 								<span ng-bind="doc.CREATED|date:'dd/MM/yyyy HH:mm'"></span>
 							</td>
@@ -105,7 +111,11 @@
 								<span ng-bind="doc.MODIFIED|date:'dd/MM/yyyy HH:mm'"></span>
 							</td>
 							<td>
-								<span ng-bind="doc.contentType" ng-if="doc.TYPE_ID != 'DOCUMENTO'"></span>
+								<span ng-bind="doc.TIPO_COMPONENTE"></span>
+								<!--
+								<i class="fa fa-file-pdf-o" ng-if="doc.contentType == 'application/pdf'"></i>
+								<i class="fa fa-file-image-o" ng-if="doc.contentType == 'image/png' || doc.contentType == 'image/jpg'"></i>
+								-->
 							</td>
 						</tr>
 					</tbody>

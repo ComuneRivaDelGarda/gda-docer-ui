@@ -64,7 +64,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 /**
  * Controller della pagina MAIN
  */
-.controller('MainController', ['$log', '$scope', '$location', 'DocerService', '$uibModal', 'SessionService', '$timeout', 'toaster', function($log, $scope, $location, docerService, $uibModal, SessionService, $timeout, toaster) {
+.controller('MainController', ['$log', '$scope', '$location', 'DocerService', '$uibModal', 'SessionService', '$timeout', 'toaster', '$filter', function($log, $scope, $location, docerService, $uibModal, SessionService, $timeout, toaster, $filter) {
 	// var $ctrl = this;
 	$scope.folderIdParent = null;
 	$scope.folderId = null;
@@ -73,6 +73,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	}
 	
 	$scope.docs = [];
+	$scope.orderByField='DOCNAME';
+	$scope.sortAsc=true;
 	
 	$scope.loadData = function() {
 		$log.debug('loading data');
@@ -105,7 +107,10 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			id : $scope.folderId
 		}, function (childs) {
 			$log.debug('childs loaded');
-			$scope.docs = childs;
+			if (childs) {
+				$scope.docs = childs;
+				// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
+			}
 		});
 	};
 

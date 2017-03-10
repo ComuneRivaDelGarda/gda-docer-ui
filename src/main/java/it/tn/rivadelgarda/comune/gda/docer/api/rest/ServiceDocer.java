@@ -36,6 +36,7 @@ import com.google.gson.Gson;
 
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
+import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
 import it.tn.rivadelgarda.comune.gda.docer.keys.DocumentoMetadatiGenericiEnum;
 import it.tn.rivadelgarda.comune.gda.docer.keys.DocumentoMetadatiGenericiEnum.TIPO_COMPONENTE;
 
@@ -253,7 +254,7 @@ public class ServiceDocer {
 	@Path("/documents/{folderId}/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response upload(@PathParam("folderId") String folderId, @FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+	public Response upload(@PathParam("folderId") String folderId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		// public Response upload(@FormDataParam("file") InputStream file,
 		// @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
@@ -261,7 +262,8 @@ public class ServiceDocer {
 		try {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("folderId={}", folderId);
-			logger.debug("titolo={}", titolo);
+			logger.debug("abstract={}", abstractDocumento);
+			logger.debug("tipoComponente={}", tipoComponente);
 			// logger.debug("{}", new Gson().toJson(allegatoRequest));
 
 			// AllegatoPec allegato = MessaggioPecBL.saveFile(getContextEmf(),
@@ -275,10 +277,19 @@ public class ServiceDocer {
 			try (
 				DocerHelper docer = getDocerHelper()) {
 				logger.debug("invio file '{}' a docer", fileName);
+				
+				// gestione del tipo componente passato
+				TIPO_COMPONENTE tipoComponenteVal = null;
+				try {
+					tipoComponenteVal = TIPO_COMPONENTE.valueOf(tipoComponente);
+				} catch (Exception ex) {
+					throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
+				}
+				
 				// String documentId = docer.createDocument(fileName, f,
 				// TIPO_COMPONENTE.PRINCIPALE, titolo);
 				String timestamp = String.valueOf(new Date().getMillis());
-				String documentId = docer.createDocument("DOCUMENTO", fileName, f, TIPO_COMPONENTE.PRINCIPALE, titolo);
+				String documentId = docer.createDocument("DOCUMENTO", fileName, f, tipoComponenteVal, abstractDocumento);
 				logger.debug("creato in docer con id {}", documentId);
 				try {
 					docer.addToFolderDocument(folderId, documentId);
@@ -309,13 +320,13 @@ public class ServiceDocer {
 	@Path("/documents/{documentId}/versione")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response uploadVersione(@PathParam("documentId") String documentId, @FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+	public Response uploadVersione(@PathParam("documentId") String documentId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
 		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
 		try {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("documentId={}", documentId);
-			logger.debug("titolo={}", titolo);
+			logger.debug("abstract={}", abstractDocumento);
 			final String fileName = fileDisposition.getFileName();
 			try (
 				DocerHelper docer = getDocerHelper()) {

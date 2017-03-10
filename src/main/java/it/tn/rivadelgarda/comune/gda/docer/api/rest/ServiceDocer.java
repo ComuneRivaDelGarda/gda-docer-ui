@@ -280,8 +280,15 @@ public class ServiceDocer {
 				String timestamp = String.valueOf(new Date().getMillis());
 				String documentId = docer.createDocument("DOCUMENTO", fileName, f, TIPO_COMPONENTE.PRINCIPALE, titolo);
 				logger.debug("creato in docer con id {}", documentId);
-				docer.addToFolderDocument(folderId, documentId);
-				logger.debug("aggiunto document {} a folder {}", documentId, folderId);
+				try {
+					docer.addToFolderDocument(folderId, documentId);
+					logger.debug("aggiunto document {} a folder {}", documentId, folderId);
+				} catch (Exception ex) {
+					// nel caso si verifichi un errore nel collegamento document-folder elimino il documen appena creato
+					docer.deleteDocument(documentId);
+					// restituisco errore originale
+					throw ex;
+				}
 			}
 
 			// responseData.setId(allegato.getId());

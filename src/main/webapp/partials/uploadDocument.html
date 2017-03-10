@@ -26,7 +26,7 @@
 		<div class="form-group" ng-show="file && !$ctrl.revisione">
 			<label for="tipoComponente">Tipo Componente</label>
 			<select class="form-control" id="tipoComponente" ng-model="tipoComponente">
-				 <option value="PRINCIPALE">Principale</option>
+				 <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option>
 				 <option value="ALLEGATO">Allegato</option>
 				 <option value="ANNOTAZIONE">Annotazione</option>
 				 <option value="ANNESSO">Annesso</option>

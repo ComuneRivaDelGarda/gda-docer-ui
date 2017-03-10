@@ -74,11 +74,15 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	if ($location.search().id) {
 		$scope.folderId = $location.search().id;
 	}
-	
+	// elenco dei documenti della cartella
 	$scope.docs = [];
+	// indica se la cartella ha un documento principale, utile per il popup upload disabilita opzione principale
+	$scope.hasPrincipale = false;
+	// campo di ordinamento predefinito
 	$scope.orderByField='DOCNAME';
+	// criterio ordinamento
 	$scope.sortAsc=true;
-	
+	// variabili per indicare se stiamo caricando dati rest (utile per visualizzare icone loading) non usate
 	$scope.isLoadingData = false;
 	$scope.isLoadingVersioni = false;
 	
@@ -118,6 +122,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			if (childs) {
 				$scope.docs = childs;
 				// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
+				$scope.hasPrincipale = ((_.findIndex(childs, {'TIPO_COMPONENTE': 'PRINCIPALE'})) >= 0);
 			}
 		}, function (childsErrorResponse) {
 			$scope.isLoadingData = false;
@@ -296,6 +301,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
     $scope.addFile = function() {
     	SessionService.versione = false;
     	SessionService.document = null;
+    	SessionService.hasPrincipale = $scope.hasPrincipale;
         $scope.openUploadModals();
     };
     /*
@@ -373,6 +379,14 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	if (SessionService.versione) {
 		$ctrl.titoloPopup = "Versione";
 		$ctrl.revisione = true;
+	}
+	// verifico se la cartella ha già un principale
+	$ctrl.hasPrincipale = SessionService.hasPrincipale;
+	// pre-selezione combo tipoComponente su voce adeguata
+	if ($ctrl.hasPrincipale) {
+		$scope.tipoComponente = 'ALLEGATO';
+	} else {
+		$scope.tipoComponente = 'PRINCIPALE';
 	}
 	
 	$ctrl.ok = function() {

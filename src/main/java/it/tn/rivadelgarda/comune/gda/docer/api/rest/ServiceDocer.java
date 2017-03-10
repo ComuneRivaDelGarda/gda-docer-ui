@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -247,35 +248,6 @@ public class ServiceDocer {
 		logger.debug("{}", documentId);
 		return downloadVersion(documentId, "");
 	}
-
-	@POST
-	@Path("/documents/{documentId}/versione")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response versione(@PathParam("documentId") String documentId, @FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
-		Response response = null;
-		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
-		try {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("documentId={}", documentId);
-			logger.debug("titolo={}", titolo);
-			final String fileName = fileDisposition.getFileName();
-			try (
-				DocerHelper docer = getDocerHelper()) {
-				logger.debug("invio versione '{}' a docer {}", fileName, documentId);
-				// String documentId = docer.createDocument(fileName, f,
-				// TIPO_COMPONENTE.PRINCIPALE, titolo);
-				String timestamp = String.valueOf(new Date().getMillis());
-				String versioneId = docer.createVersion(documentId, IOUtils.toByteArray(fileInputStream));
-				logger.debug("creato versione con id {}", versioneId);
-			}
-			response = Response.ok(responseData).build();
-		} catch (Exception ex) {
-			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
-		}
-		return response;
-	}
 	
 	@POST
 	@Path("/documents/{folderId}/upload")
@@ -326,6 +298,35 @@ public class ServiceDocer {
 		return response;
 	}
 
+	@POST
+	@Path("/documents/{documentId}/versione")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response uploadVersione(@PathParam("documentId") String documentId, @FormDataParam("titolo") String titolo, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+		Response response = null;
+		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
+		try {
+			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("documentId={}", documentId);
+			logger.debug("titolo={}", titolo);
+			final String fileName = fileDisposition.getFileName();
+			try (
+				DocerHelper docer = getDocerHelper()) {
+				logger.debug("invio versione '{}' a docer {}", fileName, documentId);
+				// String documentId = docer.createDocument(fileName, f,
+				// TIPO_COMPONENTE.PRINCIPALE, titolo);
+				String timestamp = String.valueOf(new Date().getMillis());
+				String versioneId = docer.createVersion(documentId, IOUtils.toByteArray(fileInputStream));
+				logger.debug("creato versione con id {}", versioneId);
+			}
+			response = Response.ok(responseData).build();
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
+	}
+	
 	DocerHelper docer = null;
 	String token = null;
 
@@ -350,5 +351,23 @@ public class ServiceDocer {
 			logger.debug("connesso a docer con tocken {}", token);
 		}
 		return docer;
+	}
+	
+	@DELETE
+	@Path("/documents/{id}/delete")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteDocument(@PathParam("id") String documentId) {
+		Response response = null;
+		try (
+			DocerHelper docer = getDocerHelper()) {
+			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("{}", documentId);
+			boolean res = docer.deleteDocument(documentId);
+			response = Response.ok(res).build();
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
 	}
 }

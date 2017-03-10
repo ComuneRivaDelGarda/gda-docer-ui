@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', 'ngFileUpload', 'angular-loading-bar', 'toaster', 'ngAnimate'])
 /**
  * Service SESSIONE passaggio dati per MODAL
@@ -76,8 +79,12 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.orderByField='DOCNAME';
 	$scope.sortAsc=true;
 	
+	$scope.isLoadingData = false;
+	$scope.isLoadingVersioni = false;
+	
 	$scope.loadData = function() {
 		$log.debug('loading data');
+		$scope.isLoadingData = true;
 		$scope.docs = [];
 		/* versione 1 */
 		/*
@@ -106,11 +113,21 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		docerService.childs({
 			id : $scope.folderId
 		}, function (childs) {
+			$scope.isLoadingData = false;
 			$log.debug('childs loaded');
 			if (childs) {
 				$scope.docs = childs;
 				// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
 			}
+		}, function (childsErrorResponse) {
+			$scope.isLoadingData = false;
+			$log.error(childsErrorResponse);
+			toaster.pop({
+                type: 'error',
+                title: "Errore durante il caricamento dei dati.",
+                body: childsErrorResponse,
+                showCloseButton: true
+            });				
 		});
 	};
 
@@ -149,10 +166,21 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			$scope.selectedDoc = doc;
 			if (doc.DOCNUM) {
 				$log.debug('loading version for ' + doc.DOCNUM);
+				$scope.isLoadingVersions = true;
 				docerService.versions({
 					id : doc.DOCNUM
 				}, function(versions) {
+					$scope.isLoadingVersions = false;
 					$scope.versions = versions;
+				}, function(versionsErrorResponse) {
+					$log.error(versionsErrorResponse);
+					toaster.pop({
+		                type: 'error',
+		                title: "Errore durante il caricamento delle versioni.",
+		                body: versionsErrorResponse,
+		                showCloseButton: true
+		            });				
+					$scope.isLoadingVersions = false;				
 				});
 			}
 		}
@@ -341,8 +369,10 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 //	};
 	// $ctrl.folderId = $ctrl.folderId;
 	$ctrl.titoloPopup = "Documento";
+	$ctrl.revisione = false;
 	if (SessionService.versione) {
 		$ctrl.titoloPopup = "Versione";
+		$ctrl.revisione = true;
 	}
 	
 	$ctrl.ok = function() {

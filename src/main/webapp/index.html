@@ -59,7 +59,7 @@
 						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download">
 							<i class="fa fa-download"></i>
 						</a>		
-						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc" ng-click="delete()">
+						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc" ng-click="deleteFile()">
 							<i class="fa fa-trash"></i>
 						</button>
 						<button type="button" class="btn btn-default" title="Carica una nuova versione" ng-disabled="!selectedDoc" ng-click="versione()">

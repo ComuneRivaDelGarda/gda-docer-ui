@@ -21,30 +21,34 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	var docerResource = $resource('./api/docer/documents/:id', {
 		id : '@id'
 	}, {
-		// Let's make the `query()` method cancellable
 		query : {
-			method : 'get',
+			method : 'GET',
 			isArray : true
 		},
 		'profiles' : {
 			url: './api/docer/documents/:id/profiles',
-			method : 'get',
+			method : 'GET',
 			isArray : true
 		},
 		'childs' : {
 			url: './api/docer/documents/:id/childs',
-			method : 'get',
+			method : 'GET',
 			isArray : true
 		},		
 		'profile' : {
 			url: './api/docer/documents/:id/profile',
-			method : 'get',
+			method : 'GET',
 			isArray : false
 		},
 		'versions' : {
 			url: './api/docer/documents/:id/versions',
-			method : 'get',
+			method : 'GET',
 			isArray : true
+		},
+		'delete' : {
+			url: './api/docer/documents/:id/delete',
+			method : 'DELETE',
+			isArray : false
 		}
 		/*
 		,
@@ -198,7 +202,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			$scope.loadData();
 		}
 	};
-	
+		
 	$scope.openUploadModals = function() {
 		$log.debug('openUploadModals');
 //		$uibModal.open({
@@ -253,18 +257,72 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.pop = function(){
         toaster.pop('warning', "title", "text");
     };
-    
+    /*
+     * pulsante Carica Documento
+     */
     $scope.addFile = function() {
     	SessionService.versione = false;
     	SessionService.document = null;
         $scope.openUploadModals();
     };
-    
+    /*
+     * pulsante Carica una nuova versione
+     */
     $scope.versione = function() {
     	SessionService.versione = true;
     	SessionService.document = $scope.selectedDoc;
         $scope.openUploadModals();
     };
+    /*
+     * pulsante Elimina Documento
+     */
+	$scope.deleteFile = function() {
+		$log.debug("deleteFile");
+		var doc = $scope.selectedDoc;
+		if (doc) {
+			if (confirm('Sicuro di voler eliminare il file ' + doc.DOCNAME + ' ?')) {
+				docerService.delete({
+					id : doc.DOCNUM
+				}, function (deleteResponse) {
+					$log.debug("deleteResponse=" + deleteResponse);
+					if (deleteResponse) {
+						$log.debug('doc ' + doc.DOCNUM + ' deleted');
+						toaster.pop({
+		                    type: 'success',
+		                    title: 'File ' + doc.DOCNAME + ' eliminato.',
+		                    body: '',
+		                    showCloseButton: true
+		                });
+						$scope.loadData();
+					} else {
+						toaster.pop({
+		                    type: 'warning',
+		                    title: 'File ' + doc.DOCNAME + ' eliminato.',
+		                    body: '',
+		                    showCloseButton: true
+		                });
+					}
+				}, function (deleteError) {
+					toaster.pop({
+	                    type: 'error',
+	                    title: "Errore durante l'eliminazione del file.",
+	                    body: error,
+	                    showCloseButton: true
+	                });
+				});
+				/*
+				var resource = docerService.get({
+					id : doc.DOCNUM
+				}, function() {
+					$log.debug(angular.toJson(doc));
+					// user.abc = true;
+					// user.$save();
+					resource.$delete();
+				});
+				*/
+			}
+		}
+	};
 }])
 /**
  * Controller per POPUP UPLOAD

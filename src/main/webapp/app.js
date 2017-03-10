@@ -340,9 +340,9 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 //		item : $ctrl.items[0]
 //	};
 	// $ctrl.folderId = $ctrl.folderId;
-	$ctrl.titolo = "Documento";
+	$ctrl.titoloPopup = "Documento";
 	if (SessionService.versione) {
-		$ctrl.titolo = "Versione";
+		$ctrl.titoloPopup = "Versione";
 	}
 	
 	$ctrl.ok = function() {
@@ -365,71 +365,51 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.progressPercentage = 0;
 	// upload on file select or drop
     $scope.upload = function (file) {
+    	var uploadUrl = '';
+    	var uploadData = {};
     	if (SessionService.versione) {
     		$log.debug("revisione documento " + SessionService.document.DOCNUM);
-    		Upload.upload({
-                url : './api/docer/documents/'+SessionService.document.DOCNUM+'/versione',
-    			data : {
-    				titolo : $scope.titolo,
-    				file : file,
-    			}
-            }).then(function (resp) {
-            	// $scope.uploading = false;
-            	$log.debug('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
-            	toaster.pop({
-                    type: 'success',
-                    title: 'File caricato',
-                    body: '',
-                    showCloseButton: true
-                });
-                $uibModalInstance.close();
-            }, function (resp) {
-            	// $log.error('Error status: ' + resp.status);
-            	$log.error(resp);
-            	toaster.pop({
-                    type: 'error',
-                    title: 'Errore caricamento file',
-                    body: 'Errore: ' + resp.status + ' - ' + resp.data,
-                    showCloseButton: true
-                });
-            }, function (evt) {
-            	$scope.uploading = true;
-                $scope.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                $log.debug('progress: ' + $scope.progressPercentage + '% ' + evt.config.data.file.name);
-            });    		
+    		uploadUrl = './api/docer/documents/'+SessionService.document.DOCNUM+'/versione';
+    		uploadData = {
+				abstract : $scope.abstract,
+				file : file
+			};
     	} else {
     		$log.debug("upload su folder " + SessionService.folderId);
-    		Upload.upload({
-                url : './api/docer/documents/'+SessionService.folderId+'/upload',
-    			data : {
-    				titolo : $scope.titolo,
-    				file : file,
-    			}
-            }).then(function (resp) {
-            	// $scope.uploading = false;
-            	$log.debug('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
-            	toaster.pop({
-                    type: 'success',
-                    title: 'File caricato',
-                    body: '',
-                    showCloseButton: true
-                });
-                $uibModalInstance.close();
-            }, function (resp) {
-            	// $log.error('Error status: ' + resp.status);
-            	$log.error(resp);
-            	toaster.pop({
-                    type: 'error',
-                    title: 'Errore caricamento file',
-                    body: 'Errore: ' + resp.status + ' - ' + resp.data,
-                    showCloseButton: true
-                });
-            }, function (evt) {
-            	$scope.uploading = true;
-                $scope.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                $log.debug('progress: ' + $scope.progressPercentage + '% ' + evt.config.data.file.name);
-            });    		
+    		uploadUrl = './api/docer/documents/'+SessionService.folderId+'/upload';
+    		uploadData = {
+				abstract : $scope.abstract,
+    			tipoComponente : $scope.tipoComponente,
+    			file : file
+    		}
     	}
+    	// chiamata a metodo upload con parametri url e data impostati in precedenza
+		Upload.upload({
+            url : uploadUrl,
+			data : uploadData
+        }).then(function (resp) {
+        	// $scope.uploading = false;
+        	$log.debug('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+        	toaster.pop({
+                type: 'success',
+                title: 'File caricato',
+                body: '',
+                showCloseButton: true
+            });
+            $uibModalInstance.close();
+        }, function (resp) {
+        	// $log.error('Error status: ' + resp.status);
+        	$log.error(resp);
+        	toaster.pop({
+                type: 'error',
+                title: 'Errore caricamento file',
+                body: 'Errore: ' + resp.status + ' - ' + resp.data,
+                showCloseButton: true
+            });
+        }, function (evt) {
+        	$scope.uploading = true;
+            $scope.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            $log.debug('progress: ' + $scope.progressPercentage + '% ' + evt.config.data.file.name);
+        });    		
     };
-    
 }]);

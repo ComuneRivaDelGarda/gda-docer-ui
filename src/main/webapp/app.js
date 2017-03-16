@@ -173,7 +173,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 				if (documents) {
 					$scope.docs = documents;
 					// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
-					$scope.hasPrincipale = ((_.findIndex(childs, {'TIPO_COMPONENTE': 'PRINCIPALE'})) >= 0);
+					$scope.hasPrincipale = ((_.findIndex(documents, {'TIPO_COMPONENTE': 'PRINCIPALE'})) >= 0);
 				}
 			}, function (childsErrorResponse) {
 				$scope.isLoadingData = false;

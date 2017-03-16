@@ -16,6 +16,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -51,6 +52,28 @@ public class ServiceDocer {
 	@Context
 	protected UriInfo uriInfo;
 
+	@GET
+	@Path("/documents")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getDocuments(@QueryParam("externalId") String externalId) {
+		Response response = null;
+		try (
+			DocerHelper docer = getDocerHelper()) {
+			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("{}", externalId);
+
+			if (StringUtils.isNoneBlank(externalId)) {
+				List<Map<String, String>> documents = docer.getDocumentsByExternalId(externalId);
+				String json = new Gson().toJson(documents);
+				response = Response.ok(json).build();
+			}
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
+	}
+	
 	@GET
 	@Path("/documents/{id}")
 	@Produces(MediaType.APPLICATION_JSON)

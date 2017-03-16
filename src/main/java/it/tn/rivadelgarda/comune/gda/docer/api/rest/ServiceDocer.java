@@ -251,10 +251,52 @@ public class ServiceDocer {
 	}
 	
 	@POST
+	@Path("/documents/upload")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response uploadDocer(@FormDataParam("externalId") String externalId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+		Response response = null;
+		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
+		try {
+			logger.debug("{}", uriInfo.getAbsolutePath());
+			logger.debug("externalId={}", externalId);
+			logger.debug("abstract={}", abstractDocumento);
+			logger.debug("tipoComponente={}", tipoComponente);
+
+			final String fileName = fileDisposition.getFileName();
+
+//			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileName);
+//			File f = new File(filePath);
+//			FileUtils.copyInputStreamToFile(fileInputStream, f);
+
+			try (
+				DocerHelper docer = getDocerHelper()) {
+				logger.debug("invio file '{}' a docer", fileName);
+				// gestione del tipo componente passato
+				TIPO_COMPONENTE tipoComponenteVal = null;
+				try {
+					tipoComponenteVal = TIPO_COMPONENTE.valueOf(tipoComponente);
+				} catch (Exception ex) {
+					throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
+				}
+				String timestamp = String.valueOf(new Date().getMillis());
+				String documentId = docer.createDocumentTypeDocumento(fileName, IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
+				logger.debug("creato in docer con id {}", documentId);
+			}
+			response = Response.ok(responseData).build();
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
+	}
+
+	
+	@POST
 	@Path("/documents/{folderId}/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response upload(@PathParam("folderId") String folderId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+	public Response uploadOnFolder(@PathParam("folderId") String folderId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		// public Response upload(@FormDataParam("file") InputStream file,
 		// @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
@@ -270,9 +312,9 @@ public class ServiceDocer {
 			// allegatoRequest, file);
 			final String fileName = fileDisposition.getFileName();
 
-			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileName);
-			File f = new File(filePath);
-			FileUtils.copyInputStreamToFile(fileInputStream, f);
+//			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileName);
+//			File f = new File(filePath);
+//			FileUtils.copyInputStreamToFile(fileInputStream, f);
 
 			try (
 				DocerHelper docer = getDocerHelper()) {
@@ -289,7 +331,7 @@ public class ServiceDocer {
 				// String documentId = docer.createDocument(fileName, f,
 				// TIPO_COMPONENTE.PRINCIPALE, titolo);
 				String timestamp = String.valueOf(new Date().getMillis());
-				String documentId = docer.createDocument("DOCUMENTO", fileName, f, tipoComponenteVal, abstractDocumento);
+				String documentId = docer.createDocumentTypeDocumento(fileName, IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, null);
 				logger.debug("creato in docer con id {}", documentId);
 				try {
 					docer.addToFolderDocument(folderId, documentId);

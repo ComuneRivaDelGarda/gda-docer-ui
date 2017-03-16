@@ -8,8 +8,10 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 .service('SessionService', ['$log', function($log) {
 	$log.debug('SessionService');
 	var SessionService = this;
-	/* folder corrente */
-	SessionService.folderId = 0;
+	/* id folder corrente */
+	SessionService.folderId = null;
+	/* parametro EXTERNAL_ID */
+	SessionService.externalId = null;
 	/* dati per gestire revisione di un file */
 	SessionService.versione = false;
 	SessionService.document = null;
@@ -53,14 +55,6 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			method : 'DELETE',
 			isArray : false
 		}
-		/*
-		,
-		'download' : {
-			url: './api/docer/documents/:id/download',
-			method : 'get',
-			responseType: 'arraybuffer'
-		}
-		*/
 	});
 	return docerResource;
 }])
@@ -87,14 +81,23 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	
 	$scope.folderIdParent = null;
 	$scope.folderId = null;
-	if ($location.search().id) {
-		$scope.folderId = $location.search().id;
-		$log.debug('folderId='+$scope.folderId);
+//	if ($location.search().id) {
+//		$scope.folderId = $location.search().id;
+//		$log.debug('folderId='+$scope.folderId);
+//	} else {
+//		// mancato parametro id inibisce visualizzazione
+//		$scope.profile.view = false;
+//	}
+	
+	$scope.externalId = null;
+	if ($location.search().externalId) {
+		$scope.externalId = $location.search().externalId;
+		$log.debug('externalId='+$scope.externalId);
 	} else {
 		// mancato parametro id inibisce visualizzazione
 		$scope.profile.view = false;
 	}
-		
+	
 	// elenco dei documenti della cartella
 	$scope.docs = [];
 	// indica se la cartella ha un documento principale, utile per il popup upload disabilita opzione principale
@@ -138,27 +141,51 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			}
 		});
 		*/
-		/* versione 2 */
-		docerService.childs({
-			id : $scope.folderId
-		}, function (childs) {
-			$scope.isLoadingData = false;
-			$log.debug('childs loaded');
-			if (childs) {
-				$scope.docs = childs;
-				// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
-				$scope.hasPrincipale = ((_.findIndex(childs, {'TIPO_COMPONENTE': 'PRINCIPALE'})) >= 0);
-			}
-		}, function (childsErrorResponse) {
-			$scope.isLoadingData = false;
-			$log.error(childsErrorResponse);
-			toaster.pop({
-                type: 'error',
-                title: "Errore durante il caricamento dei dati.",
-                body: childsErrorResponse,
-                showCloseButton: true
-            });				
-		});
+		if ($scope.folderId) {
+			/* versione 2 */
+			docerService.childs({
+				id : $scope.folderId
+			}, function (childs) {
+				$scope.isLoadingData = false;
+				$log.debug('childs loaded');
+				if (childs) {
+					$scope.docs = childs;
+					// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
+					$scope.hasPrincipale = ((_.findIndex(childs, {'TIPO_COMPONENTE': 'PRINCIPALE'})) >= 0);
+				}
+			}, function (childsErrorResponse) {
+				$scope.isLoadingData = false;
+				$log.error(childsErrorResponse);
+				toaster.pop({
+	                type: 'error',
+	                title: "Errore durante il caricamento dei dati per la Cartella specificata.",
+	                body: childsErrorResponse,
+	                showCloseButton: true
+	            });				
+			});
+		} else if ($scope.externalId) {
+			/* versione 3 */
+			docerService.query({
+				externalId : $scope.externalId
+			}, function (documents) {
+				$scope.isLoadingData = false;
+				$log.debug('documents loaded');
+				if (documents) {
+					$scope.docs = documents;
+					// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
+					$scope.hasPrincipale = ((_.findIndex(childs, {'TIPO_COMPONENTE': 'PRINCIPALE'})) >= 0);
+				}
+			}, function (childsErrorResponse) {
+				$scope.isLoadingData = false;
+				$log.error(childsErrorResponse);
+				toaster.pop({
+	                type: 'error',
+	                title: "Errore durante il caricamento dei dati per la Cartella specificata.",
+	                body: childsErrorResponse,
+	                showCloseButton: true
+	            });				
+			});			
+		}
 	};
 
 	$scope.versions = [];
@@ -278,8 +305,10 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 //			controllerAs : '$ctrl',
 //		});
 		
-		$log.debug('SessionService.folderId='+$scope.folderId);
-		SessionService.folderId = $scope.folderId;
+//		$log.debug('SessionService.folderId='+$scope.folderId);
+//		SessionService.folderId = $scope.folderId;
+		$log.debug('SessionService.externalId='+$scope.externalId);
+		SessionService.externalId = $scope.externalId;		
 		
 		var modalInstance = $uibModal.open({
 			animation : true,
@@ -305,16 +334,13 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	    });	
 	};
 	
-	if ($scope.folderId) {
+	if ($scope.folderId || $scope.externalId) {
+		// carico i dati riferiti a folderId o externalId
 		$scope.loadData();
-		// folderId = 885160; 885161
 	} else {
-		$log.debug('id='+$scope.folderId);
-		$scope.folderId = "";
 		$timeout(function() {
-			toaster.pop('warning', "Nessuna cartella specificata", "");
+			toaster.pop('warning', "Errore riferimento dati da visualizzare.", "");
 		}, 250);
-		
 	}
 	
 	$scope.pop = function(){
@@ -444,12 +470,23 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 				file : file
 			};
     	} else {
-    		$log.debug("upload su folder " + SessionService.folderId);
-    		uploadUrl = './api/docer/documents/'+SessionService.folderId+'/upload';
-    		uploadData = {
-				abstract : $scope.abstract,
-    			tipoComponente : $scope.tipoComponente,
-    			file : file
+    		if (SessionService.folderId) {
+	    		$log.debug("upload su folder " + SessionService.folderId);
+	    		uploadUrl = './api/docer/documents/'+SessionService.folderId+'/upload';
+	    		uploadData = {
+					abstract : $scope.abstract,
+	    			tipoComponente : $scope.tipoComponente,
+	    			file : file
+	    		};
+    		} else {
+    			$log.debug("upload su docer " + SessionService.externalId);
+	    		uploadUrl = './api/docer/documents/upload';
+	    		uploadData = {
+    				externalId : SessionService.externalId,
+					abstract : $scope.abstract,
+	    			tipoComponente : $scope.tipoComponente,
+	    			file : file
+	    		};
     		}
     	}
     	// chiamata a metodo upload con parametri url e data impostati in precedenza

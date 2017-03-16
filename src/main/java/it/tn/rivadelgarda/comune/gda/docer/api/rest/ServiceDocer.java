@@ -63,7 +63,7 @@ public class ServiceDocer {
 			logger.debug("{}", externalId);
 
 			if (StringUtils.isNoneBlank(externalId)) {
-				List<Map<String, String>> documents = docer.getDocumentsByExternalId(externalId);
+				List<Map<String, String>> documents = docer.searchDocumentsByExternalId(externalId);
 				String json = new Gson().toJson(documents);
 				response = Response.ok(json).build();
 			}

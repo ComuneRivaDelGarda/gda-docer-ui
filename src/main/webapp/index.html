@@ -14,6 +14,11 @@
 <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet">
 
+<link href="bower_components/angular-loading-bar/build/loading-bar.min.css" rel="stylesheet">
+<link href="bower_components/AngularJS-Toaster/toaster.min.css" rel="stylesheet" />
+
+<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
+
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
@@ -22,71 +27,96 @@
     <![endif]-->
 </head>
 <body ng-controller="MainController">
-	<div class="container">
+	<div class="container-fluid">
 		<div class="row">
+			<toaster-container></toaster-container>
 			<div class="col-md-8">
-				<div class="btn-group">
-					<button type="button" class="btn btn-default" title="Carica Documento" ng-click="openUploadModals()">
-						<span class="glyphicon glyphicon-plus"></span>
-					</button>
-					<!--
-					<button type="button" class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-click="download(selected)">
-						<span class="glyphicon glyphicon-download-alt"></span>
-					</button>
-					-->
+				<div class="btn-toolbar">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default" title="Su" ng-click="levelUp()" ng-disabled="!folderIdParent || !profile.parent">
+							<i class="fa fa-level-up"></i>
+						</button>
+						
+						<button type="button" class="btn btn-default" title="Carica Documento" ng-click="addFile()" ng-disabled="!externalId || !profile.upload">
+							<i class="fa fa-plus"></i>
+						</button>
+						<!--
+						<button type="button" class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-click="download(selected)">
+							<span class="glyphicon glyphicon-download-alt"></span>
+						</button>
+						-->
+						
+						<!-- TEST DOWNLOAD LINK DIRETTO x WEBKIT -->
+						<!--
+						<a class="btn btn-default" title="Scarica Documento TEST" href="test-docer/test.pdf" target="_blank">
+							<span class="glyphicon glyphicon-download-alt"></span> TEST DOWNLOAD
+						</a>
+						-->
+						<!-- <button ng-click="pop()">Show a Toaster</button> -->
+					</div>
 					
-					<!-- TEST DOWNLOAD LINK DIRETTO x WEBKIT -->
-					<!-- 
-					<a class="btn btn-default" title="Scarica Documento TEST" href="test-docer/test.pdf">
-						<span class="glyphicon glyphicon-download-alt"></span>
-					</a>
-					 -->
-					<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selected" ng-href="api/docer/documents/{{selectedDoc.id}}/download">
-						<span class="glyphicon glyphicon-download-alt"></span>
-					</a>
-									
-					<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selected" ng-click="delete(selected)">
-						<span class="glyphicon glyphicon-trash"></span>
-					</button>
+					<div class="btn-group">
+						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc || !profile.download" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download">
+							<i class="fa fa-download"></i>
+						</a>		
+						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc || !profile.delete" ng-click="deleteFile()">
+							<i class="fa fa-trash"></i>
+						</button>
+						<button type="button" class="btn btn-default" title="Carica una nuova versione" ng-disabled="!selectedDoc || !profile.version" ng-click="versione()">
+							<i class="fa fa-refresh"></i>
+						</button>
+					</div>
 				</div>
-				<table class="table table-hover">
+				<!-- <i class="fa fa-spinner fa-pulse fa-2x fa-fw" ng-if="isLoadingData"></i> -->
+				<table class="table table-hover" ng-if="profile.view">
 					<thead>
 						<tr>
 							<th></th>
-							<th>Nome</th>
-							<!-- <th>Titolo</th> -->
+							<th><a href="" ng-click="orderByField='DOCNAME';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}" ng-if="orderByField=='DOCNAME'"></i> Nome</a></th>
+							<!--
 							<th>Versione</th>
 							<th>Dimensioni</th>
-							<th>Data Creazione</th>
-							<th>Data Modifica</th>
-							<th>Tipo</th>
+							-->
+							<th><a href="" ng-click="orderByField='CREATED';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}" ng-if="orderByField=='CREATED'"></i> Data Creazione</a></th>
+							<th><a href="" ng-click="orderByField='MODIFIED';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}" ng-if="orderByField=='MODIFIED'"></i> Data Modifica</a></th>
+							<th><a href="" ng-click="orderByField='TIPO_COMPONENTE';sortAsc=!sortAsc"><i class="fa" ng-class="{'fa-sort-asc':sortAsc,'fa-sort-desc':!sortAsc}" ng-if="orderByField=='TIPO_COMPONENTE'"></i> Tipo</a></th>
 						</tr>
 					</thead>
 					<tbody>
-						<tr ng-repeat="doc in docs" ng-click="(doc.directory)?browseDoc(doc):selectDoc(doc)" ng-class="{'info':doc.selected}">
+						<tr ng-repeat="doc in docs|orderBy:orderByField:sortAsc" ng-class="{'info':doc.selected}" ng-click="clickRow(doc)" ng-dblclick="doubleClickRow(doc)">
 							<td>
-								<span class="glyphicon glyphicon-file" ng-if="!doc.directory"></span>
-								<span class="glyphicon glyphicon-folder-open" ng-if="doc.directory"></span>
+								<i class="fa fa-file-o" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE != 'PRINCIPALE'" title="{{doc.TIPO_COMPONENTE}}"></i>
+								<i class="fa fa-file" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE == 'PRINCIPALE'" title="{{doc.TIPO_COMPONENTE}}"></i>
+								<!--							
+								<i class="fa fa-check-square-o" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE == 'PRINCIPALE'" title="Principale"></i>
+								<i class="fa fa-check-square" ng-if="doc.DOCNUM && doc.TIPO_COMPONENTE != 'PRINCIPALE'" title=""></i>
+								-->
+								<i class="fa fa-folder" ng-if="doc.FOLDER_ID"></i>
 							</td>
 							<td>
-								<span ng-bind="doc.nome"></span>
-								<span ng-bind="doc.titolo"></span>
+								<span ng-bind="doc.DOCNAME" title="{{doc.ABSTRACT}}" ng-if="doc.DOCNUM"></span>
+								<span ng-bind="doc.FOLDER_NAME" title="{{doc.DES_FOLDER}}" ng-if="doc.FOLDER_ID"></span>
 							</td>
-							<!-- <td ng-bind="doc.titolo"></td> -->
+							<!--
 							<td>
-								<span ng-bind="doc.versione" ng-if="!doc.directory"></span>
-							</td>
-							<td>
-								<span ng-bind="doc.dimensioni" ng-if="!doc.directory"></span>
+								<span ng-bind="doc.versione" ng-if="doc.TYPE_ID != 'DOCUMENTO'"></span>
 							</td>
 							<td>
-								<span ng-bind="doc.dataCreazione|date:'dd/MM/yyyy HH:mm'"></span>
+								<span ng-bind="doc.dimensioni" ng-if="doc.TYPE_ID != 'DOCUMENTO'"></span>
+							</td>
+							-->
+							<td>
+								<span ng-bind="doc.CREATED|date:'dd/MM/yyyy HH:mm'"></span>
 							</td>
 							<td>
-								<span ng-bind="doc.dataModifica|date:'dd/MM/yyyy HH:mm'"></span>
+								<span ng-bind="doc.MODIFIED|date:'dd/MM/yyyy HH:mm'"></span>
 							</td>
 							<td>
-								<span ng-bind="doc.contentType" ng-if="!doc.directory"></span>
+								<span ng-bind="doc.TIPO_COMPONENTE"></span>
+								<!--
+								<i class="fa fa-file-pdf-o" ng-if="doc.contentType == 'application/pdf'"></i>
+								<i class="fa fa-file-image-o" ng-if="doc.contentType == 'image/png' || doc.contentType == 'image/jpg'"></i>
+								-->
 							</td>
 						</tr>
 					</tbody>
@@ -98,30 +128,37 @@
 					<div>
 					<div class="panel-body">
 						<div class="form-group">
-							<label for="titolo">Titolo</label>
-							<input type="text" class="form-control" id="titolo" placeholder="titolo" ng-model="selectedDoc.titolo">
+							<label for="abstract">Descrizione del documento</label>
+							<input type="text" class="form-control" id="abstract" ng-model="selectedDoc.ABSTRACT" readonly="readonly">
 						</div>
 						<div class="form-group">
-							<label for="descrizione">Descrizione</label>
-							<input type="text" class="form-control" id="descrizione" placeholder="descrizione" ng-model="selectedDoc.nome">
+							<label for="descrizione">Nome</label>
+							<input type="text" class="form-control" id="descrizione" ng-model="selectedDoc.DOCNAME"  readonly="readonly">
 						</div>
 					</div>
 					</div>
 				</div>
 				<div class="panel panel-default">
 					<div class="panel-heading">Versioni</div>
+					<!-- <i class="fa fa-spinner fa-pulse fa-2x fa-fw" ng-if="isLoadingVersions"></i> -->
 					<div class="panel-body">
-						<table class="table table-condended">
+						<table class="table table-condended" ng-if="profile.view">
 							<thead>
 								<tr>
 									<th>Versione</th>
 									<th>Note</th>
+									<th></th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr ng-repeat="ver in versions">
-									<td>{{ver.versione}}</td>
-									<td>{{ver.note}}</td>
+									<td>{{ver}}</td>
+									<td></td>
+									<th>
+										<a class="btn btn-default" title="Scarica Versione" ng-disabled="!selectedDoc" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download/{{ver}}">
+											<i class="fa fa-download"></i>
+										</a>
+									</th>
 								</tr>
 							</tbody>
 						</table>
@@ -137,13 +174,18 @@
 	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
 	<script src="bower_components/angular/angular.min.js"></script>
+	<script src="bower_components/angular-route/angular-route.min.js"></script>
 	<script src="bower_components/angular-resource/angular-resource.min.js"></script>
 	<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 	<script src="bower_components/ng-file-upload-shim/ng-file-upload-shim.min.js"></script>
 	<script src="bower_components/ng-file-upload/ng-file-upload.min.js"></script>
+	<script src="bower_components/angular-loading-bar/build/loading-bar.min.js"></script>
+	<script src="bower_components/angular-animate/angular-animate.min.js" ></script>
+	<script src="bower_components/AngularJS-Toaster/toaster.min.js"></script>
 	
 	<!-- <script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.min.js"></script> -->
 	<!-- <script src="bower_components/angular-file-saver/dist/angular-file-saver.min.js"></script> -->
+	<script src="bower_components/lodash/dist/lodash.min.js"></script>
 	
 	<script src="app.js"></script>
 </body>

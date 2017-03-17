@@ -63,7 +63,8 @@ public class ServiceDocer {
 			logger.debug("{}", externalId);
 
 			if (StringUtils.isNoneBlank(externalId)) {
-				List<Map<String, String>> documents = docer.searchDocumentsByExternalId(externalId);
+				// List<Map<String, String>> documents = docer.searchDocumentsByExternalIdAllAndRelatedAll(externalId);
+				List<Map<String, String>> documents = docer.searchDocumentsByExternalIdFirstAndRelated(externalId);
 				String json = new Gson().toJson(documents);
 				response = Response.ok(json).build();
 			}
@@ -277,7 +278,7 @@ public class ServiceDocer {
 	@Path("/documents/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response uploadDocer(@FormDataParam("externalId") String externalId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+	public Response uploadByExternalId(@FormDataParam("externalId") String externalId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
 		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
 		try {
@@ -303,7 +304,7 @@ public class ServiceDocer {
 					throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
 				}
 				String timestamp = String.valueOf(new Date().getMillis());
-				String documentId = docer.createDocumentTypeDocumento(fileName, IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
+				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName, IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
 				logger.debug("creato in docer con id {}", documentId);
 			}
 			response = Response.ok(responseData).build();

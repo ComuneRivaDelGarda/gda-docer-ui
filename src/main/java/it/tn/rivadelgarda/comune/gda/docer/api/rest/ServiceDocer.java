@@ -38,8 +38,8 @@ import com.google.gson.Gson;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
-import it.tn.rivadelgarda.comune.gda.docer.keys.DocumentoMetadatiGenericiEnum;
-import it.tn.rivadelgarda.comune.gda.docer.keys.DocumentoMetadatiGenericiEnum.TIPO_COMPONENTE;
+import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
+import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.TIPO_COMPONENTE;
 
 @Path("/docer")
 public class ServiceDocer {
@@ -223,7 +223,7 @@ public class ServiceDocer {
 				try (
 					DocerHelper docer = getDocerHelper()) {
 					Map<String, String> documentMetadata = docer.getProfileDocumentMap(documentId);
-					final String fileName = documentMetadata.get(DocumentoMetadatiGenericiEnum.DOCNAME.getValue());
+					final String fileName = documentMetadata.get(MetadatiDocumento.DOCNAME.getValue());
 
 					// String versionNumber = "";
 					if (StringUtils.isBlank(versionNumber)) {

@@ -39,7 +39,7 @@ import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
-import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.TIPO_COMPONENTE;
+import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.TIPO_COMPONENTE_VALUES;
 
 @Path("/docer")
 public class ServiceDocer {
@@ -297,9 +297,9 @@ public class ServiceDocer {
 				DocerHelper docer = getDocerHelper()) {
 				logger.debug("invio file '{}' a docer", fileName);
 				// gestione del tipo componente passato
-				TIPO_COMPONENTE tipoComponenteVal = null;
+				TIPO_COMPONENTE_VALUES tipoComponenteVal = null;
 				try {
-					tipoComponenteVal = TIPO_COMPONENTE.valueOf(tipoComponente);
+					tipoComponenteVal = TIPO_COMPONENTE_VALUES.valueOf(tipoComponente);
 				} catch (Exception ex) {
 					throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
 				}
@@ -345,9 +345,9 @@ public class ServiceDocer {
 				logger.debug("invio file '{}' a docer", fileName);
 				
 				// gestione del tipo componente passato
-				TIPO_COMPONENTE tipoComponenteVal = null;
+				TIPO_COMPONENTE_VALUES tipoComponenteVal = null;
 				try {
-					tipoComponenteVal = TIPO_COMPONENTE.valueOf(tipoComponente);
+					tipoComponenteVal = TIPO_COMPONENTE_VALUES.valueOf(tipoComponente);
 				} catch (Exception ex) {
 					throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
 				}

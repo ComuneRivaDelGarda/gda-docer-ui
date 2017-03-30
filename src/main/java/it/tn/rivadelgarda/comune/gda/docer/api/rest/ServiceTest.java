@@ -1,6 +1,7 @@
 package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 
 import java.util.Date;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
@@ -13,6 +14,12 @@ import javax.ws.rs.core.UriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+@Api(value = "Test API")
 @Path("/test")
 public class ServiceTest {
 
@@ -24,6 +31,7 @@ public class ServiceTest {
 	@Context
 	protected UriInfo uriInfo;
 
+	@ApiOperation(value = "/test", notes = "un web service di test per verificare che la webapp sia attiva", produces = MediaType.TEXT_PLAIN, response = String.class)	
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getIt() {

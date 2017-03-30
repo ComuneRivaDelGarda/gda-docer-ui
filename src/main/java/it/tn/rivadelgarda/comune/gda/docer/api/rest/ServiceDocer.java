@@ -35,12 +35,18 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.TIPO_COMPONENTE_VALUES;
 
+@Api(value = "Docer API")
 @Path("/docer")
 public class ServiceDocer {
 
@@ -52,10 +58,15 @@ public class ServiceDocer {
 	@Context
 	protected UriInfo uriInfo;
 
+	@ApiOperation(value = "/documents", notes = "ritorna documenti (e tutti i metadati) con uno specifico metadato EXTERNAL_ID")
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
+		@ApiResponse(code = 500, message = "error") 
+	})		
 	@GET
 	@Path("/documents")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getDocuments(@QueryParam("externalId") String externalId) {
+	public Response getDocuments(@ApiParam(value = "attributo EXTERNAL_ID da cercare") @QueryParam("externalId") String externalId) {
 		Response response = null;
 		try (
 			DocerHelper docer = getDocerHelper()) {
@@ -75,18 +86,23 @@ public class ServiceDocer {
 		return response;
 	}
 	
+	@ApiOperation(value = "/documents", notes = "permette di recuperare la lista dei Documenti contenuti in una Folder del DMS")
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success", response = String.class, responseContainer = "List"),
+		@ApiResponse(code = 500, message = "error") 
+	})	
 	@GET
 	@Path("/documents/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocuments(@PathParam("id") String documentId) {
+	public Response getFolderDocuments(@ApiParam(value = "documentId della folder") @PathParam("id") String folderId) {
 		Response response = null;
 		try (
 			DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", documentId);
+			logger.debug("{}", folderId);
 
-			if (StringUtils.isNoneBlank(documentId)) {
-				List<String> documents = docer.getFolderDocuments(documentId);
+			if (StringUtils.isNoneBlank(folderId)) {
+				List<String> documents = docer.getFolderDocuments(folderId);
 				String json = new Gson().toJson(documents);
 				response = Response.ok(json).build();
 			}
@@ -106,6 +122,11 @@ public class ServiceDocer {
 		return response;
 	}
 
+	@ApiOperation(value = "/profiles", notes = "ritorna l'elenco dei medatadi dei documents di una folder")
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
+		@ApiResponse(code = 500, message = "error") 
+	})
 	@GET
 	@Path("/documents/{id}/profiles")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -139,6 +160,11 @@ public class ServiceDocer {
 		return response;
 	}
 
+	@ApiOperation(value = "/childs", notes = "tutti le folder + tutti i profili")
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
+		@ApiResponse(code = 500, message = "error") 
+	})
 	@GET
 	@Path("/documents/{id}/childs")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -168,6 +194,11 @@ public class ServiceDocer {
 		return response;
 	}
 
+	@ApiOperation(value = "/profile", notes = "profilo di un documento")
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "Map"),
+		@ApiResponse(code = 500, message = "error") 
+	})
 	@GET
 	@Path("/documents/{id}/profile")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -189,6 +220,11 @@ public class ServiceDocer {
 		return response;
 	}
 
+	@ApiOperation(value = "/versions", notes = "elenco delle versioni")
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success", response = String.class, responseContainer = "Map"),
+		@ApiResponse(code = 500, message = "error") 
+	})
 	@GET
 	@Path("/documents/{id}/versions")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -210,6 +246,11 @@ public class ServiceDocer {
 		return response;
 	}
 
+	@ApiOperation(value = "/download", notes = "download di una versione", produces=MediaType.APPLICATION_OCTET_STREAM)
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success"),
+		@ApiResponse(code = 500, message = "error") 
+	})
 	@GET
 	@Path("/documents/{documentId}/download/{versionNumber}")
 	// @Produces(MediaType.APPLICATION_JSON)
@@ -264,7 +305,12 @@ public class ServiceDocer {
 		}
 		return response;
 	}
-	
+
+	@ApiOperation(value = "/download", notes = "download di un  document", produces=MediaType.APPLICATION_OCTET_STREAM)
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success"),
+		@ApiResponse(code = 500, message = "error") 
+	})
 	@GET
 	@Path("/documents/{documentId}/download")
 	// @Produces(MediaType.APPLICATION_JSON)
@@ -273,7 +319,12 @@ public class ServiceDocer {
 		logger.debug("{}", documentId);
 		return downloadVersion(documentId, "");
 	}
-	
+
+	@ApiOperation(value = "/upload", notes = "upload di un  document", consumes=MediaType.MULTIPART_FORM_DATA)
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success"),
+		@ApiResponse(code = 500, message = "error") 
+	})
 	@POST
 	@Path("/documents/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -315,7 +366,11 @@ public class ServiceDocer {
 		return response;
 	}
 
-	
+	@ApiOperation(value = "/upload", notes = "upload di un document su una folder", consumes=MediaType.MULTIPART_FORM_DATA)
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success"),
+		@ApiResponse(code = 500, message = "error") 
+	})	
 	@POST
 	@Path("/documents/{folderId}/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -382,6 +437,11 @@ public class ServiceDocer {
 		return response;
 	}
 
+	@ApiOperation(value = "/upload", notes = "upload di un versione di document", consumes=MediaType.MULTIPART_FORM_DATA)
+	@ApiResponses(value = { 
+		@ApiResponse(code = 200, message = "success"),
+		@ApiResponse(code = 500, message = "error") 
+	})		
 	@POST
 	@Path("/documents/{documentId}/versione")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)

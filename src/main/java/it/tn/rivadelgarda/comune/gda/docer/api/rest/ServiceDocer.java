@@ -3,7 +3,9 @@ package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -33,6 +35,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
 import io.swagger.annotations.Api;
@@ -45,6 +48,7 @@ import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.TIPO_COMPONENTE_VALUES;
+import it.tn.rivadelgarda.comune.gda.docer.values.ACL_VALUES;
 
 @Api(value = "Docer API")
 @Path("/docer")
@@ -320,7 +324,7 @@ public class ServiceDocer {
 		return downloadVersion(documentId, "");
 	}
 
-	@ApiOperation(value = "/upload", notes = "upload di un  document", consumes=MediaType.MULTIPART_FORM_DATA)
+	@ApiOperation(value = "/upload", notes = "upload di un document", consumes=MediaType.MULTIPART_FORM_DATA)
 	@ApiResponses(value = { 
 		@ApiResponse(code = 200, message = "success"),
 		@ApiResponse(code = 500, message = "error") 
@@ -329,7 +333,13 @@ public class ServiceDocer {
 	@Path("/documents/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response uploadByExternalId(@FormDataParam("externalId") String externalId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+	public Response uploadByExternalId(
+			@ApiParam(name="externalId", value = "EXTERNAL_ID da impostare come metadato document", required = false) @FormDataParam("externalId") String externalId,
+			@ApiParam(name="acls", value = "ACLs da applicare al documento", required = false) @FormDataParam("acls") String acls,
+			@ApiParam(name="abstract", value = "ABSTRACT da impostare come metadato document", required = false) @FormDataParam("abstract") String abstractDocumento,
+			@ApiParam(name="tipoComponente", value = "TIPO_COMPONENTE da impostare come metadato document", required = true) @FormDataParam("tipoComponente") String tipoComponente,
+			@FormDataParam("file") InputStream fileInputStream,
+			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
 		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
 		try {
@@ -337,26 +347,44 @@ public class ServiceDocer {
 			logger.debug("externalId={}", externalId);
 			logger.debug("abstract={}", abstractDocumento);
 			logger.debug("tipoComponente={}", tipoComponente);
-
+			logger.debug("acls={}", acls);
+			
 			final String fileName = fileDisposition.getFileName();
 
 //			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileName);
 //			File f = new File(filePath);
 //			FileUtils.copyInputStreamToFile(fileInputStream, f);
 
-			try (
-				DocerHelper docer = getDocerHelper()) {
-				logger.debug("invio file '{}' a docer", fileName);
-				// gestione del tipo componente passato
-				TIPO_COMPONENTE_VALUES tipoComponenteVal = null;
-				try {
-					tipoComponenteVal = TIPO_COMPONENTE_VALUES.valueOf(tipoComponente);
-				} catch (Exception ex) {
-					throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
+			// VERIFICA PARAMETRI
+			// gestione del tipo componente passato
+			TIPO_COMPONENTE_VALUES tipoComponenteVal = null;
+			try {
+				tipoComponenteVal = TIPO_COMPONENTE_VALUES.valueOf(tipoComponente);
+			} catch (Exception ex) {
+				throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
+			}
+			Map<String, Integer> aclsMap = new HashMap<String, Integer>();
+			try {
+				if (StringUtils.isNotBlank(acls)) {
+					Type type = new TypeToken<Map<String, Integer>>() {
+					}.getType();
+					aclsMap = new Gson().fromJson(acls, type);
 				}
+			} catch (Exception ex) {
+				throw new DocerHelperException("ACLs specificate '" + acls + "' non valide.");
+			}			
+			
+			try (DocerHelper docer = getDocerHelper()) {
+				logger.debug("invio file '{}' a docer", fileName);
 				String timestamp = String.valueOf(new Date().getMillis());
 				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName, IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
 				logger.debug("creato in docer con id {}", documentId);
+				if (!aclsMap.isEmpty()) {
+					docer.setACLDocumentConvert(documentId, aclsMap);
+					logger.debug("impostato in docer acls {} per {}", aclsMap, documentId);
+				} else {
+					logger.warn("nessuna acl specificata per il documento {}", documentId);
+				}
 			}
 			response = Response.ok(responseData).build();
 		} catch (Exception ex) {

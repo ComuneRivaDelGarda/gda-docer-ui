@@ -28,6 +28,7 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
    [x] Documentazione API Helper (Java Doc)
    [x] Refactor Helper x semplificazione chiamate dopo prima versione (incapsulato "oggetti\metodi" SOAP ed esposto Liste\Mappe)
    [ ] Valutare Icone ed Ottimizzazione UI con Michela
+   [x] Gestione ACL 
 
 *Attualmente viene chiesto all’utente (apri o salva dopo download)
 

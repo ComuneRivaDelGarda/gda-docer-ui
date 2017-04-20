@@ -12,6 +12,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	SessionService.folderId = null;
 	/* parametro EXTERNAL_ID */
 	SessionService.externalId = null;
+	/* parametro ACLs */
+	SessionService.acls = null;
 	/* dati per gestire revisione di un file */
 	SessionService.versione = false;
 	SessionService.document = null;
@@ -68,14 +70,14 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	// view, delete, download, parent, upload, version
 	// default tutto abilitato
 	$scope.profile = {
-		admin:false, view:true, delete:true, download:true, parent:true, upload:true, version:true
+		admin:false, view:true, "delete":true, download:true, parent:true, upload:true, version:true
 	};
 	if ($location.search().profile) {
 		 var profile = $location.search().profile;
 		 $log.debug('param profile='+profile);
 		 $scope.profile = {
 			 admin:(profile[0]==='2'),
-			 view:(profile[0]>='1'),delete:(profile[1]==='1'),download:(profile[2]==='1'),parent:(profile[3]==='1'),upload:(profile[4]==='1'),version:(profile[5]==='1')
+			 view:(profile[0]>='1'),"delete":(profile[1]==='1'),download:(profile[2]==='1'),parent:(profile[3]==='1'),upload:(profile[4]==='1'),version:(profile[5]==='1')
 		 };
 	}
 	$log.debug('profile='+angular.toJson($scope.profile));
@@ -97,6 +99,13 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	} else {
 		// mancato parametro id inibisce visualizzazione
 		$scope.profile.view = false;
+	}
+	
+	$scope.acls = null;
+	if ($location.search().acls) {
+		var aclsParam = decodeURIComponent($location.search().acls);
+		$log.debug('acls='+aclsParam);
+		$scope.acls = angular.fromJson(aclsParam);
 	}
 	
 	// elenco dei documenti della cartella
@@ -309,7 +318,10 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 //		$log.debug('SessionService.folderId='+$scope.folderId);
 //		SessionService.folderId = $scope.folderId;
 		$log.debug('SessionService.externalId='+$scope.externalId);
-		SessionService.externalId = $scope.externalId;		
+		SessionService.externalId = $scope.externalId;
+		var aclsJson = angular.toJson($scope.acls);
+		$log.debug('SessionService.acls='+aclsJson);
+		SessionService.acls = aclsJson;
 		
 		var modalInstance = $uibModal.open({
 			animation : true,
@@ -477,6 +489,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	    		uploadData = {
 					abstract : $scope.abstract,
 	    			tipoComponente : $scope.tipoComponente,
+	    			acls : SessionService.acls,
 	    			file : file
 	    		};
     		} else {
@@ -486,7 +499,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
     				externalId : SessionService.externalId,
 					abstract : $scope.abstract,
 	    			tipoComponente : $scope.tipoComponente,
-	    			file : file
+	    			acls : SessionService.acls,
+	    			file : file, 
 	    		};
     		}
     	}

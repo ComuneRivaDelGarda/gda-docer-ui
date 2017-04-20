@@ -14,10 +14,10 @@ public class AppConfig extends ResourceConfig {
 	public AppConfig() {
 		packages("it.tn.rivadelgarda.comune.gda.docer.api.rest");
 		register(MultiPartFeature.class);
-		
+		// swagger gen
 		register(io.swagger.jaxrs.listing.ApiListingResource.class);
 		register(io.swagger.jaxrs.listing.SwaggerSerializers.class);
-		
+		// swagger conf
 		BeanConfig beanConfig = new BeanConfig();
 		beanConfig.setTitle("GDA-DOCER REST API");
 		beanConfig.setVersion("1.0.0");

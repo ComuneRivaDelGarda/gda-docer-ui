@@ -1,6 +1,7 @@
-#GDADOCER
+# GDA-DOCER
+WebApp per browsing DOCER e REST Api
 
-##RUN
+## RUN
 
 	mvn clean tomcat7:run
 	

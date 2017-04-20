@@ -66,12 +66,29 @@
 		    		if ($.trim($('#folderId').val()))
 		    			queryString.push('id=' + $.trim($('#folderId').val()));
 		    		queryString.push('profile=' + $('#profile').val());
-		    		
-		    		// $('#iframeApp').attr('src', '');
-		    		var src = 'index.html#?' + queryString.join('&');
-		    		$('#linkIndirizzo').html(src).attr('href', src);
-		    		$('#iframeApp').attr('src', src);
-		    	});
+		    		// TEST ACL
+					var acls = {
+						'MIRCO' : 1,
+						'TIZIANO' : 0,
+						'GRUPPO-TEST' : 2
+					};
+					// queryString.push('acls=' + encodeURI(JSON.stringify(acls)));
+					queryString.push('acls=' + encodeURIComponent(JSON.stringify(acls)));
+
+					// $('#iframeApp').attr('src', '');
+					var src = 'index.html#?' + queryString.join('&');
+
+					console.log("pre encode: " + src);
+					// src = encodeURIComponent(src);
+					// console.log("post encode: " + src);
+
+					$('#linkIndirizzo').html(src).attr('href', src);
+					$('#iframeApp').attr('src', '');
+					setTimeout(() => {
+						$('#iframeApp').attr('src', src);
+					}, 500);
+					
+				});
 				$('#btnSetDefault').click(function(event) {
 					event.preventDefault();
 					$('#externalId').val("TEST");

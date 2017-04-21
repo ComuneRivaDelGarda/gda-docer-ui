@@ -48,7 +48,9 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [*] Inserimento documenti con ext_id
   - [*] Test su caso avanzato (pubblicazione protocollo)
   - [ ] Inserimento nuovo ufficio
+    - [x] API Helper paragrafo Gestione associazioni utente-ufficio e autenticazione
   - [ ] Inserimento/cancellazione relazione utente-ufficio
+    - [x] API Helper paragrafo Gestione associazioni utente-ufficio e autenticazione
   - [ ] Gestione ACL (assegnazione e modifica per ogni modifica delle attribuzioni)
     - [x] API Helper
   - [ ] Operazione di consolida (paragrafo "Protocollazione ed archiviazione" -> cambio stato di archiviazione)

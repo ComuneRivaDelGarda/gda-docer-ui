@@ -29,9 +29,11 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] Documentazione API Helper (Java Doc)
   - [x] Refactor Helper x semplificazione chiamate dopo prima versione (incapsulato "oggetti\metodi" SOAP ed esposto Liste\Mappe)
   - [ ] Valutare Icone ed Ottimizzazione UI con Michela
-  - [x] Gestione ACL 
+  - [x] Gestione ACL
+    - [x] API Helper
+    - [x] Supporto parametro acls via url
 
-> *Attualmente viene chiesto all’utente (apri o salva dopo download)
+> *Attualmente si apre solo la finestra salva file
 
 - [*] WEBAPP BRIDGE
   - [*] compatibilità Explorer con WebKit 
@@ -48,7 +50,9 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [ ] Inserimento nuovo ufficio
   - [ ] Inserimento/cancellazione relazione utente-ufficio
   - [ ] Gestione ACL (assegnazione e modifica per ogni modifica delle attribuzioni)
+    - [x] API Helper
   - [ ] Operazione di consolida (paragrafo "Protocollazione ed archiviazione" -> cambio stato di archiviazione)
+    - [x] API Helper
   - [ ] Helper nel contesto di scripting Groovy
   - [ ] Supporto per l’introduzione dell’helper nei contesti rimanenti
 
@@ -56,7 +60,7 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [ ] Uso del metadato “Originale cartaceo" (permessi mix tra originali cartacei e digitali in stesso protocollo??)
   - [ ] Supporto per adeguamento script Mauro (probabilmente chiamate rest dirette)
   - [ ] Sistemazione codice
-  - [ ] Gestione hash x stampa registro protocollo *
+  - [ ] Gestione hash x stampa registro protocollo
+    - [x] Calcolo DOC_HASH_KEY automatico Helper
   - [ ] Test e validazione
-
-> *non so se possa essere utile ma ho calcolato ed inserito Hash MD5 file ad ogni upload in docer (helper lo fa in autonomia sapendo che poteva esserci utile e lo mette in metadato DOC_HASH_KEY)
+  - [x] Creazione Utenti e Gruppi via API SOAP - ERRORE IN ATTESA DI RISP. KDM

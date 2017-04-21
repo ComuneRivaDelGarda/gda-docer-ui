@@ -35,18 +35,18 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
 
 > *Attualmente si apre solo la finestra salva file
 
-- [*] WEBAPP BRIDGE
-  - [*] compatibilità Explorer con WebKit 
-  - [*] Apertura Explorer (compatibilità)
-  - [*] Cartella di download preimpostabile
-  - [*] Salvataggio contenuti non gestiti da browser
-  - [*] Inettare codice JS, cookie jar, finestre in popup (compatibilità App come jEnte)
+- [x] WEBAPP BRIDGE
+  - [x] compatibilità Explorer con WebKit 
+  - [x] Apertura Explorer (compatibilità)
+  - [x] Cartella di download preimpostabile
+  - [x] Salvataggio contenuti non gestiti da browser
+  - [x] Inettare codice JS, cookie jar, finestre in popup (compatibilità App come jEnte)
 
-- [*] USO HELPER IN GDA
-  - [*] Listing di documenti per ext_id, con relativi metadati
-  - [*] Lettura contenuto documento (stream e byte[])
-  - [*] Inserimento documenti con ext_id
-  - [*] Test su caso avanzato (pubblicazione protocollo)
+- [x] USO HELPER IN GDA
+  - [x] Listing di documenti per ext_id, con relativi metadati
+  - [x] Lettura contenuto documento (stream e byte[])
+  - [x] Inserimento documenti con ext_id
+  - [x] Test su caso avanzato (pubblicazione protocollo)
   - [ ] Inserimento nuovo ufficio
     - [x] API Helper paragrafo Gestione associazioni utente-ufficio e autenticazione
   - [ ] Inserimento/cancellazione relazione utente-ufficio

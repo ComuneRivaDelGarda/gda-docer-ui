@@ -65,4 +65,4 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [ ] Gestione hash x stampa registro protocollo
     - [x] Calcolo DOC_HASH_KEY automatico Helper
   - [ ] Test e validazione
-  - [x] Creazione Utenti e Gruppi via API SOAP - ERRORE IN ATTESA DI RISP. KDM
+  - [x] Creazione Utenti e Gruppi via API SOAP

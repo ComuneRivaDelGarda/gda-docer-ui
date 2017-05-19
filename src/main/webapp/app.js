@@ -17,7 +17,10 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	/* dati per gestire revisione di un file */
 	SessionService.versione = false;
 	SessionService.document = null;
-	
+
+	SessionService.utente = null;
+	SessionService.stamp = null;
+
 	return SessionService;
 }])
 /**
@@ -27,6 +30,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$log.debug('DocerService');
 	var docerResource = $resource('./api/docer/documents/:id', {
 		id : '@id'
+		utente : null
 	}, {
 		query : {
 			method : 'GET',
@@ -91,7 +95,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 //		// mancato parametro id inibisce visualizzazione
 //		$scope.profile.view = false;
 //	}
-	
+	/* EXTERNAL_ID */
 	$scope.externalId = null;
 	if ($location.search().externalId) {
 		$scope.externalId = $location.search().externalId;
@@ -100,14 +104,27 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		// mancato parametro id inibisce visualizzazione
 		$scope.profile.view = false;
 	}
-	
+	/* */
 	$scope.acls = null;
 	if ($location.search().acls) {
 		var aclsParam = decodeURIComponent($location.search().acls);
 		$log.debug('acls='+aclsParam);
 		$scope.acls = angular.fromJson(aclsParam);
 	}
-	
+    /* utente per autenticarsi */
+    SessionService.utente = null;
+	if ($location.search().utente) {
+        SessionService.utente = $location.search().utente;
+        $log.debug('utente='+SessionService.utente);
+
+	}
+	/* stamp data */
+    SessionService.stamp = null;
+	if ($location.search().stamp) {
+        SessionService.stamp = decodeURIComponent($location.search().stamp);
+        $log.debug('stamp='+SessionService.stamp);
+	}
+
 	// elenco dei documenti della cartella
 	$scope.docs = [];
 	// indica se la cartella ha un documento principale, utile per il popup upload disabilita opzione principale
@@ -154,7 +171,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		if ($scope.folderId) {
 			/* versione 2 */
 			docerService.childs({
-				id : $scope.folderId
+				id : $scope.folderId,
+				utente : SessionService.utente
 			}, function (childs) {
 				$scope.isLoadingData = false;
 				$log.debug('childs loaded');
@@ -176,7 +194,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		} else if ($scope.externalId) {
 			/* versione 3 */
 			docerService.query({
-				externalId : $scope.externalId
+				externalId : $scope.externalId,
+				utente : SessionService.utente
 			}, function (documents) {
 				$scope.isLoadingData = false;
 				$log.debug('documents loaded');
@@ -235,7 +254,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 				$log.debug('loading version for ' + doc.DOCNUM);
 				$scope.isLoadingVersions = true;
 				docerService.versions({
-					id : doc.DOCNUM
+					id : doc.DOCNUM,
+					utente : SessionService.utente
 				}, function(versions) {
 					$scope.isLoadingVersions = false;
 					$scope.versions = versions;
@@ -385,7 +405,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		if (doc) {
 			if (confirm('Sicuro di voler eliminare il file ' + doc.DOCNAME + ' ?')) {
 				docerService.delete({
-					id : doc.DOCNUM
+					id : doc.DOCNUM,
+					utente : SessionService.utente
 				}, function (deleteResponse) {
 					$log.debug("deleteResponse=" + deleteResponse);
 					if (deleteResponse) {

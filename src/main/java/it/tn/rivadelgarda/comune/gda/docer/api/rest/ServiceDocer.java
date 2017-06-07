@@ -285,8 +285,8 @@ public class ServiceDocer {
 					 */
 					if (stampParam != null) {
 						// stamp sarà un JSON di dati da utilizzare
-						StampData stampData = new Gson().fromJson(stampParam, StampData.class);
-						documentStream = applyStamp(stampData, documentStream);
+//						StampData stampData = new Gson().fromJson(stampParam, StampData.class);
+//						documentStream = applyStamp(stampData, documentStream);
 					}
 
 					// final String filePath =
@@ -387,7 +387,7 @@ public class ServiceDocer {
 				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName,
 						IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
 				logger.debug("creato in docer con id {}", documentId);
-				if (!aclsMap.isEmpty()) {
+				if (aclsMap != null && !aclsMap.isEmpty()) {
 					docer.setACLDocumentConvert(documentId, aclsMap);
 					logger.debug("impostato in docer acls {} per {}", aclsMap, documentId);
 				} else {
@@ -588,50 +588,55 @@ public class ServiceDocer {
 	/**
 	 * 
 	 */
-	private void applyStamp(StampData stamp) {
-		InputStream in = this.helper.getDocumentStream(objectId);
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		if (stamp != null) {
-			if (fileName.toLowerCase().endsWith("pdf")) {
-				Calendar calendar = Calendar.getInstance();
-				stampMap.put("datacorrente", calendar.getTime());
-				Protocollo protocollo = (Protocollo) entity;
-				SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy HH:mm");
-				stampMap.put("dataprotocollo", protocollo.getDataprotocollo());
-				stampMap.put("iddocumento", protocollo.getIddocumento());
-
-				Float offsetX = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_OFFSETX").getValore());
-				Float offsetY = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_OFFSETY").getValore());
-				IWas iwas = IWas.create();
-				try {
-					iwas.load(in).offset(offsetX, offsetY);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				Integer nRighe = Integer.valueOf(SuiteUtil.trovaCostante(tipo + "_NRIGHE").getValore());
-				Float rotation = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_ROTATION").getValore());
-				for (int i = 1; i <= nRighe; i++) {
-					String testoCC = SuiteUtil.trovaCostante(tipo + "_TESTO" + String.valueOf(i)).getValore();
-					if (i == nRighe && protocollo.getRiservato()) {
-						testoCC += " - documento RISERVATO";
-					}
-					MessageMapFormat mmp = new MessageMapFormat(testoCC);
-					String testo = mmp.format(this.stampMap);
-					iwas.text(testo, 9, (float) (i - 1) * 9, 0f, rotation);
-				}
-				try {
-					iwas.toStream(outputStream);
-					openAsTemporaryFile(fileName, new ByteArrayInputStream(outputStream.toByteArray()), objectId);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				QMessageBox.critical(this, "Funzionalità non compatibile",
-						"Attenzione!! Funzionalità compatibile unicamente con documenti salvati in formato pdf.");
-			}
-		} else {
-			openAsTemporaryFile(fileName, in, objectId);
-		}
+	private byte[] applyStamp(StampData stamp, byte[] documentStream) {
+		
+//		InputStream in = this.helper.getDocumentStream(objectId);
+//		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//		if (stamp != null) {
+//			if (fileName.toLowerCase().endsWith("pdf")) {
+//				Calendar calendar = Calendar.getInstance();
+//				stampMap.put("datacorrente", calendar.getTime());
+//				Protocollo protocollo = (Protocollo) entity;
+//				SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy HH:mm");
+//				stampMap.put("dataprotocollo", protocollo.getDataprotocollo());
+//				stampMap.put("iddocumento", protocollo.getIddocumento());
+//
+//				Float offsetX = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_OFFSETX").getValore());
+//				Float offsetY = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_OFFSETY").getValore());
+//				IWas iwas = IWas.create();
+//				try {
+//					iwas.load(in).offset(offsetX, offsetY);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//
+//				Integer nRighe = Integer.valueOf(SuiteUtil.trovaCostante(tipo + "_NRIGHE").getValore());
+//				Float rotation = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_ROTATION").getValore());
+//				for (int i = 1; i <= nRighe; i++) {
+//					String testoCC = SuiteUtil.trovaCostante(tipo + "_TESTO" + String.valueOf(i)).getValore();
+//					if (i == nRighe && protocollo.getRiservato()) {
+//						testoCC += " - documento RISERVATO";
+//					}
+//					MessageMapFormat mmp = new MessageMapFormat(testoCC);
+//					String testo = mmp.format(this.stampMap);
+//					iwas.text(testo, 9, (float) (i - 1) * 9, 0f, rotation);
+//				}
+//				try {
+//					iwas.toStream(outputStream);
+//					openAsTemporaryFile(fileName, new ByteArrayInputStream(outputStream.toByteArray()), objectId);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			} else {
+//				QMessageBox.critical(this, "Funzionalità non compatibile",
+//						"Attenzione!! Funzionalità compatibile unicamente con documenti salvati in formato pdf.");
+//			}
+//		} else {
+//			openAsTemporaryFile(fileName, in, objectId);
+//		}
+		
+		logger.warn("applyStamp non implementato {}", stamp);
+		
+		return documentStream;
 	}
 }

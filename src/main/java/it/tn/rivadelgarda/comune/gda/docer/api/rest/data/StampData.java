@@ -2,6 +2,8 @@ package it.tn.rivadelgarda.comune.gda.docer.api.rest.data;
 
 import java.util.List;
 
+import com.google.gson.Gson;
+
 public class StampData {
 	
 	// data ora corrente
@@ -22,4 +24,8 @@ public class StampData {
 	
 //	boolean riservato;
 	
+	@Override
+	public String toString() {
+		return new Gson().toJson(this);
+	}
 }

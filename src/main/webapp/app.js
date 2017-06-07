@@ -501,6 +501,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
     		uploadUrl = './api/docer/documents/'+SessionService.document.DOCNUM+'/versione';
     		uploadData = {
 				abstract : $scope.abstract,
+				utente: SessionService.utente,
 				file : file
 			};
     	} else {
@@ -511,6 +512,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 					abstract : $scope.abstract,
 	    			tipoComponente : $scope.tipoComponente,
 	    			acl : SessionService.acl,
+	    			utente: SessionService.utente,
 	    			file : file
 	    		};
     		} else {
@@ -521,6 +523,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 					abstract : $scope.abstract,
 	    			tipoComponente : $scope.tipoComponente,
 	    			acl : SessionService.acl,
+	    			utente: SessionService.utente,
 	    			file : file, 
 	    		};
     		}

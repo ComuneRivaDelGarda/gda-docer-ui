@@ -72,12 +72,13 @@ public class ServiceDocer {
 	@Path("/documents")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getDocuments(
-			@ApiParam(value = "attributo EXTERNAL_ID da cercare") @QueryParam("externalId") String externalId) {
+			@ApiParam(value = "attributo EXTERNAL_ID da cercare") @QueryParam("externalId") String externalId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", externalId);
-
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("externalId={}", externalId);
+		logger.debug("utente={}", utente);
+		
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(externalId)) {
 				// List<Map<String, String>> documents =
 				// docer.searchDocumentsByExternalIdAllAndRelatedAll(externalId);
@@ -100,11 +101,14 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocuments(@ApiParam(value = "documentId della folder") @PathParam("id") String folderId) {
+	public Response getFolderDocuments(@ApiParam(value = "documentId della folder") @PathParam("id") String folderId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", folderId);
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("id={}", folderId);
+		logger.debug("utente={}", utente);
+		
+		try (DocerHelper docer = getDocerHelper(utente)) {
+
 
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<String> documents = docer.getFolderDocuments(folderId);
@@ -137,7 +141,7 @@ public class ServiceDocer {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getFolderDocumentsProfiles(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("id={}", folderId);
 			logger.debug("utente={}", utente);
@@ -175,11 +179,11 @@ public class ServiceDocer {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getFolderDocumentsChilds(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("id={}", folderId);
-			logger.debug("utente={}", utente);
-
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("id={}", folderId);
+		logger.debug("utente={}", utente);
+			
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<Map<String, String>> data = new ArrayList<>();
 
@@ -209,11 +213,11 @@ public class ServiceDocer {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getDocumentProfile(@PathParam("id") String documentId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("id={}", documentId);
-			logger.debug("utente={}", utente);
-			
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("id={}", documentId);
+		logger.debug("utente={}", utente);
+		
+		try (DocerHelper docer = getDocerHelper(utente)) {			
 			if (StringUtils.isNoneBlank(documentId)) {
 				Map<String, String> documentData = docer.getProfileDocumentMap(documentId);
 				String json = new Gson().toJson(documentData);
@@ -236,9 +240,11 @@ public class ServiceDocer {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getDocumentVersions(@PathParam("id") String documentId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", documentId);
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("documentId={}", documentId);
+		logger.debug("utente={}", utente);
+
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(documentId)) {
 				List<String> documentVersions = docer.getVersions(documentId);
 				String json = new Gson().toJson(documentVersions);
@@ -259,15 +265,16 @@ public class ServiceDocer {
 	@Path("/documents/{documentId}/download/{versionNumber}")
 	// @Produces(MediaType.APPLICATION_JSON)
 	public Response getDocumentDownloadVersion(@PathParam("documentId") String documentId,
-			@PathParam("versionNumber") String versionNumber, @QueryParam("stamp") String stampParam) {
+			@PathParam("versionNumber") String versionNumber, @QueryParam("stamp") String stampParam, @QueryParam("utente") String utente) {
 		Response response = null;
 		try {
 			logger.debug("{}", uriInfo.getAbsolutePath());
 			logger.debug("documentId={}", documentId);
 			logger.debug("stamp={}", stampParam);
+			logger.debug("utente={}", utente);
 
 			if (StringUtils.isNoneBlank(documentId)) {
-				try (DocerHelper docer = getDocerHelper()) {
+				try (DocerHelper docer = getDocerHelper(utente)) {
 					Map<String, String> documentMetadata = docer.getProfileDocumentMap(documentId);
 					final String fileName = documentMetadata.get(MetadatiDocumento.DOCNAME.getValue());
 
@@ -329,10 +336,12 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{documentId}/download")
 	// @Produces(MediaType.APPLICATION_JSON)
-	public Response getDocumentDownload(@PathParam("documentId") String documentId, @QueryParam("stamp") String stamp) {
+	public Response getDocumentDownload(@PathParam("documentId") String documentId, @QueryParam("stamp") String stamp, @QueryParam("utente") String utente) {
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("documentId={}", documentId);
-		return getDocumentDownloadVersion(documentId, "", stamp);
+		logger.debug("stamp", stamp);
+		logger.debug("utente={}", utente);
+		return getDocumentDownloadVersion(documentId, "", stamp, utente);
 	}
 
 	@ApiOperation(value = "/upload", notes = "upload di un document", consumes = MediaType.MULTIPART_FORM_DATA)
@@ -347,6 +356,7 @@ public class ServiceDocer {
 			@ApiParam(name = "acl", value = "ACL da applicare al documento", required = false) @FormDataParam("acl") String acl,
 			@ApiParam(name = "abstract", value = "ABSTRACT da impostare come metadato document", required = false) @FormDataParam("abstract") String abstractDocumento,
 			@ApiParam(name = "tipoComponente", value = "TIPO_COMPONENTE da impostare come metadato document", required = true) @FormDataParam("tipoComponente") String tipoComponente,
+			@ApiParam(name = "utente", value = "utente accesso DOCER", required = false) @FormDataParam("utente") String utente,
 			@FormDataParam("file") InputStream fileInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
@@ -357,6 +367,7 @@ public class ServiceDocer {
 			logger.debug("abstract={}", abstractDocumento);
 			logger.debug("tipoComponente={}", tipoComponente);
 			logger.debug("acl={}", acl);
+			logger.debug("utente={}", utente);
 
 			final String fileName = fileDisposition.getFileName();
 
@@ -385,7 +396,7 @@ public class ServiceDocer {
 				throw new DocerHelperException("ACL specificate '" + acl + "' non valide.");
 			}
 
-			try (DocerHelper docer = getDocerHelper()) {
+			try (DocerHelper docer = getDocerHelper(utente)) {
 				logger.debug("invio file '{}' a docer", fileName);
 				String timestamp = String.valueOf(new Date().getMillis());
 				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName,
@@ -415,7 +426,7 @@ public class ServiceDocer {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response uploadOnFolder(@PathParam("folderId") String folderId,
-			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente,
+			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("utente") String utente,
 			@FormDataParam("file") InputStream fileInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		// public Response upload(@FormDataParam("file") InputStream file,
@@ -427,6 +438,7 @@ public class ServiceDocer {
 			logger.debug("folderId={}", folderId);
 			logger.debug("abstract={}", abstractDocumento);
 			logger.debug("tipoComponente={}", tipoComponente);
+			logger.debug("utente={}", utente);
 			// logger.debug("{}", new Gson().toJson(allegatoRequest));
 
 			// AllegatoPec allegato = MessaggioPecBL.saveFile(getContextEmf(),
@@ -439,7 +451,7 @@ public class ServiceDocer {
 			// File f = new File(filePath);
 			// FileUtils.copyInputStreamToFile(fileInputStream, f);
 
-			try (DocerHelper docer = getDocerHelper()) {
+			try (DocerHelper docer = getDocerHelper(utente)) {
 				logger.debug("invio file '{}' a docer", fileName);
 
 				// gestione del tipo componente passato
@@ -491,16 +503,18 @@ public class ServiceDocer {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response uploadVersione(@PathParam("documentId") String documentId,
-			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("file") InputStream fileInputStream,
+			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("utente") String utente, @FormDataParam("file") InputStream fileInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("documentId={}", documentId);
+		logger.debug("abstract={}", abstractDocumento);
+		logger.debug("utente={}", utente);
+		
 		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
 		try {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("documentId={}", documentId);
-			logger.debug("abstract={}", abstractDocumento);
 			final String fileName = fileDisposition.getFileName();
-			try (DocerHelper docer = getDocerHelper()) {
+			try (DocerHelper docer = getDocerHelper(utente)) {
 				logger.debug("invio versione '{}' a docer {}", fileName, documentId);
 				// String documentId = docer.createDocument(fileName, f,
 				// TIPO_COMPONENTE.PRINCIPALE, titolo);
@@ -520,7 +534,7 @@ public class ServiceDocer {
 	DocerHelper docer = null;
 	String token = null;
 
-	private DocerHelper getDocerHelper() throws Exception {
+	private DocerHelper getDocerHelper(String utente) throws Exception {
 		if (docer == null) {
 			Properties p = new Properties();
 			// String path =
@@ -532,9 +546,16 @@ public class ServiceDocer {
 			fileProperties.close();
 			logger.debug("caricato configurazione docer da /WEB-INF/config.properties");
 
-			String docerSerivcesUrl = p.getProperty("url");
 			String docerUsername = p.getProperty("username");
 			String docerPassword = p.getProperty("password");
+			final String docerUserPassword = p.getProperty("userpassword");
+			if (StringUtils.isNotBlank(utente)) {
+				docerUsername = utente;
+				docerPassword = docerUserPassword;
+			}
+			final String docerSerivcesUrl = p.getProperty("url");
+			
+			
 			docer = new DocerHelper(docerSerivcesUrl, docerUsername, docerPassword);
 
 			token = docer.login();
@@ -546,11 +567,13 @@ public class ServiceDocer {
 	@DELETE
 	@Path("/documents/{id}/delete")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response documentDelete(@PathParam("id") String documentId) {
+	public Response documentDelete(@PathParam("id") String documentId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("documentId={}", documentId);
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("documentId={}", documentId);
+		logger.debug("utente={}", utente);
+		
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			boolean res = docer.deleteDocument(documentId);
 			response = Response.ok(res).build();
 		} catch (Exception ex) {

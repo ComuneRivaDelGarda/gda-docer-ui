@@ -25,21 +25,39 @@
 				<div class="col-md-2">
 					<form role="form" id="formFiltro">
 						<div class="form-group">
-							<label for="externalId">externalId *</label>
-							<input class="form-control" id="externalId">
+							<label for="externalId">externalId</label>
+							<input class="form-control" id="externalId" value="pubblicazione_3591">
+							<span class="help-block text-justify"></span>							
+						</div>
+						
+<!-- 						<div class="form-group">
+							<label for="folderId">folderId</label>
+							<input class="form-control" id="folderId">
+							<span class="help-block text-justify">* DEPRECATO</span>							
+						</div> -->
+
+						<div class="form-group">
+							<label for="profile">profile</label>
+							<input class="form-control" id="profile" value="111111">
+							<span class="help-block text-justify">view, delete, download, parent, upload, version</span>							
+						</div>
+						
+						<div class="form-group">
+							<label for="acls">acls</label>
+							<input class="form-control" id="acls">
 							<span class="help-block text-justify"></span>							
 						</div>
 						
 						<div class="form-group">
-							<label for="folderId">folderId *</label>
-							<input class="form-control" id="folderId">
+							<label for="utente">utente</label>
+							<input class="form-control" id="utente" value="test">
 							<span class="help-block text-justify"></span>							
 						</div>
-
+												
 						<div class="form-group">
-							<label for="profile">profile *</label>
-							<input class="form-control" id="profile" required>
-							<p class="help-block">view, delete, download, parent, upload, version</p>
+							<label for="stamp">stamp</label>
+							<input class="form-control" id="stamp">
+							<p class="help-block">json generazione stamp</p>
 						</div>
 																		
 						<button type="submit" class="btn btn-success btn-block">Aggiorna</button>
@@ -63,9 +81,13 @@
 		    		var queryString = [];
 		    		if ($.trim($('#externalId').val()))
 		    			queryString.push('externalId=' + $.trim($('#externalId').val()));
+		    		/*
 		    		if ($.trim($('#folderId').val()))
 		    			queryString.push('id=' + $.trim($('#folderId').val()));
-		    		queryString.push('profile=' + $('#profile').val());
+		    		*/
+		    		if ($.trim($('#utente').val()))
+		    			queryString.push('profile=' + $('#profile').val());
+		    		
 		    		// TEST ACL
 					var acls = {
 						'MIRCO' : 1,
@@ -75,6 +97,11 @@
 					// queryString.push('acls=' + encodeURI(JSON.stringify(acls)));
 					queryString.push('acls=' + encodeURIComponent(JSON.stringify(acls)));
 
+					if ($.trim($('#utente').val()))
+						queryString.push('utente=' + $.trim($('#utente').val()));
+					if ($.trim($('#stamp').val()))
+						queryString.push('stamp=' + encodeURIComponent($('#stamp').val()));
+					
 					// $('#iframeApp').attr('src', '');
 					var src = 'index.html#?' + queryString.join('&');
 

@@ -1,10 +1,13 @@
 package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +29,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.ant.types.resources.selectors.Date;
@@ -44,11 +46,11 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
+import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.StampData;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.TIPO_COMPONENTE_VALUES;
-import it.tn.rivadelgarda.comune.gda.docer.values.ACL_VALUES;
 
 @Api(value = "Docer API")
 @Path("/docer")
@@ -63,47 +65,50 @@ public class ServiceDocer {
 	protected UriInfo uriInfo;
 
 	@ApiOperation(value = "/documents", notes = "ritorna documenti (e tutti i metadati) con uno specifico metadato EXTERNAL_ID")
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
-		@ApiResponse(code = 500, message = "error") 
-	})		
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "error") })
 	@GET
 	@Path("/documents")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getDocuments(@ApiParam(value = "attributo EXTERNAL_ID da cercare") @QueryParam("externalId") String externalId) {
+	public Response getDocuments(
+			@ApiParam(value = "attributo EXTERNAL_ID da cercare") @QueryParam("externalId") String externalId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (
-			DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", externalId);
-
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("externalId={}", externalId);
+		logger.debug("utente={}", utente);
+		
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(externalId)) {
-				// List<Map<String, String>> documents = docer.searchDocumentsByExternalIdAllAndRelatedAll(externalId);
+				// List<Map<String, String>> documents =
+				// docer.searchDocumentsByExternalIdAllAndRelatedAll(externalId);
 				List<Map<String, String>> documents = docer.searchDocumentsByExternalIdFirstAndRelated(externalId);
 				String json = new Gson().toJson(documents);
 				response = Response.ok(json).build();
 			}
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
-	
+
 	@ApiOperation(value = "/documents", notes = "permette di recuperare la lista dei Documenti contenuti in una Folder del DMS")
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success", response = String.class, responseContainer = "List"),
-		@ApiResponse(code = 500, message = "error") 
-	})	
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "success", response = String.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "error") })
 	@GET
 	@Path("/documents/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocuments(@ApiParam(value = "documentId della folder") @PathParam("id") String folderId) {
+	public Response getFolderDocuments(@ApiParam(value = "documentId della folder") @PathParam("id") String folderId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (
-			DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", folderId);
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("id={}", folderId);
+		logger.debug("utente={}", utente);
+		
+		try (DocerHelper docer = getDocerHelper(utente)) {
+
 
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<String> documents = docer.getFolderDocuments(folderId);
@@ -121,25 +126,25 @@ public class ServiceDocer {
 			// }
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
 
 	@ApiOperation(value = "/profiles", notes = "ritorna l'elenco dei medatadi dei documents di una folder")
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
-		@ApiResponse(code = 500, message = "error") 
-	})
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "error") })
 	@GET
 	@Path("/documents/{id}/profiles")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocumentsProfiles(@PathParam("id") String folderId) {
+	public Response getFolderDocumentsProfiles(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (
-			DocerHelper docer = getDocerHelper()) {
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", folderId);
+			logger.debug("id={}", folderId);
+			logger.debug("utente={}", utente);
 
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<Map<String, String>> data = new ArrayList<>();
@@ -159,26 +164,26 @@ public class ServiceDocer {
 			// }
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
 
 	@ApiOperation(value = "/childs", notes = "tutti le folder + tutti i profili")
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
-		@ApiResponse(code = 500, message = "error") 
-	})
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
+			@ApiResponse(code = 500, message = "error") })
 	@GET
 	@Path("/documents/{id}/childs")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocumentsChilds(@PathParam("id") String folderId) {
+	public Response getFolderDocumentsChilds(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (
-			DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", folderId);
-
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("id={}", folderId);
+		logger.debug("utente={}", utente);
+			
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<Map<String, String>> data = new ArrayList<>();
 
@@ -193,25 +198,26 @@ public class ServiceDocer {
 			}
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
 
 	@ApiOperation(value = "/profile", notes = "profilo di un documento")
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "Map"),
-		@ApiResponse(code = 500, message = "error") 
-	})
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "Map"),
+			@ApiResponse(code = 500, message = "error") })
 	@GET
 	@Path("/documents/{id}/profile")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getProfileDocument(@PathParam("id") String documentId) {
+	public Response getDocumentProfile(@PathParam("id") String documentId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (
-			DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", documentId);
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("id={}", documentId);
+		logger.debug("utente={}", utente);
+		
+		try (DocerHelper docer = getDocerHelper(utente)) {			
 			if (StringUtils.isNoneBlank(documentId)) {
 				Map<String, String> documentData = docer.getProfileDocumentMap(documentId);
 				String json = new Gson().toJson(documentData);
@@ -219,25 +225,26 @@ public class ServiceDocer {
 			}
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
 
 	@ApiOperation(value = "/versions", notes = "elenco delle versioni")
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success", response = String.class, responseContainer = "Map"),
-		@ApiResponse(code = 500, message = "error") 
-	})
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "success", response = String.class, responseContainer = "Map"),
+			@ApiResponse(code = 500, message = "error") })
 	@GET
 	@Path("/documents/{id}/versions")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getVersions(@PathParam("id") String documentId) {
+	public Response getDocumentVersions(@PathParam("id") String documentId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (
-			DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", documentId);
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("documentId={}", documentId);
+		logger.debug("utente={}", utente);
+
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(documentId)) {
 				List<String> documentVersions = docer.getVersions(documentId);
 				String json = new Gson().toJson(documentVersions);
@@ -245,28 +252,29 @@ public class ServiceDocer {
 			}
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
 
-	@ApiOperation(value = "/download", notes = "download di una versione", produces=MediaType.APPLICATION_OCTET_STREAM)
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success"),
-		@ApiResponse(code = 500, message = "error") 
-	})
+	@ApiOperation(value = "/download", notes = "download di una versione", produces = MediaType.APPLICATION_OCTET_STREAM)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "success"),
+			@ApiResponse(code = 500, message = "error") })
 	@GET
 	@Path("/documents/{documentId}/download/{versionNumber}")
 	// @Produces(MediaType.APPLICATION_JSON)
-	public Response downloadVersion(@PathParam("documentId") String documentId, @PathParam("versionNumber") String versionNumber) {
+	public Response getDocumentDownloadVersion(@PathParam("documentId") String documentId,
+			@PathParam("versionNumber") String versionNumber, @QueryParam("stamp") String stampParam, @QueryParam("utente") String utente) {
 		Response response = null;
 		try {
 			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", documentId);
-			
+			logger.debug("documentId={}", documentId);
+			logger.debug("stamp={}", stampParam);
+			logger.debug("utente={}", utente);
+
 			if (StringUtils.isNoneBlank(documentId)) {
-				try (
-					DocerHelper docer = getDocerHelper()) {
+				try (DocerHelper docer = getDocerHelper(utente)) {
 					Map<String, String> documentMetadata = docer.getProfileDocumentMap(documentId);
 					final String fileName = documentMetadata.get(MetadatiDocumento.DOCNAME.getValue());
 
@@ -281,6 +289,16 @@ public class ServiceDocer {
 
 					// lettura del file
 					final byte[] documentStream = docer.getDocument(documentId, versionNumber);
+
+					/**
+					 * CODICE PER STAMP WATERMARK
+					 * https://gist.github.com/tizianolattisi/d02f951b4e08216f968d3d1c1f46e30a
+					 */
+					if (stampParam != null) {
+						// stamp sarà un JSON di dati da utilizzare
+//						StampData stampData = new Gson().fromJson(stampParam, StampData.class);
+//						documentStream = applyStamp(stampData, documentStream);
+					}
 
 					// final String filePath =
 					// restServletContext.getRealPath("/WEB-INF/test-docer/test.pdf");
@@ -300,44 +318,45 @@ public class ServiceDocer {
 							}
 						}
 					};
-					response = Response.ok(fileStream, MediaType.APPLICATION_OCTET_STREAM).header("content-disposition", "attachment;filename=\"" + fileName + "\"").build();
+					response = Response.ok(fileStream, MediaType.APPLICATION_OCTET_STREAM)
+							.header("content-disposition", "attachment;filename=\"" + fileName + "\"").build();
 				}
-			}			
+			}
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
 
-	@ApiOperation(value = "/download", notes = "download di un  document", produces=MediaType.APPLICATION_OCTET_STREAM)
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success"),
-		@ApiResponse(code = 500, message = "error") 
-	})
+	@ApiOperation(value = "/download", notes = "download di un  document", produces = MediaType.APPLICATION_OCTET_STREAM)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "success"),
+			@ApiResponse(code = 500, message = "error") })
 	@GET
 	@Path("/documents/{documentId}/download")
 	// @Produces(MediaType.APPLICATION_JSON)
-	public Response download(@PathParam("documentId") String documentId) {
+	public Response getDocumentDownload(@PathParam("documentId") String documentId, @QueryParam("stamp") String stamp, @QueryParam("utente") String utente) {
 		logger.debug("{}", uriInfo.getAbsolutePath());
-		logger.debug("{}", documentId);
-		return downloadVersion(documentId, "");
+		logger.debug("documentId={}", documentId);
+		logger.debug("stamp", stamp);
+		logger.debug("utente={}", utente);
+		return getDocumentDownloadVersion(documentId, "", stamp, utente);
 	}
 
-	@ApiOperation(value = "/upload", notes = "upload di un document", consumes=MediaType.MULTIPART_FORM_DATA)
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success"),
-		@ApiResponse(code = 500, message = "error") 
-	})
+	@ApiOperation(value = "/upload", notes = "upload di un document", consumes = MediaType.MULTIPART_FORM_DATA)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "success"),
+			@ApiResponse(code = 500, message = "error") })
 	@POST
 	@Path("/documents/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response uploadByExternalId(
-			@ApiParam(name="externalId", value = "EXTERNAL_ID da impostare come metadato document", required = false) @FormDataParam("externalId") String externalId,
-			@ApiParam(name="acls", value = "ACLs da applicare al documento", required = false) @FormDataParam("acls") String acls,
-			@ApiParam(name="abstract", value = "ABSTRACT da impostare come metadato document", required = false) @FormDataParam("abstract") String abstractDocumento,
-			@ApiParam(name="tipoComponente", value = "TIPO_COMPONENTE da impostare come metadato document", required = true) @FormDataParam("tipoComponente") String tipoComponente,
+			@ApiParam(name = "externalId", value = "EXTERNAL_ID da impostare come metadato document", required = false) @FormDataParam("externalId") String externalId,
+			@ApiParam(name = "acl", value = "ACL da applicare al documento", required = false) @FormDataParam("acl") String acl,
+			@ApiParam(name = "abstract", value = "ABSTRACT da impostare come metadato document", required = false) @FormDataParam("abstract") String abstractDocumento,
+			@ApiParam(name = "tipoComponente", value = "TIPO_COMPONENTE da impostare come metadato document", required = true) @FormDataParam("tipoComponente") String tipoComponente,
+			@ApiParam(name = "utente", value = "utente accesso DOCER", required = false) @FormDataParam("utente") String utente,
 			@FormDataParam("file") InputStream fileInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
@@ -347,13 +366,16 @@ public class ServiceDocer {
 			logger.debug("externalId={}", externalId);
 			logger.debug("abstract={}", abstractDocumento);
 			logger.debug("tipoComponente={}", tipoComponente);
-			logger.debug("acls={}", acls);
-			
+			logger.debug("acl={}", acl);
+			logger.debug("utente={}", utente);
+
 			final String fileName = fileDisposition.getFileName();
 
-//			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileName);
-//			File f = new File(filePath);
-//			FileUtils.copyInputStreamToFile(fileInputStream, f);
+			// String filePath =
+			// restServletContext.getRealPath("/WEB-INF/test-docer/" +
+			// fileName);
+			// File f = new File(filePath);
+			// FileUtils.copyInputStreamToFile(fileInputStream, f);
 
 			// VERIFICA PARAMETRI
 			// gestione del tipo componente passato
@@ -363,25 +385,26 @@ public class ServiceDocer {
 			} catch (Exception ex) {
 				throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
 			}
-			Map<String, Integer> aclsMap = new HashMap<String, Integer>();
+			Map<String, Integer> aclMap = new HashMap<String, Integer>();
 			try {
-				if (StringUtils.isNotBlank(acls)) {
+				if (StringUtils.isNotBlank(acl)) {
 					Type type = new TypeToken<Map<String, Integer>>() {
 					}.getType();
-					aclsMap = new Gson().fromJson(acls, type);
+					aclMap = new Gson().fromJson(acl, type);
 				}
 			} catch (Exception ex) {
-				throw new DocerHelperException("ACLs specificate '" + acls + "' non valide.");
-			}			
-			
-			try (DocerHelper docer = getDocerHelper()) {
+				throw new DocerHelperException("ACL specificate '" + acl + "' non valide.");
+			}
+
+			try (DocerHelper docer = getDocerHelper(utente)) {
 				logger.debug("invio file '{}' a docer", fileName);
 				String timestamp = String.valueOf(new Date().getMillis());
-				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName, IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
+				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName,
+						IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
 				logger.debug("creato in docer con id {}", documentId);
-				if (!aclsMap.isEmpty()) {
-					docer.setACLDocumentConvert(documentId, aclsMap);
-					logger.debug("impostato in docer acls {} per {}", aclsMap, documentId);
+				if (aclMap != null && !aclMap.isEmpty()) {
+					docer.setACLDocumentConvert(documentId, aclMap);
+					logger.debug("impostato in docer acl {} per {}", aclMap, documentId);
 				} else {
 					logger.warn("nessuna acl specificata per il documento {}", documentId);
 				}
@@ -389,21 +412,23 @@ public class ServiceDocer {
 			response = Response.ok(responseData).build();
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
 
-	@ApiOperation(value = "/upload", notes = "upload di un document su una folder", consumes=MediaType.MULTIPART_FORM_DATA)
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success"),
-		@ApiResponse(code = 500, message = "error") 
-	})	
+	@ApiOperation(value = "/upload", notes = "upload di un document su una folder", consumes = MediaType.MULTIPART_FORM_DATA)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "success"),
+			@ApiResponse(code = 500, message = "error") })
 	@POST
 	@Path("/documents/{folderId}/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response uploadOnFolder(@PathParam("folderId") String folderId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+	public Response uploadOnFolder(@PathParam("folderId") String folderId,
+			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("utente") String utente,
+			@FormDataParam("file") InputStream fileInputStream,
+			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		// public Response upload(@FormDataParam("file") InputStream file,
 		// @FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
@@ -413,20 +438,22 @@ public class ServiceDocer {
 			logger.debug("folderId={}", folderId);
 			logger.debug("abstract={}", abstractDocumento);
 			logger.debug("tipoComponente={}", tipoComponente);
+			logger.debug("utente={}", utente);
 			// logger.debug("{}", new Gson().toJson(allegatoRequest));
 
 			// AllegatoPec allegato = MessaggioPecBL.saveFile(getContextEmf(),
 			// allegatoRequest, file);
 			final String fileName = fileDisposition.getFileName();
 
-//			String filePath = restServletContext.getRealPath("/WEB-INF/test-docer/" + fileName);
-//			File f = new File(filePath);
-//			FileUtils.copyInputStreamToFile(fileInputStream, f);
+			// String filePath =
+			// restServletContext.getRealPath("/WEB-INF/test-docer/" +
+			// fileName);
+			// File f = new File(filePath);
+			// FileUtils.copyInputStreamToFile(fileInputStream, f);
 
-			try (
-				DocerHelper docer = getDocerHelper()) {
+			try (DocerHelper docer = getDocerHelper(utente)) {
 				logger.debug("invio file '{}' a docer", fileName);
-				
+
 				// gestione del tipo componente passato
 				TIPO_COMPONENTE_VALUES tipoComponenteVal = null;
 				try {
@@ -434,17 +461,19 @@ public class ServiceDocer {
 				} catch (Exception ex) {
 					throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
 				}
-				
+
 				// String documentId = docer.createDocument(fileName, f,
 				// TIPO_COMPONENTE.PRINCIPALE, titolo);
 				String timestamp = String.valueOf(new Date().getMillis());
-				String documentId = docer.createDocumentTypeDocumento(fileName, IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, null);
+				String documentId = docer.createDocumentTypeDocumento(fileName, IOUtils.toByteArray(fileInputStream),
+						tipoComponenteVal, abstractDocumento, null);
 				logger.debug("creato in docer con id {}", documentId);
 				try {
 					docer.addToFolderDocument(folderId, documentId);
 					logger.debug("aggiunto document {} a folder {}", documentId, folderId);
 				} catch (Exception ex) {
-					// nel caso si verifichi un errore nel collegamento document-folder elimino il documen appena creato
+					// nel caso si verifichi un errore nel collegamento
+					// document-folder elimino il documen appena creato
 					docer.deleteDocument(documentId);
 					// restituisco errore originale
 					throw ex;
@@ -460,30 +489,32 @@ public class ServiceDocer {
 			// Response.status(Response.Status.PRECONDITION_FAILED).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
 
-	@ApiOperation(value = "/upload", notes = "upload di un versione di document", consumes=MediaType.MULTIPART_FORM_DATA)
-	@ApiResponses(value = { 
-		@ApiResponse(code = 200, message = "success"),
-		@ApiResponse(code = 500, message = "error") 
-	})		
+	@ApiOperation(value = "/upload", notes = "upload di un versione di document", consumes = MediaType.MULTIPART_FORM_DATA)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "success"),
+			@ApiResponse(code = 500, message = "error") })
 	@POST
 	@Path("/documents/{documentId}/versione")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response uploadVersione(@PathParam("documentId") String documentId, @FormDataParam("abstract") String abstractDocumento, @FormDataParam("file") InputStream fileInputStream, @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+	public Response uploadVersione(@PathParam("documentId") String documentId,
+			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("utente") String utente, @FormDataParam("file") InputStream fileInputStream,
+			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("documentId={}", documentId);
+		logger.debug("abstract={}", abstractDocumento);
+		logger.debug("utente={}", utente);
+		
 		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
 		try {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("documentId={}", documentId);
-			logger.debug("abstract={}", abstractDocumento);
 			final String fileName = fileDisposition.getFileName();
-			try (
-				DocerHelper docer = getDocerHelper()) {
+			try (DocerHelper docer = getDocerHelper(utente)) {
 				logger.debug("invio versione '{}' a docer {}", fileName, documentId);
 				// String documentId = docer.createDocument(fileName, f,
 				// TIPO_COMPONENTE.PRINCIPALE, titolo);
@@ -494,15 +525,16 @@ public class ServiceDocer {
 			response = Response.ok(responseData).build();
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}
-	
+
 	DocerHelper docer = null;
 	String token = null;
 
-	private DocerHelper getDocerHelper() throws Exception {
+	private DocerHelper getDocerHelper(String utente) throws Exception {
 		if (docer == null) {
 			Properties p = new Properties();
 			// String path =
@@ -514,9 +546,16 @@ public class ServiceDocer {
 			fileProperties.close();
 			logger.debug("caricato configurazione docer da /WEB-INF/config.properties");
 
-			String docerSerivcesUrl = p.getProperty("url");
 			String docerUsername = p.getProperty("username");
 			String docerPassword = p.getProperty("password");
+			final String docerUserPassword = p.getProperty("userpassword");
+			if (StringUtils.isNotBlank(utente)) {
+				docerUsername = utente;
+				docerPassword = docerUserPassword;
+			}
+			final String docerSerivcesUrl = p.getProperty("url");
+			
+			
 			docer = new DocerHelper(docerSerivcesUrl, docerUsername, docerPassword);
 
 			token = docer.login();
@@ -524,22 +563,107 @@ public class ServiceDocer {
 		}
 		return docer;
 	}
-	
+
 	@DELETE
 	@Path("/documents/{id}/delete")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteDocument(@PathParam("id") String documentId) {
+	public Response documentDelete(@PathParam("id") String documentId, @QueryParam("utente") String utente) {
 		Response response = null;
-		try (
-			DocerHelper docer = getDocerHelper()) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", documentId);
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("documentId={}", documentId);
+		logger.debug("utente={}", utente);
+		
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			boolean res = docer.deleteDocument(documentId);
 			response = Response.ok(res).build();
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
+	}
+
+	// @ApiOperation(value = "/metadata/externalid", notes = "download di tutti
+	// i document con un certo EXTERNAL_ID",
+	// produces=MediaType.APPLICATION_OCTET_STREAM)
+	// @ApiResponses(value = {
+	// @ApiResponse(code = 200, message = "success"),
+	// @ApiResponse(code = 500, message = "error")
+	// })
+	// @GET
+	// @Path("/metadata/externalid/{externalId}/downloadall")
+	// @Produces(MediaType.APPLICATION_JSON)
+	// public Response downloadAll(@PathParam("externalId") String externalId) {
+	// Response response = null;
+	// try (
+	// DocerHelper docer = getDocerHelper()) {
+	// logger.debug("{}", uriInfo.getAbsolutePath());
+	// logger.debug("externalId={}", externalId);
+	//
+	// List<String> files = docer.searchDocumentsByExternalIdAll(externalId);
+	//
+	// response = Response.ok(res).build();
+	// } catch (Exception ex) {
+	// logger.error("INTERNAL_SERVER_ERROR", ex);
+	// response =
+	// Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+	// }
+	// return response;
+	// }
+
+	/**
+	 * 
+	 */
+	private byte[] applyStamp(StampData stamp, byte[] documentStream) {
+		
+//		InputStream in = this.helper.getDocumentStream(objectId);
+//		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//		if (stamp != null) {
+//			if (fileName.toLowerCase().endsWith("pdf")) {
+//				Calendar calendar = Calendar.getInstance();
+//				stampMap.put("datacorrente", calendar.getTime());
+//				Protocollo protocollo = (Protocollo) entity;
+//				SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy HH:mm");
+//				stampMap.put("dataprotocollo", protocollo.getDataprotocollo());
+//				stampMap.put("iddocumento", protocollo.getIddocumento());
+//
+//				Float offsetX = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_OFFSETX").getValore());
+//				Float offsetY = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_OFFSETY").getValore());
+//				IWas iwas = IWas.create();
+//				try {
+//					iwas.load(in).offset(offsetX, offsetY);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//
+//				Integer nRighe = Integer.valueOf(SuiteUtil.trovaCostante(tipo + "_NRIGHE").getValore());
+//				Float rotation = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_ROTATION").getValore());
+//				for (int i = 1; i <= nRighe; i++) {
+//					String testoCC = SuiteUtil.trovaCostante(tipo + "_TESTO" + String.valueOf(i)).getValore();
+//					if (i == nRighe && protocollo.getRiservato()) {
+//						testoCC += " - documento RISERVATO";
+//					}
+//					MessageMapFormat mmp = new MessageMapFormat(testoCC);
+//					String testo = mmp.format(this.stampMap);
+//					iwas.text(testo, 9, (float) (i - 1) * 9, 0f, rotation);
+//				}
+//				try {
+//					iwas.toStream(outputStream);
+//					openAsTemporaryFile(fileName, new ByteArrayInputStream(outputStream.toByteArray()), objectId);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			} else {
+//				QMessageBox.critical(this, "Funzionalità non compatibile",
+//						"Attenzione!! Funzionalità compatibile unicamente con documenti salvati in formato pdf.");
+//			}
+//		} else {
+//			openAsTemporaryFile(fileName, in, objectId);
+//		}
+		
+		logger.warn("applyStamp non implementato {}", stamp);
+		
+		return documentStream;
 	}
 }

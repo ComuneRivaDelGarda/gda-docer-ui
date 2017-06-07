@@ -12,8 +12,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	SessionService.folderId = null;
 	/* parametro EXTERNAL_ID */
 	SessionService.externalId = null;
-	/* parametro ACLs */
-	SessionService.acls = null;
+	/* parametro ACL */
+	SessionService.acl = null;
 	/* dati per gestire revisione di un file */
 	SessionService.versione = false;
 	SessionService.document = null;
@@ -105,11 +105,11 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		$scope.profile.view = false;
 	}
 	/* */
-	$scope.acls = null;
-	if ($location.search().acls) {
-		var aclsParam = decodeURIComponent($location.search().acls);
-		$log.debug('acls='+aclsParam);
-		$scope.acls = angular.fromJson(aclsParam);
+	$scope.acl = null;
+	if ($location.search().acl || $location.search().acls) {
+		var aclParam = ($location.search().acl) ? decodeURIComponent($location.search().acl) : decodeURIComponent($location.search().acls);
+		$log.debug('acl='+aclParam);
+		$scope.acl = angular.fromJson(aclParam);
 	}
     /* utente per autenticarsi */
     SessionService.utente = null;
@@ -339,9 +339,9 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 //		SessionService.folderId = $scope.folderId;
 		$log.debug('SessionService.externalId='+$scope.externalId);
 		SessionService.externalId = $scope.externalId;
-		var aclsJson = angular.toJson($scope.acls);
-		$log.debug('SessionService.acls='+aclsJson);
-		SessionService.acls = aclsJson;
+		var aclJson = angular.toJson($scope.acl);
+		$log.debug('SessionService.acl='+aclJson);
+		SessionService.acl = aclJson;
 		
 		var modalInstance = $uibModal.open({
 			animation : true,
@@ -510,7 +510,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	    		uploadData = {
 					abstract : $scope.abstract,
 	    			tipoComponente : $scope.tipoComponente,
-	    			acls : SessionService.acls,
+	    			acl : SessionService.acl,
 	    			file : file
 	    		};
     		} else {
@@ -520,7 +520,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
     				externalId : SessionService.externalId,
 					abstract : $scope.abstract,
 	    			tipoComponente : $scope.tipoComponente,
-	    			acls : SessionService.acls,
+	    			acl : SessionService.acl,
 	    			file : file, 
 	    		};
     		}

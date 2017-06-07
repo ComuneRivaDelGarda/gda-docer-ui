@@ -27,7 +27,7 @@
 						<div class="form-group">
 							<label for="externalId">externalId</label>
 							<input class="form-control" id="externalId" value="pubblicazione_3591">
-							<span class="help-block text-justify"></span>							
+							<span class="help-block text-justify">valore Metadato EXTERNAL_ID da usare per caricare i documenti</span>							
 						</div>
 						
 <!-- 						<div class="form-group">
@@ -43,21 +43,21 @@
 						</div>
 						
 						<div class="form-group">
-							<label for="acls">acls</label>
-							<input class="form-control" id="acls">
-							<span class="help-block text-justify"></span>							
+							<label for="acl">acl</label>
+							<input class="form-control" id="acl">
+							<span class="help-block text-justify">permette di impostare le ACL DOCER (mappa chiave valore es: {'MIRCO':1,'GRUPPO-TEST:2})</span>							
 						</div>
 						
 						<div class="form-group">
 							<label for="utente">utente</label>
 							<input class="form-control" id="utente" value="test">
-							<span class="help-block text-justify"></span>							
+							<span class="help-block text-justify">specifica il nome dell'utente con il quale autenticarsi su DOCER (se non specificato usa admin)</span>							
 						</div>
 												
 						<div class="form-group">
 							<label for="stamp">stamp</label>
 							<input class="form-control" id="stamp">
-							<p class="help-block">json generazione stamp</p>
+							<p class="help-block">json generazione stamp (dati per generazione watermark)</p>
 						</div>
 																		
 						<button type="submit" class="btn btn-success btn-block">Aggiorna</button>
@@ -89,13 +89,13 @@
 		    			queryString.push('profile=' + $('#profile').val());
 		    		
 		    		// TEST ACL
-					var acls = {
+					var acl = {
 						'MIRCO' : 1,
 						'TIZIANO' : 0,
 						'GRUPPO-TEST' : 2
 					};
-					// queryString.push('acls=' + encodeURI(JSON.stringify(acls)));
-					queryString.push('acls=' + encodeURIComponent(JSON.stringify(acls)));
+					// queryString.push('acl=' + encodeURI(JSON.stringify(acl)));
+					queryString.push('acl=' + encodeURIComponent(JSON.stringify(acl)));
 
 					if ($.trim($('#utente').val()))
 						queryString.push('utente=' + $.trim($('#utente').val()));

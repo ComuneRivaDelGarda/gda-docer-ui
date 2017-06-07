@@ -340,7 +340,7 @@ public class ServiceDocer {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response uploadByExternalId(
 			@ApiParam(name = "externalId", value = "EXTERNAL_ID da impostare come metadato document", required = false) @FormDataParam("externalId") String externalId,
-			@ApiParam(name = "acls", value = "ACLs da applicare al documento", required = false) @FormDataParam("acls") String acls,
+			@ApiParam(name = "acl", value = "ACL da applicare al documento", required = false) @FormDataParam("acl") String acl,
 			@ApiParam(name = "abstract", value = "ABSTRACT da impostare come metadato document", required = false) @FormDataParam("abstract") String abstractDocumento,
 			@ApiParam(name = "tipoComponente", value = "TIPO_COMPONENTE da impostare come metadato document", required = true) @FormDataParam("tipoComponente") String tipoComponente,
 			@FormDataParam("file") InputStream fileInputStream,
@@ -352,7 +352,7 @@ public class ServiceDocer {
 			logger.debug("externalId={}", externalId);
 			logger.debug("abstract={}", abstractDocumento);
 			logger.debug("tipoComponente={}", tipoComponente);
-			logger.debug("acls={}", acls);
+			logger.debug("acl={}", acl);
 
 			final String fileName = fileDisposition.getFileName();
 
@@ -370,15 +370,15 @@ public class ServiceDocer {
 			} catch (Exception ex) {
 				throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
 			}
-			Map<String, Integer> aclsMap = new HashMap<String, Integer>();
+			Map<String, Integer> aclMap = new HashMap<String, Integer>();
 			try {
-				if (StringUtils.isNotBlank(acls)) {
+				if (StringUtils.isNotBlank(acl)) {
 					Type type = new TypeToken<Map<String, Integer>>() {
 					}.getType();
-					aclsMap = new Gson().fromJson(acls, type);
+					aclMap = new Gson().fromJson(acl, type);
 				}
 			} catch (Exception ex) {
-				throw new DocerHelperException("ACLs specificate '" + acls + "' non valide.");
+				throw new DocerHelperException("ACL specificate '" + acl + "' non valide.");
 			}
 
 			try (DocerHelper docer = getDocerHelper()) {
@@ -387,9 +387,9 @@ public class ServiceDocer {
 				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName,
 						IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
 				logger.debug("creato in docer con id {}", documentId);
-				if (aclsMap != null && !aclsMap.isEmpty()) {
-					docer.setACLDocumentConvert(documentId, aclsMap);
-					logger.debug("impostato in docer acls {} per {}", aclsMap, documentId);
+				if (aclMap != null && !aclMap.isEmpty()) {
+					docer.setACLDocumentConvert(documentId, aclMap);
+					logger.debug("impostato in docer acl {} per {}", aclMap, documentId);
 				} else {
 					logger.warn("nessuna acl specificata per il documento {}", documentId);
 				}

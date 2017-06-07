@@ -29,7 +29,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 .service('DocerService', ['$resource', '$log', function($resource, $log) {
 	$log.debug('DocerService');
 	var docerResource = $resource('./api/docer/documents/:id', {
-		id : '@id'
+		id : '@id',
 		utente : null
 	}, {
 		query : {

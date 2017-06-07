@@ -135,11 +135,12 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{id}/profiles")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocumentsProfiles(@PathParam("id") String folderId) {
+	public Response getFolderDocumentsProfiles(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
 		Response response = null;
 		try (DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", folderId);
+			logger.debug("id={}", folderId);
+			logger.debug("utente={}", utente);
 
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<Map<String, String>> data = new ArrayList<>();
@@ -172,11 +173,12 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{id}/childs")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocumentsChilds(@PathParam("id") String folderId) {
+	public Response getFolderDocumentsChilds(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
 		Response response = null;
 		try (DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", folderId);
+			logger.debug("id={}", folderId);
+			logger.debug("utente={}", utente);
 
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<Map<String, String>> data = new ArrayList<>();
@@ -205,11 +207,13 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{id}/profile")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getProfileDocument(@PathParam("id") String documentId) {
+	public Response getDocumentProfile(@PathParam("id") String documentId, @QueryParam("utente") String utente) {
 		Response response = null;
 		try (DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("{}", documentId);
+			logger.debug("id={}", documentId);
+			logger.debug("utente={}", utente);
+			
 			if (StringUtils.isNoneBlank(documentId)) {
 				Map<String, String> documentData = docer.getProfileDocumentMap(documentId);
 				String json = new Gson().toJson(documentData);
@@ -230,7 +234,7 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{id}/versions")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getVersions(@PathParam("id") String documentId) {
+	public Response getDocumentVersions(@PathParam("id") String documentId, @QueryParam("utente") String utente) {
 		Response response = null;
 		try (DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());
@@ -254,7 +258,7 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{documentId}/download/{versionNumber}")
 	// @Produces(MediaType.APPLICATION_JSON)
-	public Response downloadVersion(@PathParam("documentId") String documentId,
+	public Response getDocumentDownloadVersion(@PathParam("documentId") String documentId,
 			@PathParam("versionNumber") String versionNumber, @QueryParam("stamp") String stampParam) {
 		Response response = null;
 		try {
@@ -325,10 +329,10 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{documentId}/download")
 	// @Produces(MediaType.APPLICATION_JSON)
-	public Response download(@PathParam("documentId") String documentId, @QueryParam("stamp") String stamp) {
+	public Response getDocumentDownload(@PathParam("documentId") String documentId, @QueryParam("stamp") String stamp) {
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("documentId={}", documentId);
-		return downloadVersion(documentId, "", stamp);
+		return getDocumentDownloadVersion(documentId, "", stamp);
 	}
 
 	@ApiOperation(value = "/upload", notes = "upload di un document", consumes = MediaType.MULTIPART_FORM_DATA)
@@ -542,7 +546,7 @@ public class ServiceDocer {
 	@DELETE
 	@Path("/documents/{id}/delete")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteDocument(@PathParam("id") String documentId) {
+	public Response documentDelete(@PathParam("id") String documentId) {
 		Response response = null;
 		try (DocerHelper docer = getDocerHelper()) {
 			logger.debug("{}", uriInfo.getAbsolutePath());

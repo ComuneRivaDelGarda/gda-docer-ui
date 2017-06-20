@@ -1,13 +1,9 @@
 package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,12 +36,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
+import it.tn.rivadelgarda.comune.gda.docer.KeyValuePairFactory;
+import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.SetAclToExternalIdRequest;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.StampData;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
@@ -666,4 +665,75 @@ public class ServiceDocer {
 		
 		return documentStream;
 	}
+	
+	
+	@POST
+	@Path("/documents/setacl")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "/documents/setacl", notes = "imposta ACL su tutti i documenti corrispondenti ad EXTERNAL_ID")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "elenco dei documentId dove sono state applicate le ACL", response = String.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "errore mancanza dati per applicare ACL"),
+			@ApiResponse(code = 500, message = "error") })	
+	public Response setAclToExternalId(
+			@ApiParam SetAclToExternalIdRequest request) {
+		Response response = null;
+		List<String> responseData = new ArrayList<>();
+		try {
+			if (request != null) {
+				String externalId = request.getExternalId();
+				String acl = request.getAcl();
+				String utente = request.getUtente();
+				
+				logger.debug("{}", uriInfo.getAbsolutePath());
+				logger.debug("externalId={}", externalId);
+				logger.debug("acl={}", acl);
+				logger.debug("utente={}", utente);
+	
+				
+				Map<String, Integer> aclMap = new HashMap<String, Integer>();
+				try {
+					if (StringUtils.isNotBlank(acl)) {
+						Type type = new TypeToken<Map<String, Integer>>() {
+						}.getType();
+						aclMap = new Gson().fromJson(acl, type);
+					}
+				} catch (Exception ex) {
+					throw new DocerHelperException("ACL specificate '" + acl + "' non valide.");
+				}
+	
+				try (DocerHelper docer = getDocerHelper(utente)) {
+					
+					String timestamp = String.valueOf(new Date().getMillis());
+					List<Map<String, String>> metadatiDocumentiDaExternalId = docer.searchDocumentsByExternalIdAll(externalId);
+					String[] listaDocumentId = KeyValuePairFactory.joinMetadata(metadatiDocumentiDaExternalId, MetadatiDocumento.DOCNUM);
+					
+					if (aclMap != null && !aclMap.isEmpty()) {
+						for (String documentId : listaDocumentId) {
+							docer.setACLDocumentConvert(documentId, aclMap);
+							logger.debug("impostato in docer acl {} per {}", aclMap, documentId);
+						}
+						
+						responseData = Arrays.asList(listaDocumentId);
+					} else {
+						logger.warn("nessuna acl specificata per i documenti {}", listaDocumentId);
+						throw new DocerHelperException("nessuna acl specificata");
+					}
+				}
+				response = Response.ok(responseData).build();
+			} else {
+				throw new DocerHelperException("");
+			}
+		} catch (DocerHelperException ex) {
+			logger.error("BAD_REQUEST", ex);
+			response = Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
+	}	
 }

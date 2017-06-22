@@ -690,7 +690,6 @@ public class ServiceDocer {
 				logger.debug("externalId={}", externalId);
 				logger.debug("acl={}", acl);
 				logger.debug("utente={}", utente);
-	
 				
 				Map<String, Integer> aclMap = new HashMap<String, Integer>();
 				try {
@@ -704,20 +703,11 @@ public class ServiceDocer {
 				}
 	
 				try (DocerHelper docer = getDocerHelper(utente)) {
-					
-					String timestamp = String.valueOf(new Date().getMillis());
-					List<Map<String, String>> metadatiDocumentiDaExternalId = docer.searchDocumentsByExternalIdAll(externalId);
-					String[] listaDocumentId = KeyValuePairFactory.joinMetadata(metadatiDocumentiDaExternalId, MetadatiDocumento.DOCNUM);
-					
 					if (aclMap != null && !aclMap.isEmpty()) {
-						for (String documentId : listaDocumentId) {
-							docer.setACLDocumentConvert(documentId, aclMap);
-							logger.debug("impostato in docer acl {} per {}", aclMap, documentId);
-						}
-						
-						responseData = Arrays.asList(listaDocumentId);
+						responseData = docer.setACLDocumentsByExternalId(externalId, aclMap);
+						logger.debug("impostato in docer acl {} per {} documents da externalId={}", aclMap, responseData.size(), externalId);
 					} else {
-						logger.warn("nessuna acl specificata per i documenti {}", listaDocumentId);
+						logger.warn("nessuna acl specificata");
 						throw new DocerHelperException("nessuna acl specificata");
 					}
 				}

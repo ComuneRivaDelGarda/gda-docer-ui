@@ -18,8 +18,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	SessionService.versione = false;
 	SessionService.document = null;
 
-	SessionService.utente = null;
-	SessionService.stamp = null;
+	SessionService.utente = "";
+	SessionService.stamp = "";
 
 	return SessionService;
 }])
@@ -30,7 +30,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$log.debug('DocerService');
 	var docerResource = $resource('./api/docer/documents/:id', {
 		id : '@id',
-		utente : null
+		utente : ""
 	}, {
 		query : {
 			method : 'GET',
@@ -112,14 +112,14 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		$scope.acl = angular.fromJson(aclParam);
 	}
     /* utente per autenticarsi */
-    SessionService.utente = null;
+    SessionService.utente = "";
 	if ($location.search().utente) {
         SessionService.utente = $location.search().utente;
         $log.debug('utente='+SessionService.utente);
 
 	}
 	/* stamp data */
-    SessionService.stamp = null;
+    SessionService.stamp = "";
 	if ($location.search().stamp) {
         SessionService.stamp = decodeURIComponent($location.search().stamp);
         $log.debug('stamp='+SessionService.stamp);

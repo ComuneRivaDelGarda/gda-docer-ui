@@ -76,8 +76,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.profile = {
 		admin:false, view:true, "delete":true, download:true, parent:true, upload:true, version:true
 	};
-	if ($location.search().profile) {
-		 var profile = $location.search().profile;
+	if ($location.search().profile || $location.search().flags) {
+		 var profile = ($location.search().profile) ? $location.search().profile : $location.search().flags;
 		 $log.debug('param profile='+profile);
 		 $scope.profile = {
 			 admin:(profile[0]==='2'),

@@ -60,6 +60,12 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			url: './api/docer/documents/:id/delete',
 			method : 'DELETE',
 			isArray : false
+		},
+		'downloadall' : {
+			url: './api/docer/documents/downloadall',
+			method : 'GET',
+			isArray : false,
+			params: { externalId : 0 }
 		}
 	});
 	return docerResource;
@@ -112,12 +118,14 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		$scope.acl = angular.fromJson(aclParam);
 	}
     /* utente per autenticarsi */
+	
     SessionService.utente = "";
 	if ($location.search().utente) {
         SessionService.utente = $location.search().utente;
         $log.debug('utente='+SessionService.utente);
-
 	}
+	$scope.utente = SessionService.utente;
+	
 	/* stamp data */
     SessionService.stamp = "";
 	if ($location.search().stamp) {

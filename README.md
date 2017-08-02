@@ -22,27 +22,27 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] Upload di file con ext_id, titolo, descrizione, tipo
   - [x] Gestione Related con ext_id
   - [x] Eliminazione File
-  - [ ] Upload massivo (C)
-    - [ ] Finestra UPLOAD divisa in due parti PRINCIPALE (upload singolo) e ALLEGATI (upload multiplo). Principale compare solo se per external_id non presente (MIRCO)
   - [x] Download di file
-  - [ ] Download massivo (C)
-    - [x] basato su external_id, crea lo zip e propone download dello zip
-    - [ ] nome dello zip da dare viene passato come parametro f= (se manca uso DATA e ORA generazione zip)
   - [x] Nuova versione
   - [x] Download versione
   - [x] Gestione policy crud
+  - [x] Documentazione API REST (Swagger)
+  - [x] Documentazione API Helper (Java Doc)
+  - [x] Refactor Helper x semplificazione chiamate dopo prima versione (incapsulato "oggetti\metodi" SOAP ed esposto Liste\Mappe)
+  - [x] Gestione ACL
+    - [x] API Helper
+    - [x] Supporto parametro acls via url
   - [ ] Apri file direttamente da pulsante (scelta tra download e apri)* (B3)
     - [ ] Modifica WebVIEW (TIZIANO)
   - [ ] Gestione watermark tramite chiamata iWas (B3)
     - [ ] parametro da passare a GDA a WebView (TIZIANO e MICHELA). Il parametro è di tipo [descrizione:nome, righe:[lista righe]]
     - [ ] codice server che prende valori e genera (MIRCO). Modifica UI in funzione del parametro: combo con le scelte + pulsante (se una solo selezione predefinita)
-  - [x] Documentazione API REST (Swagger)
-  - [x] Documentazione API Helper (Java Doc)
-  - [x] Refactor Helper x semplificazione chiamate dopo prima versione (incapsulato "oggetti\metodi" SOAP ed esposto Liste\Mappe)
+  - [ ] Upload massivo (C)
+    - [ ] Finestra UPLOAD divisa in due parti PRINCIPALE (upload singolo) e ALLEGATI (upload multiplo). Principale compare solo se per external_id non presente (MIRCO)
+  - [ ] Download massivo (C)
+    - [x] basato su external_id, crea lo zip e propone download dello zip
+    - [ ] nome dello zip da dare viene passato come parametro f= (se manca uso DATA e ORA generazione zip)
   - [ ] Valutare Icone ed Ottimizzazione UI con Michela (C)
-  - [x] Gestione ACL
-    - [x] API Helper
-    - [x] Supporto parametro acls via url
 
 > *Attualmente si apre solo la finestra salva file
 
@@ -69,28 +69,42 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
     - [x] API Helper
     - [x] usato in GDA
     - [ ] Ticket #72
+  - [x] uso Helper nel contesto di scripting Groovy (determine)
+    - [x] usato in GDA
+  - [x] Modifica GDA-DOCUMENTALE (B5)
+    - [ ] GDA-PEC Adeguamento chiamate GDA-PEC verso GDA-DOCUMENTALE per parametro "ANNESSO" (verificare categoria giusto)
+    - [ ] Verificare il CONTENT-TYPE se esiste come metadato su DOCER (PEC) - dove usato e se indispensabile
+      - [ ] il problema potrebbe essere su quelle in uscite (perche' prende allegato da DOCER)
+      - [ ] e' GDAPEC che prende da DOCER l'allegato?
   - [ ] Operazione di consolida (paragrafo "Protocollazione ed archiviazione" -> cambio stato di archiviazione)
     - [x] API Helper
     - [ ] usato in GDA
-  - [x] uso Helper nel contesto di scripting Groovy (determine)
-    - [x] usato in GDA
   - [ ] Supporto per l’introduzione dell’helper nei contesti rimanenti
     - [ ] Albo
     - [ ] PEC
       - [ ] da Testare
     - [x] Protocollazione Esterna (gda-ws gda-documentale)
       - [x] da Testare (si testa con PEC)
-  - [x] Modifica GDA-DOCUMENTALE (B5)
-    - [ ] GDA-PEC Adeguamento chiamate GDA-PEC verso GDA-DOCUMENTALE per parametro "ANNESSO" (verificare categoria giusto)
-    - [ ] Verificare il CONTENT-TYPE se esiste come metadato su DOCER (PEC) - dove usato e se indispensabile
-      - [ ] il problema potrebbe essere su quelle in uscite (perche' prende allegato da DOCER)
-      - [ ] e' GDAPEC che prende da DOCER l'allegato?
 
 - [ ] VARIE
-  - [ ] Uso del metadato “Originale cartaceo" (permessi mix tra originali cartacei e digitali in stesso protocollo??)
   - [x] Supporto per adeguamento script Mauro (probabilmente chiamate rest dirette)
     - [x] adeguato servizio che Mauro utilizza (gda-ws) (Tiziano)
   - [x] Sistemazione codice
+  - [x] Creazione Utenti e Gruppi via API SOAP
+  - [x] Uso dell'Helper come istanza di Classe che da errore (vedi email Tiziano) (B3)
+    - [x] sembra stranezza progetto GDA (perche' su nuovo progetto ok)
+  - [x] ACLs da GDA dare le attribuzioni a DOCER (B3)
+   - [x] REST pronti da usare
+  - [x] protocollazione (mai provata) (B5)
+    - [x] testato
+  - [ ] aggiungi i metadati documento per Registrazione, Conservazione e Pubblicazione (MIRCO metto in B)
+  - [ ] verificare ENUM Metadati con Allegato XLS metadati (MIRCO metto in B)
+  - [ ] metadato originale cartaceo/digitale (B3)
+    - [ ] Si esite già il metadato "ARCHIVE_TYPE" e deve esse settato a " PAPER"
+  - [ ] invio in conservazione (C)
+  - [ ] Test e validazione
+  - [ ] chiamate rest da Python
+  - [ ] Uso del metadato “Originale cartaceo" (permessi mix tra originali cartacei e digitali in stesso protocollo??)
   - [ ] Gestione hash x stampa registro protocollo
     - [x] Calcolo DOC_HASH automatico Helper
     - [ ] stampa del protocollato il giorno tot (elenco HASH da external_id)
@@ -98,17 +112,3 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
       - [ ] docer sa cosa è modificato
       - [ ] versionamento del file
     - [ ] Helper nuovo metodo ricerca documenti modificati in data X (MIRCO) --> EXTERNA_ID NOME_FILE HASH
-  - [ ] Test e validazione
-  - [x] Creazione Utenti e Gruppi via API SOAP
-  - [x] Uso dell'Helper come istanza di Classe che da errore (vedi email Tiziano) (B3)
-    - [x] sembra stranezza progetto GDA (perche' su nuovo progetto ok)
-  - [x] ACLs da GDA dare le attribuzioni a DOCER (B3)
-  - [ ] chiamate rest da Python
-   - [x] REST pronti da usare
-  - [x] protocollazione (mai provata) (B5)
-    - [x] testato
-  - [ ] invio in conservazione (C)
-  - [ ] aggiungi i metadati documento per Registrazione, Conservazione e Pubblicazione (MIRCO)
-  - [ ] metadato originale cartaceo/digitale (B3)
-    - [ ] Si esite già il metadato "ARCHIVE_TYPE" e deve esse settato a " PAPER"
-  - [ ] verificare ENUM Metadati con Allegato XLS metadati (MIRCO)

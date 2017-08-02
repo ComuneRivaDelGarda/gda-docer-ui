@@ -32,8 +32,6 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] Gestione ACL
     - [x] API Helper
     - [x] Supporto parametro acls via url
-  - [ ] Apri file direttamente da pulsante (scelta tra download e apri)* (B3)
-    - [ ] Modifica WebVIEW (TIZIANO)
   - [ ] Gestione watermark tramite chiamata iWas (B3)
     - [ ] parametro da passare a GDA a WebView (TIZIANO e MICHELA). Il parametro è di tipo [descrizione:nome, righe:[lista righe]]
     - [ ] codice server che prende valori e genera (MIRCO). Modifica UI in funzione del parametro: combo con le scelte + pulsante (se una solo selezione predefinita)
@@ -52,7 +50,8 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] Cartella di download preimpostabile
   - [x] Salvataggio contenuti non gestiti da browser
   - [x] Inettare codice JS, cookie jar, finestre in popup (compatibilità App come jEnte)
-  - [ ] scarico\salva
+  - [ ] Apri file direttamente da pulsante (scelta tra download e apri)* (B3)
+    - [ ] Modifica WebVIEW (TIZIANO)
 
 - [x] USO HELPER IN GDA
   - [x] Listing di documenti per ext_id, con relativi metadati

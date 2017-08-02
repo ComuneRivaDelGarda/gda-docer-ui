@@ -40,8 +40,8 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [ ] Download massivo (C)
     - [x] basato su external_id, crea lo zip e propone download dello zip
     - [ ] nome dello zip da dare viene passato come parametro f= (se manca uso DATA e ORA generazione zip)
-  - [ ] Valutare Icone ed Ottimizzazione UI con Michela (C)
-
+  - [ ] Valutare Icone ed Ottimizzazione UI con Michela (C) 
+  
 > *Attualmente si apre solo la finestra salva file
 
 - [x] WEBAPP BRIDGE
@@ -71,10 +71,12 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] uso Helper nel contesto di scripting Groovy (determine)
     - [x] usato in GDA
   - [x] Modifica GDA-DOCUMENTALE (B5)
-    - [ ] GDA-PEC Adeguamento chiamate GDA-PEC verso GDA-DOCUMENTALE per parametro "ANNESSO" (verificare categoria giusto)
-    - [ ] Verificare il CONTENT-TYPE se esiste come metadato su DOCER (PEC) - dove usato e se indispensabile
-      - [ ] il problema potrebbe essere su quelle in uscite (perche' prende allegato da DOCER)
-      - [ ] e' GDAPEC che prende da DOCER l'allegato?
+  - [ ] GDA-PEC Adeguamento 
+    - [ ] chiamate GDA-PEC verso GDA-DOCUMENTALE per parametro "ANNESSO" (verificare categoria giusto)
+    - [ ] archiviazione PEC in ingresso con EML PRINCIPALE e ALLEGATI
+    - [ ] Verificare il CONTENT-TYPE se esiste come metadato su DOCER (PEC) - dove usato e se indispensabile. Il problema potrebbe essere su quelle in uscite (perche' prende allegato da DOCER)
+    - [ ] e' GDAPEC che prende da DOCER l'allegato?
+    - [ ] GDAPEC dopo protocollo ed archiviazione in DOCER chiamata a microservizio x allineare ACL su Protocollo
   - [ ] Operazione di consolida (paragrafo "Protocollazione ed archiviazione" -> cambio stato di archiviazione)
     - [x] API Helper
     - [ ] usato in GDA

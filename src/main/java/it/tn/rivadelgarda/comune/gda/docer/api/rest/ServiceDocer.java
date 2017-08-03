@@ -3,6 +3,7 @@ package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.axis2.dataretrieval.OutputForm;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.ant.types.resources.selectors.Date;
@@ -36,6 +38,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.axiastudio.iwas.IWas;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
@@ -267,7 +270,7 @@ public class ServiceDocer {
 	@Path("/documents/{documentId}/download/{versionNumber}")
 	// @Produces(MediaType.APPLICATION_JSON)
 	public Response getDocumentDownloadVersion(@PathParam("documentId") String documentId,
-			@PathParam("versionNumber") String versionNumber, @QueryParam("stamp") String stampParam,
+			@PathParam("versionNumber") String versionNumber, @QueryParam("stamp") final String stampParam,
 			@QueryParam("utente") String utente) {
 		Response response = null;
 		try {
@@ -291,17 +294,7 @@ public class ServiceDocer {
 					}
 
 					// lettura del file
-					final byte[] documentStream = docer.getDocument(documentId, versionNumber);
-
-					/**
-					 * CODICE PER STAMP WATERMARK
-					 * https://gist.github.com/tizianolattisi/d02f951b4e08216f968d3d1c1f46e30a
-					 */
-					if (stampParam != null) {
-						// stamp sarà un JSON di dati da utilizzare
-						// StampData stampData = new Gson().fromJson(stampParam, StampData.class);
-						// documentStream = applyStamp(stampData, documentStream);
-					}
+					final InputStream documentInputStream = docer.getDocumentStream(documentId, versionNumber);
 
 					// final String filePath =
 					// restServletContext.getRealPath("/WEB-INF/test-docer/test.pdf");
@@ -313,9 +306,22 @@ public class ServiceDocer {
 							try {
 								// java.nio.file.Path path =
 								// Paths.get(filePath);
-								byte[] data = documentStream; // Files.readAllBytes(path);
-								output.write(data);
-								output.flush();
+//								byte[] data = documentStream.; // Files.readAllBytes(path);
+//								output.write(data);
+//								output.flush();
+								
+								if (stampParam != null) {
+									// se il file è un PDF applichiamo watermark
+									if (fileName.endsWith(".pdf")) {
+										// stamp sarà un JSON di dati da utilizzare
+										StampData stampData = new Gson().fromJson(stampParam, StampData.class);
+										// applyStamp(stampData, documentStream);
+										applyStamp(stampData, documentInputStream, output);
+									}
+								} else {
+									output.write(documentInputStream.read());
+									output.flush();
+								}
 							} catch (Exception e) {
 								throw new WebApplicationException("File Not Found !!");
 							}
@@ -681,65 +687,29 @@ public class ServiceDocer {
 	// }
 
 	/**
-	 * 
+	 * CODICE PER STAMP WATERMARK
+	 * @param stamp
+	 * @param inputStream
+	 * @return
 	 */
-	private byte[] applyStamp(StampData stamp, byte[] documentStream) {
-
-		// InputStream in = this.helper.getDocumentStream(objectId);
-		// ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		// if (stamp != null) {
-		// if (fileName.toLowerCase().endsWith("pdf")) {
-		// Calendar calendar = Calendar.getInstance();
-		// stampMap.put("datacorrente", calendar.getTime());
-		// Protocollo protocollo = (Protocollo) entity;
-		// SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy HH:mm");
-		// stampMap.put("dataprotocollo", protocollo.getDataprotocollo());
-		// stampMap.put("iddocumento", protocollo.getIddocumento());
-		//
-		// Float offsetX = Float.valueOf(SuiteUtil.trovaCostante(tipo +
-		// "_OFFSETX").getValore());
-		// Float offsetY = Float.valueOf(SuiteUtil.trovaCostante(tipo +
-		// "_OFFSETY").getValore());
-		// IWas iwas = IWas.create();
-		// try {
-		// iwas.load(in).offset(offsetX, offsetY);
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		//
-		// Integer nRighe = Integer.valueOf(SuiteUtil.trovaCostante(tipo +
-		// "_NRIGHE").getValore());
-		// Float rotation = Float.valueOf(SuiteUtil.trovaCostante(tipo +
-		// "_ROTATION").getValore());
-		// for (int i = 1; i <= nRighe; i++) {
-		// String testoCC = SuiteUtil.trovaCostante(tipo + "_TESTO" +
-		// String.valueOf(i)).getValore();
-		// if (i == nRighe && protocollo.getRiservato()) {
-		// testoCC += " - documento RISERVATO";
-		// }
-		// MessageMapFormat mmp = new MessageMapFormat(testoCC);
-		// String testo = mmp.format(this.stampMap);
-		// iwas.text(testo, 9, (float) (i - 1) * 9, 0f, rotation);
-		// }
-		// try {
-		// iwas.toStream(outputStream);
-		// openAsTemporaryFile(fileName, new
-		// ByteArrayInputStream(outputStream.toByteArray()), objectId);
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
-		// } else {
-		// QMessageBox.critical(this, "Funzionalità non compatibile",
-		// "Attenzione!! Funzionalità compatibile unicamente con documenti salvati in
-		// formato pdf.");
-		// }
-		// } else {
-		// openAsTemporaryFile(fileName, in, objectId);
-		// }
-
-		logger.warn("applyStamp non implementato {}", stamp);
-
-		return documentStream;
+	private void applyStamp(StampData stamp, InputStream inputStream, OutputStream outputStream) {
+		/*
+		 * https://gist.github.com/tizianolattisi/d02f951b4e08216f968d3d1c1f46e30a
+		 * https://github.com/axiastudio/iwas
+		 */
+				
+		IWas iwas = IWas.create();
+		try {
+            iwas.load(inputStream).offset(stamp.offsetX, stamp.offsetY);
+            int riga = 0;
+            for (String testo: stamp.rows) {
+            	riga++;
+                iwas.text(testo, 9, (float) (riga - 1) * 9, 0f, stamp.rotation);
+            }
+            iwas.toStream(outputStream);
+        } catch (Exception ex) {
+        	logger.error("applyStamp", ex);
+        }
 	}
 
 	@POST

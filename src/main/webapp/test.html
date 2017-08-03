@@ -50,14 +50,19 @@
 						
 						<div class="form-group">
 							<label for="utente">utente</label>
-							<input class="form-control" id="utente" value="test">
+							<input class="form-control" id="utente" value="">
 							<span class="help-block text-justify">specifica il nome dell'utente con il quale autenticarsi su DOCER (se non specificato usa admin)</span>							
 						</div>
 												
 						<div class="form-group">
 							<label for="stamp">stamp</label>
 							<input class="form-control" id="stamp">
-							<p class="help-block">json generazione stamp (dati per generazione watermark)</p>
+							<p class="help-block">json generazione stamp (dati per generazione watermark) es: <pre>{ 
+    "profilo1":
+    {"offsetX":10,"offsetY":10,"rotation":0,"rows":["riga1","riga2","riga3"]},
+    "profilo2":
+    {"offsetX":15,"offsetY":15,"rotation":45,"rows":["rigaA","rigaB","rigaC"]}
+  }</pre></p>
 						</div>
 																		
 						<button type="submit" class="btn btn-success btn-block">Aggiorna</button>

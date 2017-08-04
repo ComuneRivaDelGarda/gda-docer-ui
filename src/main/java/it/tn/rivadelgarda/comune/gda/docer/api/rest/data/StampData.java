@@ -23,8 +23,10 @@ public class StampData {
 //	
 //	String numeroProtocollo;
 	
-	public float offsetX;
-	public float offsetY;
+	String description;
+	
+	public float offsetx;
+	public float offsety;
 	
 //	int nRighe;
 	

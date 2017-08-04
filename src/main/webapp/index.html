@@ -80,7 +80,7 @@
 							Test Watermark <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu">
-							<li ng-repeat="(key, value) in stamp"><a title="Scarica Documento WATERMARK" ng-disabled="!selectedDoc||!profile.download" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download?&stamp={{value}}">{{key}}</a></li>
+							<li ng-repeat="profilo in stamp"><a title="Scarica Documento WATERMARK" ng-disabled="!selectedDoc||!profile.download" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download?&stamp={{profilo}}">{{profilo.description}}</a></li>
 						</ul>
 					</div>
 				</div>

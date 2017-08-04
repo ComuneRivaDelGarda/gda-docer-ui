@@ -700,7 +700,7 @@ public class ServiceDocer {
 				
 		IWas iwas = IWas.create();
 		try {
-            iwas.load(inputStream).offset(stamp.offsetX, stamp.offsetY);
+            iwas.load(inputStream).offset(stamp.offsetx, stamp.offsety);
             int riga = 0;
             for (String testo: stamp.rows) {
             	riga++;

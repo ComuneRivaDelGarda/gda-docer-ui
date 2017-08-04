@@ -3,8 +3,8 @@ WebApp per browsing DOCER e REST Api
 
 ## DOCUMENTAZIONE
 
-https://comunerivadelgarda.github.io/gda-docer-ui/
-https://comunerivadelgarda.github.io/gda-docer-ui/api-doc/
+- https://comunerivadelgarda.github.io/gda-docer-ui/
+- https://comunerivadelgarda.github.io/gda-docer-ui/api-doc/
 
 ## RUN
 
@@ -32,7 +32,7 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] Gestione ACL
     - [x] API Helper
     - [x] Supporto parametro acls via url
-  - [ ] Gestione watermark tramite chiamata iWas (B3)
+  - [x] Gestione watermark tramite chiamata iWas (B3)
     - [x] parametro da passare a GDA a WebView (TIZIANO e MICHELA). Il parametro è di tipo [{descrizione:nome, righe:[lista righe]}]
     - [x] codice server che prende valori e genera (MIRCO). Modifica UI in funzione del parametro: combo con le scelte + pulsante (se una solo selezione predefinita)
     - [ ] da testare    
@@ -51,7 +51,7 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] Cartella di download preimpostabile
   - [x] Salvataggio contenuti non gestiti da browser
   - [x] Inettare codice JS, cookie jar, finestre in popup (compatibilità App come jEnte)
-  - [ ] Apri file direttamente da pulsante (scelta tra download e apri)* (B3)
+  - [x] Apri file direttamente da pulsante (scelta tra download e apri)* (B3)
     - [x] Modifica WebVIEW (TIZIANO)
     - [ ] da testare
 
@@ -69,7 +69,7 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] Gestione ACL (assegnazione e modifica per ogni modifica delle attribuzioni) (B5)
     - [x] API Helper
     - [x] usato in GDA
-    - [ ] Ticket #72
+    - [ ] Ticket #72 (MIRCO)
   - [x] uso Helper nel contesto di scripting Groovy (determine)
     - [x] usato in GDA
   - [x] Modifica GDA-DOCUMENTALE (B5)
@@ -100,9 +100,12 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
    - [x] REST pronti da usare
   - [x] protocollazione (mai provata) (B5)
     - [x] testato
-  - [ ] aggiungi i metadati documento per Registrazione, Conservazione e Pubblicazione (MIRCO metto in B)
-  - [ ] verificare ENUM Metadati con Allegato XLS metadati (MIRCO metto in B)
-  - [ ] metadato originale cartaceo/digitale (B3)
+  - [x] aggiungi i metadati documento per Registrazione, Conservazione e Pubblicazione (MIRCO metto in B)
+    - [x] Registrazione
+    - [x] Conservazione
+    - [x] Pubblicazione
+  - [x] verificare ENUM Metadati con Allegato XLS metadati (MIRCO metto in B)
+  - [x] metadato originale cartaceo/digitale (B3)
     - [x] Si esite già il metadato "ARCHIVE_TYPE" e deve esse settato a " PAPER"
   - [ ] invio in conservazione (C)
   - [ ] Test e validazione

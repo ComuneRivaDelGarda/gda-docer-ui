@@ -33,8 +33,9 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
     - [x] API Helper
     - [x] Supporto parametro acls via url
   - [ ] Gestione watermark tramite chiamata iWas (B3)
-    - [ ] parametro da passare a GDA a WebView (TIZIANO e MICHELA). Il parametro è di tipo [descrizione:nome, righe:[lista righe]]
-    - [ ] codice server che prende valori e genera (MIRCO). Modifica UI in funzione del parametro: combo con le scelte + pulsante (se una solo selezione predefinita)
+    - [x] parametro da passare a GDA a WebView (TIZIANO e MICHELA). Il parametro è di tipo [{descrizione:nome, righe:[lista righe]}]
+    - [x] codice server che prende valori e genera (MIRCO). Modifica UI in funzione del parametro: combo con le scelte + pulsante (se una solo selezione predefinita)
+    - [ ] da testare    
   - [ ] Upload massivo (C)
     - [ ] Finestra UPLOAD divisa in due parti PRINCIPALE (upload singolo) e ALLEGATI (upload multiplo). Principale compare solo se per external_id non presente (MIRCO)
   - [ ] Download massivo (C)
@@ -51,7 +52,8 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] Salvataggio contenuti non gestiti da browser
   - [x] Inettare codice JS, cookie jar, finestre in popup (compatibilità App come jEnte)
   - [ ] Apri file direttamente da pulsante (scelta tra download e apri)* (B3)
-    - [ ] Modifica WebVIEW (TIZIANO)
+    - [x] Modifica WebVIEW (TIZIANO)
+    - [ ] da testare
 
 - [x] USO HELPER IN GDA
   - [x] Listing di documenti per ext_id, con relativi metadati
@@ -71,18 +73,18 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [x] uso Helper nel contesto di scripting Groovy (determine)
     - [x] usato in GDA
   - [x] Modifica GDA-DOCUMENTALE (B5)
-  - [ ] GDA-PEC Adeguamento 
-    - [ ] chiamate GDA-PEC verso GDA-DOCUMENTALE per parametro "ANNESSO" (verificare categoria giusto)
-    - [ ] archiviazione PEC in ingresso con EML PRINCIPALE e ALLEGATI
-    - [ ] Verificare il CONTENT-TYPE se esiste come metadato su DOCER (PEC) - dove usato e se indispensabile. Il problema potrebbe essere su quelle in uscite (perche' prende allegato da DOCER)
-    - [ ] e' GDAPEC che prende da DOCER l'allegato?
-    - [ ] GDAPEC dopo protocollo ed archiviazione in DOCER chiamata a microservizio x allineare ACL su Protocollo
+  - [x] GDA-PEC Adeguamento 
+    - [x] chiamate GDA-PEC verso GDA-DOCUMENTALE per parametro "ANNESSO" (verificare categoria giusto)
+    - [x] archiviazione PEC in ingresso con EML PRINCIPALE e ALLEGATI
+    - [x] Verificare il CONTENT-TYPE se esiste come metadato su DOCER (PEC) - dove usato e se indispensabile. Il problema potrebbe essere su quelle in uscite (perche' prende allegato da DOCER)
+    - [x] e' GDAPEC che prende da DOCER l'allegato?
+    - [x] GDAPEC dopo protocollo ed archiviazione in DOCER chiamata a microservizio x allineare ACL su Protocollo
   - [ ] Operazione di consolida (paragrafo "Protocollazione ed archiviazione" -> cambio stato di archiviazione)
     - [x] API Helper
     - [ ] usato in GDA
   - [ ] Supporto per l’introduzione dell’helper nei contesti rimanenti
     - [ ] Albo
-    - [ ] PEC
+    - [ ] GDA-PEC
       - [ ] da Testare
     - [x] Protocollazione Esterna (gda-ws gda-documentale)
       - [x] da Testare (si testa con PEC)
@@ -101,7 +103,7 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
   - [ ] aggiungi i metadati documento per Registrazione, Conservazione e Pubblicazione (MIRCO metto in B)
   - [ ] verificare ENUM Metadati con Allegato XLS metadati (MIRCO metto in B)
   - [ ] metadato originale cartaceo/digitale (B3)
-    - [ ] Si esite già il metadato "ARCHIVE_TYPE" e deve esse settato a " PAPER"
+    - [x] Si esite già il metadato "ARCHIVE_TYPE" e deve esse settato a " PAPER"
   - [ ] invio in conservazione (C)
   - [ ] Test e validazione
   - [ ] chiamate rest da Python

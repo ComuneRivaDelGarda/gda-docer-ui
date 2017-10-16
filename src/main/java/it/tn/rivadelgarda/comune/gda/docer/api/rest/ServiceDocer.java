@@ -284,14 +284,14 @@ public class ServiceDocer {
 					Map<String, String> documentMetadata = docer.getProfileDocumentMap(documentId);
 					final String fileName = documentMetadata.get(MetadatiDocumento.DOCNAME.getValue());
 
-					// String versionNumber = "";
-					if (StringUtils.isBlank(versionNumber)) {
-						List<String> versioni = docer.getVersions(documentId);
-						for (String v : versioni) {
-							versionNumber = v;
-							break;
-						}
-					}
+//					// String versionNumber = "";
+//					if (StringUtils.isBlank(versionNumber)) {
+//						List<String> versioni = docer.getVersions(documentId);
+//						for (String v : versioni) {
+//							versionNumber = v;
+//							break;
+//						}
+//					}
 
 					// lettura del file
 					final InputStream documentInputStream = docer.getDocumentStream(documentId, versionNumber);
@@ -310,16 +310,15 @@ public class ServiceDocer {
 //								output.write(data);
 //								output.flush();
 								
-								if (stampParam != null) {
+								if (StringUtils.isNotBlank(stampParam) && fileName.endsWith(".pdf")) {
 									// se il file è un PDF applichiamo watermark
-									if (fileName.endsWith(".pdf")) {
-										// stamp sarà un JSON di dati da utilizzare
-										StampData stampData = new Gson().fromJson(stampParam, StampData.class);
-										// applyStamp(stampData, documentStream);
-										applyStamp(stampData, documentInputStream, output);
-									}
+									// stamp sarà un JSON di dati da utilizzare
+									StampData stampData = new Gson().fromJson(stampParam, StampData.class);
+									// applyStamp(stampData, documentStream);
+									applyStamp(stampData, documentInputStream, output);
 								} else {
-									output.write(documentInputStream.read());
+									IOUtils.copy(documentInputStream, output);
+									// output.write();
 									output.flush();
 								}
 							} catch (Exception e) {

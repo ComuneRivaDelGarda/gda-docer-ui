@@ -127,12 +127,14 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.utente = SessionService.utente;
 	
 	/* stamp data */
+	$scope.stampEnabled = false;
     SessionService.stamp = "";
 	if ($location.search().stamp) {
         var stamp = decodeURIComponent($location.search().stamp);
         $scope.stamp = angular.fromJson(stamp);
         $log.debug('stamp='+stamp);
         SessionService.stamp = $scope.stamp;
+        $scope.stampEnabled = true;
 	}
 
 	// elenco dei documenti della cartella

@@ -124,5 +124,5 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
       - [ ] jasper registri ci sono ad esclusione degli hash NOME FILE|HASH
       - [ ] TIZIANO: modifica script attuale che deve aggiungere EXTERNAL_ID come colonna
       - [ ] TIZIANO: legge da PS + EXTERNAL_ID, crea PDF, file inviato a DOCER e non da ALFRESCO
-      - [ ] MIRCO: RG param IN -data (GG singolo)- EXT=PROTOCOLLO_X,PROTOCOLLO_Y prendi tutti tutti i DOC con quegli EXTERNAL_ID e OUT tutti i DOC RELATIVI agli EXTERNAL_ID CREATI quel giorno su EXTERNAL_ID CREATI quel giorno --> EXTERNAL_ID|NOME|HASH
+      - [ ] MIRCO: RG param IN data (GG singolo) EXT=PROTOCOLLO_X,PROTOCOLLO_Y prendi tutti tutti i DOC con quegli EXTERNAL_ID (da - a) creati quel giorno --> EXTERNAL_ID|NOME|HASH
       - [ ] MIRCO: RM param IN PROTOCOLLO IN tutti i documenti aggiunti o modificati (OGGI, giorno che si sta concludendo) con EXTERNAL_ID precedente a PROTOCOLLO_X

@@ -118,3 +118,11 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
       - [ ] docer sa cosa è modificato
       - [ ] versionamento del file
     - [ ] Helper nuovo metodo ricerca documenti modificati in data X (MIRCO) --> EXTERNA_ID NOME_FILE HASH
+    - [ ] 27/11/2017 estrarre 2 registri: registro di protocollo giornaliero e registro delle modifiche
+      - [ ] tutte le registrazioni di protocollo N.|Data|Oggetto|HASH
+      - [ ] registro delle modifiche giornaliere (dal giorno prima indietro) modifiche ai dati e/o files
+      - [ ] jasper registri ci sono ad esclusione degli hash NOME FILE|HASH
+      - [ ] TIZIANO: modifica script attuale che deve aggiungere EXTERNAL_ID come colonna
+      - [ ] TIZIANO: legge da PS + EXTERNAL_ID, crea PDF, file inviato a DOCER e non da ALFRESCO
+      - [ ] MIRCO: RP param IN data (GG singolo) e OUT tutti i DOC RELATIVI agli EXTERNAL_ID creati quel giorno su EXTERNAL_ID creati quel gionro 
+      - [ ] MIRCO: RM tutti documenti aggiunti o modificati come versione per EXTERNAL_ID da ieri indieto

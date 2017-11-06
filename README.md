@@ -38,9 +38,9 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
     - [ ] da testare    
   - [ ] Upload massivo (C)
     - [ ] Finestra UPLOAD divisa in due parti PRINCIPALE (upload singolo) e ALLEGATI (upload multiplo). Principale compare solo se per external_id non presente (MIRCO)
-  - [ ] Download massivo (C)
+  - [x] Download massivo (C)
     - [x] basato su external_id, crea lo zip e propone download dello zip
-    - [ ] nome dello zip da dare viene passato come parametro f= (se manca uso DATA e ORA generazione zip)
+    - [x] nome dello zip da dare viene passato come parametro f= (se manca uso DATA e ORA generazione zip)
   - [ ] Valutare Icone ed Ottimizzazione UI con Michela (C) 
   
 > *Attualmente si apre solo la finestra salva file

@@ -84,7 +84,7 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
     - [ ] usato in GDA
   - [ ] Supporto per l’introduzione dell’helper nei contesti rimanenti
     - [ ] Albo
-    - [ ] GDA-PEC
+    - [x] GDA-PEC
       - [ ] da Testare
     - [x] Protocollazione Esterna (gda-ws gda-documentale)
       - [x] da Testare (si testa con PEC)

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -351,17 +352,24 @@ public class ServiceDocer extends ServiceBase {
 	@GET
 	@Path("/documents/downloadall")
 	// @Produces(MediaType.APPLICATION_JSON)
-	public Response getDocumentDownloadAll(@QueryParam("externalId") String externalId,
-			@QueryParam("utente") String utente) {
+	public Response getDocumentDownloadAll(
+			@QueryParam("externalId") String externalId,
+			@QueryParam("utente") String utente,
+			@QueryParam("fileNameZip") String fileNameZip) {
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("externalId={}", externalId);
 		logger.debug("utente={}", utente);
+		logger.debug("fileNameZip={}", fileNameZip);
 		Response response = null;
 		try {
 			if (StringUtils.isNoneBlank(externalId)) {
 				try (DocerHelper docer = getDocerHelper(utente)) {
 					
-					String zipName = "all_" + externalId + ".zip";
+					String now = new SimpleDateFormat("yyyyMMdd_HHMM").format(new Date());
+					String zipName = (StringUtils.isNotEmpty(fileNameZip)) ? fileNameZip : now;
+					if (!zipName.endsWith(".zip")) {
+						zipName = zipName + ".zip";
+					}
 
 					// lista documenti da External_ID
 					final List<Map<String, String>> documents = docer.searchDocumentsByExternalIdAll(externalId);

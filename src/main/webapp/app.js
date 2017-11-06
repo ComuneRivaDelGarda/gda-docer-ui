@@ -20,6 +20,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 
 	SessionService.utente = "";
 	SessionService.stamp = "";
+	SessionService.fileNameZip = "";
 
 	return SessionService;
 }])
@@ -137,6 +138,16 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
         $scope.stampEnabled = true;
 	}
 
+	/* stamp data */
+	$scope.fileNameZip = "";
+    SessionService.fileNameZip = "";
+	if ($location.search().f) {
+        var f = decodeURIComponent($location.search().f);
+        $scope.fileNameZip = angular.fromJson(f);
+        $log.debug('fileNameZip='+fileNameZip);
+        SessionService.fileNameZip = $scope.fileNameZip;
+	}
+	
 	// elenco dei documenti della cartella
 	$scope.docs = [];
 	// indica se la cartella ha un documento principale, utile per il popup upload disabilita opzione principale

@@ -20,6 +20,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 
 	SessionService.utente = "";
 	SessionService.stamp = "";
+	SessionService.fileNameZip = "";
 
 	return SessionService;
 }])
@@ -60,6 +61,12 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			url: './api/docer/documents/:id/delete',
 			method : 'DELETE',
 			isArray : false
+		},
+		'downloadall' : {
+			url: './api/docer/documents/downloadall',
+			method : 'GET',
+			isArray : false,
+			params: { externalId : 0 }
 		}
 	});
 	return docerResource;
@@ -76,8 +83,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.profile = {
 		admin:false, view:true, "delete":true, download:true, parent:true, upload:true, version:true
 	};
-	if ($location.search().profile) {
-		 var profile = $location.search().profile;
+	if ($location.search().profile || $location.search().flags) {
+		 var profile = ($location.search().profile) ? $location.search().profile : $location.search().flags;
 		 $log.debug('param profile='+profile);
 		 $scope.profile = {
 			 admin:(profile[0]==='2'),
@@ -112,19 +119,35 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		$scope.acl = angular.fromJson(aclParam);
 	}
     /* utente per autenticarsi */
+	
     SessionService.utente = "";
 	if ($location.search().utente) {
         SessionService.utente = $location.search().utente;
         $log.debug('utente='+SessionService.utente);
-
 	}
+	$scope.utente = SessionService.utente;
+	
 	/* stamp data */
+	$scope.stampEnabled = false;
     SessionService.stamp = "";
 	if ($location.search().stamp) {
-        SessionService.stamp = decodeURIComponent($location.search().stamp);
-        $log.debug('stamp='+SessionService.stamp);
+        var stamp = decodeURIComponent($location.search().stamp);
+        $scope.stamp = angular.fromJson(stamp);
+        $log.debug('stamp='+stamp);
+        SessionService.stamp = $scope.stamp;
+        $scope.stampEnabled = true;
 	}
 
+	/* stamp data */
+	$scope.fileNameZip = "";
+    SessionService.fileNameZip = "";
+	if ($location.search().f) {
+        var f = decodeURIComponent($location.search().f);
+        $scope.fileNameZip = angular.fromJson(f);
+        $log.debug('fileNameZip='+fileNameZip);
+        SessionService.fileNameZip = $scope.fileNameZip;
+	}
+	
 	// elenco dei documenti della cartella
 	$scope.docs = [];
 	// indica se la cartella ha un documento principale, utile per il popup upload disabilita opzione principale

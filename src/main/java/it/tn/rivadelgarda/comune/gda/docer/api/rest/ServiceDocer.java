@@ -1,13 +1,18 @@
 package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
@@ -25,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.axis2.dataretrieval.OutputForm;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.ant.types.resources.selectors.Date;
@@ -33,10 +39,10 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.axiastudio.iwas.IWas;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -53,15 +59,7 @@ import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.TIPO_COMPONENT
 
 @Api(value = "Docer API")
 @Path("/docer")
-public class ServiceDocer {
-
-	protected static final Logger logger = LoggerFactory.getLogger(ServiceDocer.class);
-
-	@Context
-	protected ServletContext restServletContext;
-
-	@Context
-	protected UriInfo uriInfo;
+public class ServiceDocer extends ServiceBase {
 
 	@ApiOperation(value = "/documents", notes = "ritorna documenti (e tutti i metadati) con uno specifico metadato EXTERNAL_ID")
 	@ApiResponses(value = {
@@ -71,12 +69,13 @@ public class ServiceDocer {
 	@Path("/documents")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getDocuments(
-			@ApiParam(value = "attributo EXTERNAL_ID da cercare") @QueryParam("externalId") String externalId, @QueryParam("utente") String utente) {
+			@ApiParam(value = "attributo EXTERNAL_ID da cercare") @QueryParam("externalId") String externalId,
+			@QueryParam("utente") String utente) {
 		Response response = null;
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("externalId={}", externalId);
 		logger.debug("utente={}", utente);
-		
+
 		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(externalId)) {
 				// List<Map<String, String>> documents =
@@ -100,14 +99,14 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocuments(@ApiParam(value = "documentId della folder") @PathParam("id") String folderId, @QueryParam("utente") String utente) {
+	public Response getFolderDocuments(@ApiParam(value = "documentId della folder") @PathParam("id") String folderId,
+			@QueryParam("utente") String utente) {
 		Response response = null;
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("id={}", folderId);
 		logger.debug("utente={}", utente);
-		
-		try (DocerHelper docer = getDocerHelper(utente)) {
 
+		try (DocerHelper docer = getDocerHelper(utente)) {
 
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<String> documents = docer.getFolderDocuments(folderId);
@@ -181,7 +180,7 @@ public class ServiceDocer {
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("id={}", folderId);
 		logger.debug("utente={}", utente);
-			
+
 		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(folderId)) {
 				List<Map<String, String>> data = new ArrayList<>();
@@ -215,8 +214,8 @@ public class ServiceDocer {
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("id={}", documentId);
 		logger.debug("utente={}", utente);
-		
-		try (DocerHelper docer = getDocerHelper(utente)) {			
+
+		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(documentId)) {
 				Map<String, String> documentData = docer.getProfileDocumentMap(documentId);
 				String json = new Gson().toJson(documentData);
@@ -264,7 +263,8 @@ public class ServiceDocer {
 	@Path("/documents/{documentId}/download/{versionNumber}")
 	// @Produces(MediaType.APPLICATION_JSON)
 	public Response getDocumentDownloadVersion(@PathParam("documentId") String documentId,
-			@PathParam("versionNumber") String versionNumber, @QueryParam("stamp") String stampParam, @QueryParam("utente") String utente) {
+			@PathParam("versionNumber") String versionNumber, @QueryParam("stamp") final String stampParam,
+			@QueryParam("utente") String utente) {
 		Response response = null;
 		try {
 			logger.debug("{}", uriInfo.getAbsolutePath());
@@ -277,27 +277,17 @@ public class ServiceDocer {
 					Map<String, String> documentMetadata = docer.getProfileDocumentMap(documentId);
 					final String fileName = documentMetadata.get(MetadatiDocumento.DOCNAME.getValue());
 
-					// String versionNumber = "";
-					if (StringUtils.isBlank(versionNumber)) {
-						List<String> versioni = docer.getVersions(documentId);
-						for (String v : versioni) {
-							versionNumber = v;
-							break;
-						}
-					}
+//					// String versionNumber = "";
+//					if (StringUtils.isBlank(versionNumber)) {
+//						List<String> versioni = docer.getVersions(documentId);
+//						for (String v : versioni) {
+//							versionNumber = v;
+//							break;
+//						}
+//					}
 
 					// lettura del file
-					final byte[] documentStream = docer.getDocument(documentId, versionNumber);
-
-					/**
-					 * CODICE PER STAMP WATERMARK
-					 * https://gist.github.com/tizianolattisi/d02f951b4e08216f968d3d1c1f46e30a
-					 */
-					if (stampParam != null) {
-						// stamp sarà un JSON di dati da utilizzare
-//						StampData stampData = new Gson().fromJson(stampParam, StampData.class);
-//						documentStream = applyStamp(stampData, documentStream);
-					}
+					final InputStream documentInputStream = docer.getDocumentStream(documentId, versionNumber);
 
 					// final String filePath =
 					// restServletContext.getRealPath("/WEB-INF/test-docer/test.pdf");
@@ -309,9 +299,21 @@ public class ServiceDocer {
 							try {
 								// java.nio.file.Path path =
 								// Paths.get(filePath);
-								byte[] data = documentStream; // Files.readAllBytes(path);
-								output.write(data);
-								output.flush();
+//								byte[] data = documentStream.; // Files.readAllBytes(path);
+//								output.write(data);
+//								output.flush();
+								
+								if (StringUtils.isNotBlank(stampParam) && fileName.endsWith(".pdf")) {
+									// se il file è un PDF applichiamo watermark
+									// stamp sarà un JSON di dati da utilizzare
+									StampData stampData = new Gson().fromJson(stampParam, StampData.class);
+									// applyStamp(stampData, documentStream);
+									applyStamp(stampData, documentInputStream, output);
+								} else {
+									IOUtils.copy(documentInputStream, output);
+									// output.write();
+									output.flush();
+								}
 							} catch (Exception e) {
 								throw new WebApplicationException("File Not Found !!");
 							}
@@ -335,12 +337,84 @@ public class ServiceDocer {
 	@GET
 	@Path("/documents/{documentId}/download")
 	// @Produces(MediaType.APPLICATION_JSON)
-	public Response getDocumentDownload(@PathParam("documentId") String documentId, @QueryParam("stamp") String stamp, @QueryParam("utente") String utente) {
+	public Response getDocumentDownload(@PathParam("documentId") String documentId, @QueryParam("stamp") String stamp,
+			@QueryParam("utente") String utente) {
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("documentId={}", documentId);
 		logger.debug("stamp", stamp);
 		logger.debug("utente={}", utente);
 		return getDocumentDownloadVersion(documentId, "", stamp, utente);
+	}
+
+	@ApiOperation(value = "/downloadall", notes = "download all documents by external_id in a single zip", produces = MediaType.APPLICATION_OCTET_STREAM)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "success"),
+			@ApiResponse(code = 500, message = "error") })
+	@GET
+	@Path("/documents/downloadall")
+	// @Produces(MediaType.APPLICATION_JSON)
+	public Response getDocumentDownloadAll(
+			@QueryParam("externalId") String externalId,
+			@QueryParam("utente") String utente,
+			@QueryParam("fileNameZip") String fileNameZip) {
+		logger.debug("{}", uriInfo.getAbsolutePath());
+		logger.debug("externalId={}", externalId);
+		logger.debug("utente={}", utente);
+		logger.debug("fileNameZip={}", fileNameZip);
+		Response response = null;
+		try {
+			if (StringUtils.isNoneBlank(externalId)) {
+				try (DocerHelper docer = getDocerHelper(utente)) {
+					
+					String now = new SimpleDateFormat("yyyyMMdd_HHMM").format(new Date());
+					String zipName = (StringUtils.isNotEmpty(fileNameZip)) ? fileNameZip : now;
+					if (!zipName.endsWith(".zip")) {
+						zipName = zipName + ".zip";
+					}
+
+					// lista documenti da External_ID
+					final List<Map<String, String>> documents = docer.searchDocumentsByExternalIdAll(externalId);
+					final Map<String, byte[]> documentBytes = new HashMap<>();
+					for (Map<String, String> metadata : documents) {
+						String documentId = KeyValuePairFactory.getMetadata(metadata, MetadatiDocumento.DOCNUM);
+						String fileName = KeyValuePairFactory.getMetadata(metadata, MetadatiDocumento.DOCNAME);
+						// calcolo versione documento
+						String versionNumber = "";
+						List<String> versioni = docer.getVersions(documentId);
+						for (String v : versioni) {
+							versionNumber = v;
+							break;
+						}
+						// scarico documento
+						final byte[] documentStream = docer.getDocument(documentId, versionNumber);
+						documentBytes.put(fileName, documentStream);
+					}
+					final byte[] documentStreamZipped = zipBytes(documentBytes);
+					
+					StreamingOutput fileStream = new StreamingOutput() {
+						@Override
+						public void write(java.io.OutputStream output) throws IOException, WebApplicationException {
+							try {
+								// java.nio.file.Path path =
+								// Paths.get(filePath);
+								byte[] data = documentStreamZipped; // Files.readAllBytes(path);
+								output.write(data);
+								output.flush();
+							} catch (Exception e) {
+								throw new WebApplicationException("File Not Found !!");
+							}
+						}
+					};
+
+					response = Response.ok(fileStream, MediaType.APPLICATION_OCTET_STREAM)
+							.header("content-disposition", "attachment;filename=\"" + zipName + "\"").build();
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("INTERNAL_SERVER_ERROR", ex);
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+					.type(MediaType.TEXT_PLAIN).build();
+		}
+		return response;
 	}
 
 	@ApiOperation(value = "/upload", notes = "upload di un document", consumes = MediaType.MULTIPART_FORM_DATA)
@@ -425,8 +499,8 @@ public class ServiceDocer {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response uploadOnFolder(@PathParam("folderId") String folderId,
-			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente, @FormDataParam("utente") String utente,
-			@FormDataParam("file") InputStream fileInputStream,
+			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente,
+			@FormDataParam("utente") String utente, @FormDataParam("file") InputStream fileInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		// public Response upload(@FormDataParam("file") InputStream file,
 		// @FormDataParam("file") FormDataContentDisposition fileDisposition) {
@@ -502,14 +576,15 @@ public class ServiceDocer {
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response uploadVersione(@PathParam("documentId") String documentId,
-			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("utente") String utente, @FormDataParam("file") InputStream fileInputStream,
+			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("utente") String utente,
+			@FormDataParam("file") InputStream fileInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("documentId={}", documentId);
 		logger.debug("abstract={}", abstractDocumento);
 		logger.debug("utente={}", utente);
-		
+
 		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
 		try {
 			final String fileName = fileDisposition.getFileName();
@@ -530,39 +605,6 @@ public class ServiceDocer {
 		return response;
 	}
 
-	DocerHelper docer = null;
-	String token = null;
-
-	private DocerHelper getDocerHelper(String utente) throws Exception {
-		if (docer == null) {
-			Properties p = new Properties();
-			// String path =
-			// restServletContext.getRealPath("WEB-INF/config.properties");
-			// p.load(getClass().getResourceAsStream("config.properties"));
-			// p.load(fileProperties);
-			InputStream fileProperties = restServletContext.getResourceAsStream("/WEB-INF/config.properties");
-			p.load(fileProperties);
-			fileProperties.close();
-			logger.debug("caricato configurazione docer da /WEB-INF/config.properties");
-
-			String docerUsername = p.getProperty("username");
-			String docerPassword = p.getProperty("password");
-			final String docerUserPassword = p.getProperty("userpassword");
-			if (StringUtils.isNotBlank(utente)) {
-				docerUsername = utente;
-				docerPassword = docerUserPassword;
-			}
-			final String docerSerivcesUrl = p.getProperty("url");
-			
-			
-			docer = new DocerHelper(docerSerivcesUrl, docerUsername, docerPassword);
-
-			token = docer.login();
-			logger.debug("connesso a docer con tocken {}", token);
-		}
-		return docer;
-	}
-
 	@DELETE
 	@Path("/documents/{id}/delete")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -571,7 +613,7 @@ public class ServiceDocer {
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("documentId={}", documentId);
 		logger.debug("utente={}", utente);
-		
+
 		try (DocerHelper docer = getDocerHelper(utente)) {
 			boolean res = docer.deleteDocument(documentId);
 			response = Response.ok(res).build();
@@ -612,61 +654,31 @@ public class ServiceDocer {
 	// }
 
 	/**
-	 * 
+	 * CODICE PER STAMP WATERMARK
+	 * @param stamp
+	 * @param inputStream
+	 * @return
 	 */
-	private byte[] applyStamp(StampData stamp, byte[] documentStream) {
-		
-//		InputStream in = this.helper.getDocumentStream(objectId);
-//		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//		if (stamp != null) {
-//			if (fileName.toLowerCase().endsWith("pdf")) {
-//				Calendar calendar = Calendar.getInstance();
-//				stampMap.put("datacorrente", calendar.getTime());
-//				Protocollo protocollo = (Protocollo) entity;
-//				SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy HH:mm");
-//				stampMap.put("dataprotocollo", protocollo.getDataprotocollo());
-//				stampMap.put("iddocumento", protocollo.getIddocumento());
-//
-//				Float offsetX = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_OFFSETX").getValore());
-//				Float offsetY = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_OFFSETY").getValore());
-//				IWas iwas = IWas.create();
-//				try {
-//					iwas.load(in).offset(offsetX, offsetY);
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//
-//				Integer nRighe = Integer.valueOf(SuiteUtil.trovaCostante(tipo + "_NRIGHE").getValore());
-//				Float rotation = Float.valueOf(SuiteUtil.trovaCostante(tipo + "_ROTATION").getValore());
-//				for (int i = 1; i <= nRighe; i++) {
-//					String testoCC = SuiteUtil.trovaCostante(tipo + "_TESTO" + String.valueOf(i)).getValore();
-//					if (i == nRighe && protocollo.getRiservato()) {
-//						testoCC += " - documento RISERVATO";
-//					}
-//					MessageMapFormat mmp = new MessageMapFormat(testoCC);
-//					String testo = mmp.format(this.stampMap);
-//					iwas.text(testo, 9, (float) (i - 1) * 9, 0f, rotation);
-//				}
-//				try {
-//					iwas.toStream(outputStream);
-//					openAsTemporaryFile(fileName, new ByteArrayInputStream(outputStream.toByteArray()), objectId);
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			} else {
-//				QMessageBox.critical(this, "Funzionalità non compatibile",
-//						"Attenzione!! Funzionalità compatibile unicamente con documenti salvati in formato pdf.");
-//			}
-//		} else {
-//			openAsTemporaryFile(fileName, in, objectId);
-//		}
-		
-		logger.warn("applyStamp non implementato {}", stamp);
-		
-		return documentStream;
+	private void applyStamp(StampData stamp, InputStream inputStream, OutputStream outputStream) {
+		/*
+		 * https://gist.github.com/tizianolattisi/d02f951b4e08216f968d3d1c1f46e30a
+		 * https://github.com/axiastudio/iwas
+		 */
+				
+		IWas iwas = IWas.create();
+		try {
+            iwas.load(inputStream).offset(stamp.offsetx, stamp.offsety);
+            int riga = 0;
+            for (String testo: stamp.rows) {
+            	riga++;
+                iwas.text(testo, 9, (float) (riga - 1) * 9, 0f, stamp.rotation);
+            }
+            iwas.toStream(outputStream);
+        } catch (Exception ex) {
+        	logger.error("applyStamp", ex);
+        }
 	}
-	
-	
+
 	@POST
 	@Path("/documents/setacl")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -675,9 +687,8 @@ public class ServiceDocer {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "elenco dei documentId dove sono state applicate le ACL", response = String.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "errore mancanza dati per applicare ACL"),
-			@ApiResponse(code = 500, message = "error") })	
-	public Response setAclToExternalId(
-			@ApiParam SetAclToExternalIdRequest request) {
+			@ApiResponse(code = 500, message = "error") })
+	public Response setAclToExternalId(@ApiParam SetAclToExternalIdRequest request) {
 		Response response = null;
 		List<String> responseData = new ArrayList<>();
 		try {
@@ -685,12 +696,12 @@ public class ServiceDocer {
 				String externalId = request.getExternalId();
 				String acl = request.getAcl();
 				String utente = request.getUtente();
-				
+
 				logger.debug("{}", uriInfo.getAbsolutePath());
 				logger.debug("externalId={}", externalId);
 				logger.debug("acl={}", acl);
 				logger.debug("utente={}", utente);
-				
+
 				Map<String, Integer> aclMap = new HashMap<String, Integer>();
 				try {
 					if (StringUtils.isNotBlank(acl)) {
@@ -701,11 +712,12 @@ public class ServiceDocer {
 				} catch (Exception ex) {
 					throw new DocerHelperException("ACL specificate '" + acl + "' non valide.");
 				}
-	
+
 				try (DocerHelper docer = getDocerHelper(utente)) {
 					if (aclMap != null && !aclMap.isEmpty()) {
 						responseData = docer.setACLDocumentsByExternalId(externalId, aclMap);
-						logger.debug("impostato in docer acl {} per {} documents da externalId={}", aclMap, responseData.size(), externalId);
+						logger.debug("impostato in docer acl {} per {} documents da externalId={}", aclMap,
+								responseData.size(), externalId);
 					} else {
 						logger.warn("nessuna acl specificata");
 						throw new DocerHelperException("nessuna acl specificata");
@@ -717,13 +729,30 @@ public class ServiceDocer {
 			}
 		} catch (DocerHelperException ex) {
 			logger.error("BAD_REQUEST", ex);
-			response = Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.BAD_REQUEST).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN)
+					.build();
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
 			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
 					.type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
+	}
+	
+	private byte[] zipBytes(Map<String, byte[]> inputs) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+			// for (byte[] input : inputs) {
+			for (String filename : inputs.keySet()) {
+				byte[] input = inputs.get(filename);
+				ZipEntry entry = new ZipEntry(filename);
+				entry.setSize(input.length);
+				zos.putNextEntry(entry);
+				zos.write(input);
+				zos.closeEntry();
+			}
+			// zos.close();
+		}
+		return baos.toByteArray();
 	}	
 }

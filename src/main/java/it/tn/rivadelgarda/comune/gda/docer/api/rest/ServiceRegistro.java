@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,6 +23,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
+import it.tn.rivadelgarda.comune.gda.docer.MetadatiHelper;
+import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
 
 @Api(value = "Docer API")
 @Path("/docer")
@@ -59,7 +62,8 @@ public class ServiceRegistro extends ServiceBase {
 		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNotBlank(x) && StringUtils.isNotBlank(y) && StringUtils.isNoneBlank(data)) {
 				Date param = new SimpleDateFormat("yyyyMMdd").parse(data);
-				List<Map<String, String>> documents = docer.searchDocumentsByExternalIdRangeAndDate(x, y, param);
+				Set<Map<String, String>> documents = docer.searchDocumentsByExternalIdRangeAndDate(x, y, "protocollo_", param, true);
+				documents = MetadatiHelper.mapReduce(documents, MetadatiDocumento.EXTERNAL_ID, MetadatiDocumento.CREATION_DATE, MetadatiDocumento.ABSTRACT, MetadatiDocumento.DOC_HASH);
 				String json = new Gson().toJson(documents);
 				response = Response.ok(json).build();
 			}
@@ -99,7 +103,8 @@ public class ServiceRegistro extends ServiceBase {
 		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNotBlank(externalId) && StringUtils.isNoneBlank(data)) {
 				Date param = new SimpleDateFormat("yyyyMMdd").parse(data);
-				List<Map<String, String>> documents = docer.searchDocumentsByExternalIdRangeAndDate(externalId, null, param);
+				Set<Map<String, String>> documents = docer.searchDocumentsByExternalIdRangeAndDate(externalId, null, "protocollo_", param, true);
+				documents = MetadatiHelper.mapReduce(documents, MetadatiDocumento.EXTERNAL_ID, MetadatiDocumento.CREATION_DATE, MetadatiDocumento.ABSTRACT, MetadatiDocumento.DOC_HASH);
 				String json = new Gson().toJson(documents);
 				response = Response.ok(json).build();
 			}

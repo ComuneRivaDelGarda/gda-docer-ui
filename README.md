@@ -127,3 +127,6 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
       - [ ] TIZIANO: legge da PS + EXTERNAL_ID, crea PDF, file inviato a DOCER e non da ALFRESCO
       - [x] MIRCO: RG param IN data (GG singolo) EXT=PROTOCOLLO_X,PROTOCOLLO_Y prendi tutti tutti i DOC con quegli EXTERNAL_ID (da - a) creati quel giorno --> EXTERNAL_ID|NOME|HASH
       - [x] MIRCO: RM param IN PROTOCOLLO IN tutti i documenti aggiunti o modificati (OGGI, giorno che si sta concludendo) con EXTERNAL_ID precedente a PROTOCOLLO_X
+      - [x] MIRCO: ricerca per data
+      - [x] MIRCO: ricerca per intervalli su EXTERNAL_ID
+      - [x] MIRCO: ottimizzazione ricerca valori in OR su singolo metadato

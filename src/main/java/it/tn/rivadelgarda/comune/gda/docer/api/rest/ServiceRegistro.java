@@ -40,7 +40,7 @@ public class ServiceRegistro extends ServiceBase {
 	 * @param utente
 	 * @return
 	 */
-	@ApiOperation(value = "/registro/giornaliero", notes = "RG param IN data (GG singolo) EXT=PROTOCOLLO_X,PROTOCOLLO_Y prendi tutti tutti i DOC con quegli EXTERNAL_ID (da - a) creati quel giorno --> EXTERNAL_ID|NOME|HASH")
+	@ApiOperation(value = "/registro/giornaliero", notes = "RG param IN data (GG singolo) EXT=PROTOCOLLO_X,PROTOCOLLO_Y prendi tutti tutti i DOC con quegli EXTERNAL_ID (da - a) creati quel giorno --> EXTERNAL_ID|CREATION_DATE|NOME|ABSTRACT|HASH")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "error") })
@@ -63,7 +63,7 @@ public class ServiceRegistro extends ServiceBase {
 			if (StringUtils.isNotBlank(x) && StringUtils.isNotBlank(y) && StringUtils.isNoneBlank(data)) {
 				Date param = new SimpleDateFormat("yyyyMMdd").parse(data);
 				Set<Map<String, String>> documents = docer.searchDocumentsByExternalIdRangeAndDate(x, y, "protocollo_", param, true);
-				documents = MetadatiHelper.mapReduce(documents, MetadatiDocumento.EXTERNAL_ID, MetadatiDocumento.CREATION_DATE, MetadatiDocumento.ABSTRACT, MetadatiDocumento.DOC_HASH);
+				documents = MetadatiHelper.mapReduce(documents, MetadatiDocumento.EXTERNAL_ID, MetadatiDocumento.CREATION_DATE, MetadatiDocumento.DOCNAME, MetadatiDocumento.ABSTRACT, MetadatiDocumento.DOC_HASH);
 				String json = new Gson().toJson(documents);
 				response = Response.ok(json).build();
 			}

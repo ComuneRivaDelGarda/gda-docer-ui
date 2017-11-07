@@ -104,7 +104,7 @@ public class ServiceRegistro extends ServiceBase {
 		logger.debug("utente={}", utente);
 
 		try (DocerHelper docer = getDocerHelper(utente)) {
-			if (StringUtils.isNotBlank(externalId) && StringUtils.isNoneBlank(paramData)) {
+			if (StringUtils.isNoneBlank(paramData)) {
 				Date data = new SimpleDateFormat("yyyyMMdd").parse(paramData);
 				Collection<Map<String, String>> documents = docer.searchDocumentsByDateAndExternalIdLimit(externalId, "protocollo_", data, true);
 				List<MetadatoDocer> templateMetadati = new ArrayList<MetadatoDocer>(Arrays.asList(MetadatiDocumento.EXTERNAL_ID, MetadatiDocumento.CREATION_DATE, MetadatiDocumento.ABSTRACT, MetadatiDocumento.DOC_HASH));

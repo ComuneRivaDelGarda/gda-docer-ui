@@ -1,10 +1,12 @@
 package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -25,6 +27,7 @@ import io.swagger.annotations.ApiResponses;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.MetadatiHelper;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
+import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatoDocer;
 
 @Api(value = "Docer API")
 @Path("/docer")
@@ -40,7 +43,7 @@ public class ServiceRegistro extends ServiceBase {
 	 * @param utente
 	 * @return
 	 */
-	@ApiOperation(value = "/registro/giornaliero", notes = "RG param IN data (GG singolo) EXT=PROTOCOLLO_X,PROTOCOLLO_Y prendi tutti tutti i DOC con quegli EXTERNAL_ID (da - a) creati quel giorno --> EXTERNAL_ID|CREATION_DATE|NOME|ABSTRACT|HASH")
+	@ApiOperation(value = "/registro/giornaliero", notes = "REGISTRO GIORNALIERO param IN data (GG singolo) EXT=PROTOCOLLO_X,PROTOCOLLO_Y prendi tutti tutti i DOC con quegli EXTERNAL_ID (da - a) creati quel giorno --> EXTERNAL_ID|CREATION_DATE|NOME|ABSTRACT|HASH")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "error") })
@@ -50,19 +53,19 @@ public class ServiceRegistro extends ServiceBase {
 	public Response getRegistroGiornaliero(
 			@ApiParam(value = "parametro EXTERNAL_ID inzio") @QueryParam("x") String x,
 			@ApiParam(value = "parametro EXTERNAL_ID fine") @QueryParam("y") String y,
-			@ApiParam(value = "parametro DATA da cercare (formato yyyyMMdd)") @QueryParam("data") String data,
+			@ApiParam(value = "parametro DATA da cercare (formato yyyyMMdd)") @QueryParam("data") String paramData,
 			@QueryParam("utente") String utente) {
 		Response response = null;
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("x={}", x);
 		logger.debug("y={}", y);
-		logger.debug("data={}", data);
+		logger.debug("data={}", paramData);
 		logger.debug("utente={}", utente);
 
 		try (DocerHelper docer = getDocerHelper(utente)) {
-			if (StringUtils.isNotBlank(x) && StringUtils.isNotBlank(y) && StringUtils.isNoneBlank(data)) {
-				Date param = new SimpleDateFormat("yyyyMMdd").parse(data);
-				Set<Map<String, String>> documents = docer.searchDocumentsByExternalIdRangeAndDate(x, y, "protocollo_", param, true);
+			if (StringUtils.isNotBlank(x) && StringUtils.isNotBlank(y) && StringUtils.isNoneBlank(paramData)) {
+				Date data = new SimpleDateFormat("yyyyMMdd").parse(paramData);
+				Collection<Map<String, String>> documents = docer.searchDocumentsByExternalIdRangeAndDate(x, y, "protocollo_", data, true);
 				documents = MetadatiHelper.mapReduce(documents, MetadatiDocumento.EXTERNAL_ID, MetadatiDocumento.CREATION_DATE, MetadatiDocumento.DOCNAME, MetadatiDocumento.ABSTRACT, MetadatiDocumento.DOC_HASH);
 				String json = new Gson().toJson(documents);
 				response = Response.ok(json).build();
@@ -83,7 +86,7 @@ public class ServiceRegistro extends ServiceBase {
 	 * @param utente
 	 * @return
 	 */
-	@ApiOperation(value = "/registro/giornaliero/modifiche", notes = "RM param IN PROTOCOLLO IN tutti i documenti aggiunti o modificati (OGGI, giorno che si sta concludendo) con EXTERNAL_ID precedente a PROTOCOLLO_X")
+	@ApiOperation(value = "/registro/giornaliero/modifiche", notes = "REGISTRO GIORNALIERO MODIFICHE param IN PROTOCOLLO IN tutti i documenti aggiunti o modificati (OGGI, giorno che si sta concludendo) con EXTERNAL_ID precedente a PROTOCOLLO_X")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
 			@ApiResponse(code = 500, message = "error") })
@@ -92,19 +95,28 @@ public class ServiceRegistro extends ServiceBase {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getRegistroModifiche(
 			@ApiParam(value = "attributo EXTERNAL_ID da cercare") @QueryParam("x") String externalId,
-			@ApiParam(value = "parametro DATA da cercare (formato yyyyMMdd)") @QueryParam("data") String data,
+			@ApiParam(value = "parametro DATA da cercare (formato yyyyMMdd)", required=true) @QueryParam("data") String paramData,
 			@QueryParam("utente") String utente) {
 		Response response = null;
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("externalId={}", externalId);
-		logger.debug("data={}", data);
+		logger.debug("data={}", paramData);
 		logger.debug("utente={}", utente);
 
 		try (DocerHelper docer = getDocerHelper(utente)) {
-			if (StringUtils.isNotBlank(externalId) && StringUtils.isNoneBlank(data)) {
-				Date param = new SimpleDateFormat("yyyyMMdd").parse(data);
-				Set<Map<String, String>> documents = docer.searchDocumentsByExternalIdRangeAndDate(externalId, null, "protocollo_", param, true);
-				documents = MetadatiHelper.mapReduce(documents, MetadatiDocumento.EXTERNAL_ID, MetadatiDocumento.CREATION_DATE, MetadatiDocumento.ABSTRACT, MetadatiDocumento.DOC_HASH);
+			if (StringUtils.isNotBlank(externalId) && StringUtils.isNoneBlank(paramData)) {
+				Date data = new SimpleDateFormat("yyyyMMdd").parse(paramData);
+				Collection<Map<String, String>> documents = docer.searchDocumentsByDateAndExternalIdLimit(externalId, "protocollo_", data, true);
+				List<MetadatoDocer> templateMetadati = new ArrayList<MetadatoDocer>(Arrays.asList(MetadatiDocumento.EXTERNAL_ID, MetadatiDocumento.CREATION_DATE, MetadatiDocumento.ABSTRACT, MetadatiDocumento.DOC_HASH));
+				// @ApiParam(value = "metadati che si vogliono in output") @QueryParam("data") String[] paramMetadati,
+//				if (paramMetadati != null) {
+//					templateMetadati = new ArrayList<>();
+//					for (String metadatoKey : paramMetadati) {
+//						MetadatoDocer metadato = MetadatiDocumento.valueOf(metadatoKey);
+//						templateMetadati.add(metadato);
+//					}
+//				}
+				documents = MetadatiHelper.mapReduce(documents, templateMetadati);
 				String json = new Gson().toJson(documents);
 				response = Response.ok(json).build();
 			}

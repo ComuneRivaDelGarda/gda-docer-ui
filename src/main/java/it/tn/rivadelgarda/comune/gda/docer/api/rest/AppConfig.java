@@ -22,7 +22,8 @@ public class AppConfig extends ResourceConfig {
 		beanConfig.setTitle("GDA-DOCER REST API");
 		beanConfig.setVersion("1.0.0");
 		beanConfig.setSchemes(new String[] { "http" });
-		beanConfig.setHost("localhost:8080");
+//		beanConfig.setHost("localhost:8080");
+		beanConfig.setHost("192.168.64.200:8080");
 		beanConfig.setBasePath("gdadocer/api");
 		beanConfig.setResourcePackage("it.tn.rivadelgarda.comune.gda.docer.api.rest");
 		beanConfig.setScan(true);

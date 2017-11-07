@@ -117,13 +117,16 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
     - [ ] stampa registro delle modifiche
       - [ ] docer sa cosa è modificato
       - [ ] versionamento del file
-    - [x] Helper nuovo metodo ricerca documenti modificati in data X (MIRCO) --> EXTERNA_ID NOME_FILE HASH
-      - [ ]  verifica errore ricerca per Data ed intervallo EXTERNAL_ID
+    - [x] Helper nuovo metodo ricerca documenti modificati in data X (MIRCO) --> EXTERNAL_ID NOME_FILE HASH
+      - [x]  verifica errore ricerca per Data ed intervallo EXTERNAL_ID
     - [ ] 27/11/2017 estrarre 2 registri: registro di protocollo giornaliero e registro delle modifiche
-      - [ ] tutte le registrazioni di protocollo N.|Data|Oggetto|HASH
-      - [ ] registro delle modifiche giornaliere (dal giorno prima indietro) modifiche ai dati e/o files
-      - [ ] jasper registri ci sono ad esclusione degli hash NOME FILE|HASH
+      - [x] tutte le registrazioni di protocollo N.|Data|Oggetto|HASH
+      - [x] registro delle modifiche giornaliere (dal giorno prima indietro) modifiche ai dati e/o files
+      - [ ] TIZIANO 07/11/2017: jasper con fonte JSON registri ci sono ad esclusione degli hash NOME FILE|HASH
       - [ ] TIZIANO: modifica script attuale che deve aggiungere EXTERNAL_ID come colonna
       - [ ] TIZIANO: legge da PS + EXTERNAL_ID, crea PDF, file inviato a DOCER e non da ALFRESCO
       - [x] MIRCO: RG param IN data (GG singolo) EXT=PROTOCOLLO_X,PROTOCOLLO_Y prendi tutti tutti i DOC con quegli EXTERNAL_ID (da - a) creati quel giorno --> EXTERNAL_ID|NOME|HASH
       - [x] MIRCO: RM param IN PROTOCOLLO IN tutti i documenti aggiunti o modificati (OGGI, giorno che si sta concludendo) con EXTERNAL_ID precedente a PROTOCOLLO_X
+      - [x] MIRCO: ricerca per data
+      - [x] MIRCO: ricerca per intervalli su EXTERNAL_ID
+      - [x] MIRCO: ottimizzazione ricerca valori in OR su singolo metadato

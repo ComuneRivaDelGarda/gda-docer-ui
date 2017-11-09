@@ -62,7 +62,13 @@
 								</pre>
 							</p>
 						</div>
-																		
+						
+						<div class="form-group">
+							<label for="utente">f</label>
+							<input class="form-control" id="f" value="">
+							<span class="help-block text-justify">specifica il nome del file da usare per il downloadAll</span>							
+						</div>
+												
 						<button type="submit" class="btn btn-success btn-block">Aggiorna</button>
 						<!-- <button type="reset" id="btnReset" class="btn btn-info btn-block">Reset</button> -->
 						<button type="reset" id="btnSetDefault" class="btn btn-warning btn-block">Set Default</button>
@@ -105,6 +111,9 @@
 					if ($.trim($('#stamp').val()))
 						queryString.push('stamp=' + encodeURIComponent($('#stamp').val()));
 					
+					if ($.trim($('#f').val()))
+						queryString.push('f=' + $.trim($('#f').val()));
+						
 					// $('#iframeApp').attr('src', '');
 					var src = 'index.html#?' + queryString.join('&');
 

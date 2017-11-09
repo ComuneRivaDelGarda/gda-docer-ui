@@ -26,6 +26,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.MetadatiHelper;
+import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.xml.Root;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatoDocer;
 
@@ -49,11 +50,13 @@ public class ServiceRegistro extends ServiceBase {
 			@ApiResponse(code = 500, message = "error") })
 	@GET
 	@Path("/registro/giornaliero")
-	@Produces(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+	@Produces({ MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	public Response getRegistroGiornaliero(
 			@ApiParam(value = "parametro EXTERNAL_ID inzio") @QueryParam("x") String x,
 			@ApiParam(value = "parametro EXTERNAL_ID fine") @QueryParam("y") String y,
 			@ApiParam(value = "parametro DATA da cercare (formato yyyyMMdd)") @QueryParam("data") String paramData,
+			@ApiParam(value = "parametro formato dati da generare (json | xml)") @QueryParam("o") String paramOut,
 			@QueryParam("utente") String utente) {
 		Response response = null;
 		logger.debug("{}", uriInfo.getAbsolutePath());
@@ -61,19 +64,26 @@ public class ServiceRegistro extends ServiceBase {
 		logger.debug("y={}", y);
 		logger.debug("data={}", paramData);
 		logger.debug("utente={}", utente);
+		logger.debug("o={}", paramOut);
 
 		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNotBlank(x) && StringUtils.isNotBlank(y) && StringUtils.isNoneBlank(paramData)) {
 				Date data = new SimpleDateFormat("yyyyMMdd").parse(paramData);
 				Collection<Map<String, String>> documents = docer.searchDocumentsByExternalIdRangeAndDate(x, y, "protocollo_", data, true);
 				documents = MetadatiHelper.mapReduce(documents, MetadatiDocumento.EXTERNAL_ID, MetadatiDocumento.CREATION_DATE, MetadatiDocumento.DOCNAME, MetadatiDocumento.ABSTRACT, MetadatiDocumento.DOC_HASH);
-				String json = new Gson().toJson(documents);
-				response = Response.ok(json).build();
+				
+				if (paramOut == null || "json".equalsIgnoreCase(paramOut)) {
+					String json = new Gson().toJson(documents);
+					response = Response.ok(json, MediaType.APPLICATION_JSON).build();
+				} else {
+					Root xml = new Root();
+					xml.setCollection(documents);
+					response = Response.ok(xml, MediaType.APPLICATION_XML).build();
+				}
 			}
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
+			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
 		}
 		return response;
 	}

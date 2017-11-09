@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.MetadatiHelper;
-import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.xml.Root;
+import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.xml.RegistroGiornaliero;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatoDocer;
 
@@ -76,9 +76,11 @@ public class ServiceRegistro extends ServiceBase {
 					String json = new Gson().toJson(documents);
 					response = Response.ok(json, MediaType.APPLICATION_JSON).build();
 				} else {
-					Root xml = new Root();
+					final String filename = new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date());
+					RegistroGiornaliero xml = new RegistroGiornaliero();
 					xml.setCollection(documents);
-					response = Response.ok(xml, MediaType.APPLICATION_XML).build();
+					response = Response.ok(xml, MediaType.APPLICATION_XML)
+							.header("Content-Disposition", "inline; filename=\"RG" + filename + ".xml\"").build();
 				}
 			}
 		} catch (Exception ex) {

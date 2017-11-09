@@ -142,8 +142,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.fileNameZip = "";
     SessionService.fileNameZip = "";
 	if ($location.search().f) {
-        var f = decodeURIComponent($location.search().f);
-        $scope.fileNameZip = angular.fromJson(f);
+        var fileNameZip = decodeURIComponent($location.search().f);
+        $scope.fileNameZip = fileNameZip; // angular.fromJson(f);
         $log.debug('fileNameZip='+fileNameZip);
         SessionService.fileNameZip = $scope.fileNameZip;
 	}

@@ -7,14 +7,13 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -24,20 +23,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
 
-import org.apache.axis2.dataretrieval.OutputForm;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tools.ant.types.resources.selectors.Date;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.axiastudio.iwas.IWas;
 import com.google.common.reflect.TypeToken;
@@ -365,7 +358,7 @@ public class ServiceDocer extends ServiceBase {
 			if (StringUtils.isNoneBlank(externalId)) {
 				try (DocerHelper docer = getDocerHelper(utente)) {
 					
-					String now = new SimpleDateFormat("yyyyMMdd_HHMM").format(new Date());
+					String now = new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date());
 					String zipName = (StringUtils.isNotEmpty(fileNameZip)) ? fileNameZip : now;
 					if (!zipName.endsWith(".zip")) {
 						zipName = zipName + ".zip";
@@ -471,7 +464,7 @@ public class ServiceDocer extends ServiceBase {
 
 			try (DocerHelper docer = getDocerHelper(utente)) {
 				logger.debug("invio file '{}' a docer", fileName);
-				String timestamp = String.valueOf(new Date().getMillis());
+//				String timestamp = String.valueOf(new Date().getTime());
 				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName,
 						IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
 				logger.debug("creato in docer con id {}", documentId);
@@ -537,7 +530,7 @@ public class ServiceDocer extends ServiceBase {
 
 				// String documentId = docer.createDocument(fileName, f,
 				// TIPO_COMPONENTE.PRINCIPALE, titolo);
-				String timestamp = String.valueOf(new Date().getMillis());
+//				String timestamp = String.valueOf(new Date().getTime());
 				String documentId = docer.createDocumentTypeDocumento(fileName, IOUtils.toByteArray(fileInputStream),
 						tipoComponenteVal, abstractDocumento, null);
 				logger.debug("creato in docer con id {}", documentId);
@@ -592,7 +585,7 @@ public class ServiceDocer extends ServiceBase {
 				logger.debug("invio versione '{}' a docer {}", fileName, documentId);
 				// String documentId = docer.createDocument(fileName, f,
 				// TIPO_COMPONENTE.PRINCIPALE, titolo);
-				String timestamp = String.valueOf(new Date().getMillis());
+//				String timestamp = String.valueOf(new Date().getTime());
 				String versioneId = docer.createVersion(documentId, IOUtils.toByteArray(fileInputStream));
 				logger.debug("creato versione con id {}", versioneId);
 			}

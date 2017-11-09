@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class Document {
 
-	@XmlElement
+//	@XmlElement(name="metadato")
 	public Metadato[] metadati;
 
 	private Document() {

@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
 import it.tn.rivadelgarda.comune.gda.docer.MetadatiHelper;
-import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.xml.RegistroGiornaliero;
+import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.xml.Root;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatoDocer;
 
@@ -77,10 +77,11 @@ public class ServiceRegistro extends ServiceBase {
 					response = Response.ok(json, MediaType.APPLICATION_JSON).build();
 				} else {
 					final String filename = new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date());
-					RegistroGiornaliero xml = new RegistroGiornaliero();
+					String contentDisposition = "inline; filename=\"RG" + filename + ".xml\"";
+					Root xml = new Root();
 					xml.setCollection(documents);
 					response = Response.ok(xml, MediaType.APPLICATION_XML)
-							.header("Content-Disposition", "inline; filename=\"RG" + filename + ".xml\"").build();
+							.header("Content-Disposition", contentDisposition).build();
 				}
 			}
 		} catch (Exception ex) {
@@ -108,12 +109,14 @@ public class ServiceRegistro extends ServiceBase {
 	public Response getRegistroModifiche(
 			@ApiParam(value = "attributo EXTERNAL_ID da cercare") @QueryParam("x") String externalId,
 			@ApiParam(value = "parametro DATA da cercare (formato yyyyMMdd)", required=true) @QueryParam("data") String paramData,
+			@ApiParam(value = "parametro formato dati da generare (json | xml)") @QueryParam("o") String paramOut,
 			@QueryParam("utente") String utente) {
 		Response response = null;
 		logger.debug("{}", uriInfo.getAbsolutePath());
 		logger.debug("externalId={}", externalId);
 		logger.debug("data={}", paramData);
 		logger.debug("utente={}", utente);
+		logger.debug("o={}", paramOut);
 
 		try (DocerHelper docer = getDocerHelper(utente)) {
 			if (StringUtils.isNoneBlank(paramData)) {
@@ -129,8 +132,19 @@ public class ServiceRegistro extends ServiceBase {
 //					}
 //				}
 				documents = MetadatiHelper.mapReduce(documents, templateMetadati);
-				String json = new Gson().toJson(documents);
-				response = Response.ok(json).build();
+				
+				if (paramOut == null || "json".equalsIgnoreCase(paramOut)) {
+					String json = new Gson().toJson(documents);
+					response = Response.ok(json, MediaType.APPLICATION_JSON).build();
+				} else {
+					final String filename = new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date());
+					String contentDisposition = "inline; filename=\"RGM" + filename + ".xml\"";
+					Root xml = new Root();
+					xml.setCollection(documents);
+					response = Response.ok(xml, MediaType.APPLICATION_XML)
+							.header("Content-Disposition", contentDisposition).build();
+				}
+				
 			}
 		} catch (Exception ex) {
 			logger.error("INTERNAL_SERVER_ERROR", ex);

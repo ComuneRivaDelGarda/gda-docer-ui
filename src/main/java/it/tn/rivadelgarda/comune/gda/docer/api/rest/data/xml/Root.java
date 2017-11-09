@@ -8,18 +8,20 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-@XmlRootElement(name="RG")
-public class RegistroGiornaliero {
+// @XmlRootElement(name="RG")
+@XmlRootElement
+public class Root {
 
-	@XmlElement(name="documenti")
+//	@XmlElement(name="documenti")
 	private Collection<Map<String, String>> collection;
 
-	public RegistroGiornaliero() {
+	public Root() {
 		// mapProperty = new HashMap<String, MetadatoDocer>();
 		collection = new ArrayList<Map<String, String>>();
 	}
 
 	@XmlJavaTypeAdapter(MapAdapter.class)
+//	@XmlElement(name="documenti")
 	public Collection<Map<String, String>> getCollection() {
 		return collection;
 	}

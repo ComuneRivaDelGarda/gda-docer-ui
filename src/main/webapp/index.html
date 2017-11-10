@@ -75,31 +75,31 @@
 					</div>
 					
 					<div class="btn-group">
-						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc || !profile.download" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download">
+						<a class="btn btn-default" title="Scarica Documento" ng-disabled="!selectedDoc||!profile.download" ng-href="{{(!selectedDoc||!profile.download)?'':'api/docer/documents/'+selectedDoc.DOCNUM+'/download'}}">
 							<i class="fa fa-download"></i>
 						</a>
 						
 <!-- 						<a class="btn btn-default" title="Scarica Documento WATERMARK" ng-disabled="!selectedDoc || !profile.download" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download?&stamp={{currentStamp}}">
 							<i class="fa fa-download"></i>
 						</a> -->
-						<a class="btn btn-default" title="Scarica Tutti i Documenti (in formato zip)" ng-disabled="!hasDocs || !profile.download" ng-href="api/docer/documents/downloadall?externalId={{externalId}}&utente={{utente}}&fileNameZip={{fileNameZip}}">
+						<a class="btn btn-default" title="Scarica Tutti i Documenti (in formato zip)" ng-disabled="!hasDocs||!profile.download" ng-href="{{(!hasDocs||!profile.download)?'':'api/docer/documents/downloadall?externalId='+externalId+'&utente='+utente+'&fileNameZip='+fileNameZip}}">
 							<i class="fa fa-file-archive-o"></i>
 						</a>
 						
-						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc || !profile.delete" ng-click="deleteFile()">
+						<button type="button" class="btn btn-default" title="Elimina Documento" ng-disabled="!selectedDoc||!profile.delete" ng-click="deleteFile()">
 							<i class="fa fa-trash"></i>
 						</button>
-						<button type="button" class="btn btn-default" title="Carica una nuova versione" ng-disabled="!selectedDoc || !profile.version" ng-click="versione()">
+						<button type="button" class="btn btn-default" title="Carica una nuova versione" ng-disabled="!selectedDoc||!profile.version" ng-click="versione()">
 							<i class="fa fa-refresh"></i>
 						</button>
 					</div>
 					
 					<div class="btn-group" role="group" ng-if="stampEnabled">
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-disabled="!selectedDoc || !profile.download" >
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-disabled="!selectedDoc||!profile.download" >
 							Test Watermark <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu">
-							<li ng-repeat="profilo in stamp"><a title="Scarica Documento WATERMARK" ng-disabled="!selectedDoc||!profile.download" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download?&stamp={{profilo}}">{{profilo.description}}</a></li>
+							<li ng-repeat="profilo in stamp"><a title="Scarica Documento WATERMARK" ng-disabled="!selectedDoc||!profile.download" ng-href="{{(!selectedDoc||!profile.download)?'':'api/docer/documents/'+selectedDoc.DOCNUM+'/download?&stamp='+toJson(profilo)}}">{{profilo.description}}</a></li>
 						</ul>
 					</div>
 				</div>

@@ -205,6 +205,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 				if (childs) {
 					$scope.docs = childs;
 					$scope.hasDocs = true;
+					$log.debug('hasDocs='+$scope.hasDocs);
 					// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
 					$scope.hasPrincipale = ((_.findIndex(childs, {'TIPO_COMPONENTE': 'PRINCIPALE'})) >= 0);
 				}
@@ -228,6 +229,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 				$log.debug('documents loaded');
 				if (documents) {
 					$scope.docs = documents;
+					$scope.hasDocs = true;
+					$log.debug('hasDocs='+$scope.hasDocs);
 					// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
 					$scope.hasPrincipale = ((_.findIndex(documents, {'TIPO_COMPONENTE': 'PRINCIPALE'})) >= 0);
 				}

@@ -36,8 +36,8 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
     - [x] parametro da passare a GDA a WebView (TIZIANO e MICHELA). Il parametro è di tipo [{descrizione:nome, righe:[lista righe]}]
     - [x] codice server che prende valori e genera (MIRCO). Modifica UI in funzione del parametro: combo con le scelte + pulsante (se una solo selezione predefinita)
     - [ ] da testare    
-  - [ ] Upload massivo (C)
-    - [ ] Finestra UPLOAD divisa in due parti PRINCIPALE (upload singolo) e ALLEGATI (upload multiplo). Principale compare solo se per external_id non presente (MIRCO)
+  - [x] Upload massivo (C)
+    - [x] Finestra UPLOAD divisa in due parti PRINCIPALE (upload singolo) e ALLEGATI (upload multiplo). Principale compare solo se per external_id non presente (MIRCO)
   - [x] Download massivo (C)
     - [x] basato su external_id, crea lo zip e propone download dello zip
     - [x] nome dello zip da dare viene passato come parametro f= (se manca uso DATA e ORA generazione zip)

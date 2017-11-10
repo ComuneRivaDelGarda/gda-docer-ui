@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
-import it.tn.rivadelgarda.comune.gda.docer.KeyValuePairFactory;
+import it.tn.rivadelgarda.comune.gda.docer.MetadatiHelper;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.SetAclToExternalIdRequest;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.StampData;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
@@ -368,8 +368,8 @@ public class ServiceDocer extends ServiceBase {
 					final List<Map<String, String>> documents = docer.searchDocumentsByExternalIdAll(externalId);
 					final Map<String, byte[]> documentBytes = new HashMap<>();
 					for (Map<String, String> metadata : documents) {
-						String documentId = KeyValuePairFactory.getMetadata(metadata, MetadatiDocumento.DOCNUM);
-						String fileName = KeyValuePairFactory.getMetadata(metadata, MetadatiDocumento.DOCNAME);
+						String documentId = MetadatiHelper.getMetadata(metadata, MetadatiDocumento.DOCNUM);
+						String fileName = MetadatiHelper.getMetadata(metadata, MetadatiDocumento.DOCNAME);
 						// calcolo versione documento
 						String versionNumber = "";
 						List<String> versioni = docer.getVersions(documentId);
@@ -465,8 +465,8 @@ public class ServiceDocer extends ServiceBase {
 			try (DocerHelper docer = getDocerHelper(utente)) {
 				logger.debug("invio file '{}' a docer", fileName);
 //				String timestamp = String.valueOf(new Date().getTime());
-				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName,
-						IOUtils.toByteArray(fileInputStream), tipoComponenteVal, abstractDocumento, externalId);
+				final byte[] fileIn = IOUtils.toByteArray(fileInputStream);
+				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName, fileIn, tipoComponenteVal, abstractDocumento, externalId);
 				logger.debug("creato in docer con id {}", documentId);
 				if (aclMap != null && !aclMap.isEmpty()) {
 					docer.setACLDocumentConvert(documentId, aclMap);
@@ -474,6 +474,7 @@ public class ServiceDocer extends ServiceBase {
 				} else {
 					logger.warn("nessuna acl specificata per il documento {}", documentId);
 				}
+				responseData.setId(documentId);
 			}
 			response = Response.ok(responseData).build();
 		} catch (Exception ex) {
@@ -544,11 +545,12 @@ public class ServiceDocer extends ServiceBase {
 					// restituisco errore originale
 					throw ex;
 				}
+				
+				responseData.setId(documentId);
 			}
-
-			// responseData.setId(allegato.getId());
+			
 			response = Response.ok(responseData).build();
-
+			
 			// } catch (PecException ex) {
 			// logger.error("PRECONDITION_FAILED", ex);
 			// response =

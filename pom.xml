@@ -17,7 +17,7 @@
 		
 		<maven.test.skip>true</maven.test.skip>
 		
-		<swagger-version>1.5.10</swagger-version>
+		<swagger-version>1.5.15</swagger-version>
 	</properties>
 
 	<dependencies>
@@ -79,11 +79,18 @@
 		</dependency>
 		
 		<!--  swagger gen -->
+		<dependency>
+		  <groupId>io.swagger</groupId>
+		  <artifactId>swagger-jersey2-jaxrs</artifactId>
+		  <version>1.5.0</version>
+		</dependency>
+		<!--
 	    <dependency>
 	      <groupId>io.swagger</groupId>
 	      <artifactId>swagger-jersey-jaxrs</artifactId>
 	      <version>${swagger-version}</version>
 	    </dependency>
+	    -->
 	    <!--
     	<dependency>
 			<groupId>io.swagger</groupId>

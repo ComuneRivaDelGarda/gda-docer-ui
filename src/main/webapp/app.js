@@ -150,6 +150,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	
 	// elenco dei documenti della cartella
 	$scope.docs = [];
+	$scope.hasDocs = false;
 	// indica se la cartella ha un documento principale, utile per il popup upload disabilita opzione principale
 	$scope.hasPrincipale = false;
 	// campo di ordinamento predefinito
@@ -168,6 +169,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		$log.debug('loading data');
 		$scope.isLoadingData = true;
 		$scope.docs = [];
+		$scope.hasDocs = false;
+		
 		/* versione 1 */
 		/*
 		docerService.query({
@@ -201,6 +204,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 				$log.debug('childs loaded');
 				if (childs) {
 					$scope.docs = childs;
+					$scope.hasDocs = true;
 					// $scope.docs = $filter('orderBy')(childs, $scope.orderByField, $scope.sortAsc);
 					$scope.hasPrincipale = ((_.findIndex(childs, {'TIPO_COMPONENTE': 'PRINCIPALE'})) >= 0);
 				}
@@ -372,8 +376,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			ariaDescribedBy : 'modal-body',
 			templateUrl : 'partials/uploadDocument.html',
 			controller : 'UploadController',
-			controllerAs : '$ctrl'
-			// size : 'lg',
+			controllerAs : '$ctrl',
+			size : 'lg'
 			// appendTo : parentElem,
 //			resolve : {
 //				folderId : function() {
@@ -508,15 +512,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 
 	// upload later on form submit or something similar
     $scope.submit = function() {
-		if ($scope.form.file.$valid && $scope.file) {
-			$scope.upload($scope.file);
-		}
-	};
-
-	$scope.uploading = false;
-	$scope.progressPercentage = 0;
-	// upload on file select or drop
-    $scope.upload = function (file) {
+    	
     	var uploadUrl = '';
     	var uploadData = {};
     	if (SessionService.versione) {
@@ -525,7 +521,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
     		uploadData = {
 				abstract : $scope.abstract,
 				utente: SessionService.utente,
-				file : file
+				file : null
 			};
     	} else {
     		if (SessionService.folderId) {
@@ -536,7 +532,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	    			tipoComponente : $scope.tipoComponente,
 	    			acl : SessionService.acl,
 	    			utente: SessionService.utente,
-	    			file : file
+	    			file : null
 	    		};
     		} else {
     			$log.debug("upload su docer " + SessionService.externalId);
@@ -547,10 +543,80 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	    			tipoComponente : $scope.tipoComponente,
 	    			acl : SessionService.acl,
 	    			utente: SessionService.utente,
-	    			file : file, 
+	    			file : null, 
 	    		};
     		}
     	}
+    	
+//    	var files = [];
+    	var uploadDatas = [];
+		if ($scope.form.file.$valid && $scope.file) {
+			// $scope.upload($scope.file);
+//			files.push($scope.file);
+			var uploadData0 = angular.extend({}, uploadData);
+			uploadData0.file = $scope.file;
+			uploadData0.tipoComponente = $scope.tipoComponente;
+			uploadData0.abstract = $scope.abstract;
+			uploadDatas.push(uploadData0);
+		}
+		if ($scope.form.file1.$valid && $scope.file1) {
+//			files.push($scope.file1);
+			var uploadData1 = angular.extend({}, uploadData);
+			uploadData1.file = $scope.file1;
+			uploadData1.tipoComponente = $scope.tipoComponente1;
+			uploadData1.abstract = $scope.abstract1;
+			uploadDatas.push(uploadData1);
+		}
+		if ($scope.form.file2.$valid && $scope.file2) {
+//			files.push($scope.file2);
+			var uploadData2 = angular.extend({}, uploadData);
+			uploadData2.file = $scope.file2;
+			uploadData2.tipoComponente = $scope.tipoComponente2;
+			uploadData2.abstract = $scope.abstract2;
+			uploadDatas.push(uploadData2);
+		}
+		if ($scope.form.file3.$valid && $scope.file3) {
+//			files.push($scope.file3);
+			var uploadData3 = angular.extend({}, uploadData);
+			uploadData3.file = $scope.file3;
+			uploadData3.tipoComponente = $scope.tipoComponente3;
+			uploadData3.abstract = $scope.abstract3;
+			uploadDatas.push(uploadData3);
+		}
+		if (uploadDatas) {
+//	    	var multiples = (files.length > 1);
+//	    	if (!multiples) {
+//	    		var file = files[0];
+//	    		uploadData.file = file;
+//	    		$scope.upload(, uploadData, uploadUrl);
+//	    	} else {
+//	    		$scope.uploadMulti(files, uploadDatas, uploadUrl);
+//	    	}
+	    	$scope.uploadMulti(uploadDatas, uploadUrl);
+		}
+	};
+
+	$scope.uploading = false;
+	$scope.progressPercentage = 0;
+	var updateProgress = function (evt) {
+    	$scope.uploading = true;
+        $scope.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+        $log.debug('progress: ' + $scope.progressPercentage + '% ' + evt.config.data.file.name);
+    }
+	var onErrorUploading = function (resp) {
+		$log.error("errore caricamento");
+		$scope.uploading = false;
+    	// $log.error('Error status: ' + resp.status);
+    	$log.error(resp);
+    	toaster.pop({
+            type: 'error',
+            title: 'Errore caricamento file',
+            body: 'Errore: ' + resp.status + ' - ' + resp.data,
+            showCloseButton: true
+        });
+    }
+	// upload on file select or drop
+    $scope.upload = function (file, uploadData, uploadUrl) {
     	// chiamata a metodo upload con parametri url e data impostati in precedenza
 		Upload.upload({
             url : uploadUrl,
@@ -564,20 +630,80 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
                 body: '',
                 showCloseButton: true
             });
-            $uibModalInstance.close();
-        }, function (resp) {
-        	// $log.error('Error status: ' + resp.status);
-        	$log.error(resp);
+//        	/* caricamento allegati */
+//        	if ($scope.file1) {
+//        		uploadData.file = $scope.file1;
+//        		uploadData.tipoComponente = 'ALLEGATO';
+//        		$scope.progressPercentage = 0;
+//        		Upload.upload({
+//                    url : uploadUrl,
+//        			data : uploadData
+//                }).then(function (resp) {
+//                	if ($scope.file2) {
+//                		uploadData.file = $scope.file2;
+//                		uploadData.tipoComponente = 'ALLEGATO';
+//                		$scope.progressPercentage = 0;
+//                		Upload.upload({
+//                            url : uploadUrl,
+//                			data : uploadData
+//                        }).then(function (resp) {
+//                        	if ($scope.file3) {
+//                        		uploadData.file = $scope.file3;
+//                        		uploadData.tipoComponente = 'ALLEGATO';
+//                        		$scope.progressPercentage = 0;
+//                        		Upload.upload({
+//                                    url : uploadUrl,
+//                        			data : uploadData
+//                                }).then(function (resp) {
+//                                	// fine caricamento 3
+//                                	$uibModalInstance.close();
+//                                }, onErrorUploading, updateProgress);
+//                        	} else {
+//                        		// fine caricamento 2 e non c'e' 3
+//                        		$uibModalInstance.close();
+//                        	}
+//                        }, onErrorUploading, updateProgress);
+//                	} else {
+//                		// fine caricamento 1 e non c'e' 2
+//                		$uibModalInstance.close();
+//                	}
+//                }, onErrorUploading, updateProgress);
+//        	} else {
+//        		// non c'e' allegato 1
+//        		$uibModalInstance.close();
+//        	}
+    		$uibModalInstance.close();
+        }, onErrorUploading, updateProgress);
+    };
+    
+    $scope.uploadMulti = function (uploadDatas, uploadUrl) {
+//    	var file = files[0];
+    	var uploadData = uploadDatas[0];
+    	$log.debug("caricamento uploadData=" + angular.toJson(uploadData));
+//    	uploadData.file = file;
+    	// chiamata a metodo upload con parametri url e data impostati in precedenza
+		Upload.upload({
+            url : uploadUrl,
+			data : uploadData
+        }).then(function (resp) {
+        	// $scope.uploading = false;
+        	$log.debug('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
         	toaster.pop({
-                type: 'error',
-                title: 'Errore caricamento file',
-                body: 'Errore: ' + resp.status + ' - ' + resp.data,
+                type: 'success',
+                title: 'File caricato',
+                body: '',
                 showCloseButton: true
             });
-        }, function (evt) {
-        	$scope.uploading = true;
-            $scope.progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-            $log.debug('progress: ' + $scope.progressPercentage + '% ' + evt.config.data.file.name);
-        });    		
-    };
+//        	files.splice(0, 1);
+        	uploadDatas.splice(0, 1);
+        	$log.debug("uploadDatas rimanenti=" + uploadDatas.length);
+        	if (uploadDatas && uploadDatas.length > 0) {
+        		$log.debug("carico il prossimo");
+        		$scope.uploadMulti(uploadDatas, uploadUrl);
+        	} else {
+        		$log.debug("caricamenti completati");
+        		$uibModalInstance.close();
+        	}
+        }, onErrorUploading, updateProgress);
+    };    
 }]);

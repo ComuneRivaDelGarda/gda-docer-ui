@@ -25,6 +25,25 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    
+<style>
+.drop-box {
+    background: #F8F8F8;
+    border: 5px dashed #DDD;
+    width: 170px;
+    text-align: center;
+    padding: 50px 10px;
+    margin-left: 10px;
+}
+.drop-box.dragover {
+    border: 5px dashed blue;
+}
+
+.drop-box.dragover-err {
+    border: 5px dashed red;
+}
+
+</style>
 </head>
 <body ng-controller="MainController">
 	<div class="container-fluid">
@@ -63,7 +82,7 @@
 <!-- 						<a class="btn btn-default" title="Scarica Documento WATERMARK" ng-disabled="!selectedDoc || !profile.download" ng-href="api/docer/documents/{{selectedDoc.DOCNUM}}/download?&stamp={{currentStamp}}">
 							<i class="fa fa-download"></i>
 						</a> -->
-						<a class="btn btn-default" title="Scarica Tutti i Documenti (in formato zip)" ng-disabled="!profile.download" ng-href="api/docer/documents/downloadall?externalId={{externalId}}&utente={{utente}}&fileNameZip={{fileNameZip}}">
+						<a class="btn btn-default" title="Scarica Tutti i Documenti (in formato zip)" ng-disabled="!hasDocs || !profile.download" ng-href="api/docer/documents/downloadall?externalId={{externalId}}&utente={{utente}}&fileNameZip={{fileNameZip}}">
 							<i class="fa fa-file-archive-o"></i>
 						</a>
 						

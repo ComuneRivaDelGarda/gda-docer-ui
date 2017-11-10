@@ -5,17 +5,137 @@
 	<form name="form">		
 		<!-- https://github.com/danialfarid/ng-file-upload#install -->
 		<!-- <div class="button" ngf-select="upload($file)">Upload on file select</div> -->
-		<div class="form-group">
-			<label for="file">Seleziona un File</label>
-			
-			<div class="input-group">
-				<input type="text" ng-model="file.name" class="form-control" placeholder="seleziona un file" ng-disabled="true">
+		<div class="form-group" ng-show="!$ctrl.hasPrincipale">
+			<label for="file" ng-show="!$ctrl.revisione">Seleziona un Documento (principale)</label>
+<!-- 			<div class="input-group">
+				<input type="text" ng-model="file.name" class="form-control" placeholder="seleziona un documento principale" ng-disabled="true">
 				<span class="input-group-btn">
 					<button class="btn btn-default" type="button" ngf-select ng-model="file" name="file"><i class="fa fa-search"></i> Sfoglia...</button>
 				</span>
-			</div>
-		  	<!-- <div class="btn btn-default" ngf-select ng-model="file" name="file" id="file">Seleziona ...</div> -->
+			</div> -->
+			<!-- <div class="btn btn-default" ngf-select ng-model="file" name="file" id="file">Seleziona ...</div> -->
 		  	<!-- <p class="help-block" ng-bind="file.name"></p> -->
+		  	
+			<table class="table table-condensed">
+			<tr class="info">
+  			<td>
+  				<div class="input-group">
+				<input type="text" ng-model="file.name" class="form-control" placeholder="seleziona un documento principale" ng-disabled="true">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" ngf-select ng-model="file" name="file"><i class="fa fa-search"></i> Sfoglia...</button>
+				</span>
+				</div>
+			</td>
+			<td>
+			<select class="form-control" id="tipoComponente" ng-model="tipoComponente" ng-show="!$ctrl.revisione">
+				 <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option>
+				 <!--
+				 <option value="ALLEGATO">Allegato</option>
+				 <option value="ANNOTAZIONE">Annotazione</option>
+				 <option value="ANNESSO">Annesso</option>
+				 -->
+			</select>			
+			</td>
+			<td>
+			<input type="text" class="form-control" id="abstract" placeholder="descrizione del documento" ng-model="abstract"  ng-show="!$ctrl.revisione">			
+			</td>
+			</tr>
+			</table>	  	
+		</div>
+		
+
+					
+		<div class="form-group" ng-show="!$ctrl.revisione">
+			<label for="file1">Aggiungi Allegati (fino a 3 in contemporanea)</label>
+			
+<!-- 			<div class="input-group">
+				<input type="text" ng-model="file1.name" class="form-control" placeholder="seleziona allegato" ng-disabled="true">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" ngf-select ng-model="file1" name="file1"><i class="fa fa-search"></i> Sfoglia...</button>
+				</span>
+			</div>
+			<div class="input-group">
+				<input type="text" ng-model="file2.name" class="form-control" placeholder="seleziona allegato" ng-disabled="true">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" ngf-select ng-model="file2" name="file2"><i class="fa fa-search"></i> Sfoglia...</button>
+				</span>
+			</div>
+			<div class="input-group">
+				<input type="text" ng-model="file3.name" class="form-control" placeholder="seleziona allegato" ng-disabled="true">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" ngf-select ng-model="file3" name="file3"><i class="fa fa-search"></i> Sfoglia...</button>
+				</span>
+			</div> -->
+			
+			<table class="table table-condensed">
+			<tr>
+  			<td>
+  				<div class="input-group">
+				<input type="text" ng-model="file1.name" class="form-control" placeholder="seleziona allegato" ng-disabled="true">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" ngf-select ng-model="file1" name="file1"><i class="fa fa-search"></i> Sfoglia...</button>
+				</span>
+				</div>
+			</td>
+			<td>
+			<select class="form-control" id="tipoComponente" ng-model="tipoComponente1">
+				 <!-- <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option> -->
+				 <option value="ALLEGATO">Allegato</option>
+				 <option value="ANNOTAZIONE">Annotazione</option>
+				 <option value="ANNESSO">Annesso</option>
+			</select>			
+			</td>
+			<td>
+			<input type="text" class="form-control" id="abstract" placeholder="descrizione" ng-model="abstract1">			
+			</td>
+			</tr>
+			</table>
+			<table class="table table-condensed">
+			<tr>
+  			<td>
+  				<div class="input-group">
+				<input type="text" ng-model="file2.name" class="form-control" placeholder="seleziona allegato" ng-disabled="true">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" ngf-select ng-model="file2" name="file2"><i class="fa fa-search"></i> Sfoglia...</button>
+				</span>
+				</div>
+			</td>
+			<td>
+			<select class="form-control" id="tipoComponente" ng-model="tipoComponente2">
+				 <!-- <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option> -->
+				 <option value="ALLEGATO">Allegato</option>
+				 <option value="ANNOTAZIONE">Annotazione</option>
+				 <option value="ANNESSO">Annesso</option>
+			</select>			
+			</td>
+			<td>
+			<input type="text" class="form-control" id="abstract" placeholder="descrizione" ng-model="abstract2">			
+			</td>
+			</tr>
+			</table>
+			<table class="table table-condensed">
+			<tr>
+  			<td>
+  				<div class="input-group">
+				<input type="text" ng-model="file3.name" class="form-control" placeholder="seleziona allegato" ng-disabled="true">
+				<span class="input-group-btn">
+					<button class="btn btn-default" type="button" ngf-select ng-model="file3" name="file3"><i class="fa fa-search"></i> Sfoglia...</button>
+				</span>
+				</div>
+			</td>
+			<td>
+			<select class="form-control" id="tipoComponente" ng-model="tipoComponente3">
+				 <!-- <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option> -->
+				 <option value="ALLEGATO">Allegato</option>
+				 <option value="ANNOTAZIONE">Annotazione</option>
+				 <option value="ANNESSO">Annesso</option>
+			</select>			
+			</td>
+			<td>
+			<input type="text" class="form-control" id="abstract" placeholder="descrizione" ng-model="abstract3">			
+			</td>
+			</tr>
+			</table>											
 		</div>
 		<!--
 		<div class="form-group">
@@ -23,7 +143,8 @@
 			<div ngf-drop ng-model="files" class="drop-box">Drop</div>
 		</div>
 		-->
-		<div class="form-group" ng-show="file && !$ctrl.revisione">
+
+<!-- 		<div class="form-group" ng-show="file && !$ctrl.revisione">
 			<label for="tipoComponente">Tipo Componente</label>
 			<select class="form-control" id="tipoComponente" ng-model="tipoComponente">
 				 <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option>
@@ -32,11 +153,10 @@
 				 <option value="ANNESSO">Annesso</option>
 			</select>
 		</div>
-				
 		<div class="form-group" ng-show="file && !$ctrl.revisione">
 			<label for="abstract">Descrizione</label>
 			<input type="text" class="form-control" id="abstract" placeholder="descrizione del documento" ng-model="abstract">
-		</div>
+		</div> -->
 				
 		<div class="form-group" ng-if="uploading">
 			<div class="progress">
@@ -54,6 +174,6 @@
 	</form>
 </div>
 <div class="modal-footer">
-	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="!file"><i class="fa fa-upload"></i> OK</button>
-	<button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()"><i class="fa fa-ban"></i> Cancel</button>
+	<button class="btn btn-primary" type="button" ng-click="$ctrl.ok()" ng-disabled="(!file && !file1) || uploading"><i class="fa fa-upload"></i> Carica</button>
+	<button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()"><i class="fa fa-ban"></i> Annulla</button>
 </div>

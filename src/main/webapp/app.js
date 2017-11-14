@@ -503,6 +503,9 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	} else {
 		$scope.tipoComponente = 'PRINCIPALE';
 	}
+	$scope.tipoComponente1 = 'ALLEGATO';
+	$scope.tipoComponente2 = 'ALLEGATO';
+	$scope.tipoComponente3 = 'ALLEGATO';
 	
 	$ctrl.ok = function() {
 		$scope.submit();

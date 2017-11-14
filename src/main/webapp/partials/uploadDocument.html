@@ -20,24 +20,22 @@
 			<tr class="info">
   			<td>
   				<div class="input-group">
-				<input type="text" ng-model="file.name" class="form-control" placeholder="seleziona un documento principale" ng-disabled="true">
-				<span class="input-group-btn">
-					<button class="btn btn-default" type="button" ngf-select ng-model="file" name="file"><i class="fa fa-search"></i> Sfoglia...</button>
-				</span>
+					<input type="text" ng-model="file.name" class="form-control" placeholder="seleziona un documento principale" ng-disabled="true">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button" ngf-select ng-model="file" name="file"><i class="fa fa-search"></i> Sfoglia...</button>
+					</span>
 				</div>
-			</td>
-			<td>
-			<select class="form-control" id="tipoComponente" ng-model="tipoComponente" ng-show="!$ctrl.revisione">
-				 <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option>
-				 <!--
-				 <option value="ALLEGATO">Allegato</option>
-				 <option value="ANNOTAZIONE">Annotazione</option>
-				 <option value="ANNESSO">Annesso</option>
-				 -->
-			</select>			
-			</td>
-			<td>
-			<input type="text" class="form-control" id="abstract" placeholder="descrizione del documento" ng-model="abstract"  ng-show="!$ctrl.revisione">			
+				
+				<select class="form-control" id="tipoComponente" ng-model="tipoComponente" ng-show="!$ctrl.revisione">
+					 <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option>
+					 <!--
+					 <option value="ALLEGATO">Allegato</option>
+					 <option value="ANNOTAZIONE">Annotazione</option>
+					 <option value="ANNESSO">Annesso</option>
+					 -->
+				</select>
+
+				<input type="text" class="form-control" id="abstract" placeholder="descrizione del documento" ng-model="abstract"  ng-show="!$ctrl.revisione">			
 			</td>
 			</tr>
 			</table>	  	
@@ -76,21 +74,18 @@
 					<button class="btn btn-default" type="button" ngf-select ng-model="file1" name="file1"><i class="fa fa-search"></i> Sfoglia...</button>
 				</span>
 				</div>
-			</td>
-			<td>
+
 			<select class="form-control" id="tipoComponente" ng-model="tipoComponente1">
 				 <!-- <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option> -->
 				 <option value="ALLEGATO">Allegato</option>
 				 <option value="ANNOTAZIONE">Annotazione</option>
 				 <option value="ANNESSO">Annesso</option>
 			</select>			
-			</td>
-			<td>
+
 			<input type="text" class="form-control" id="abstract" placeholder="descrizione" ng-model="abstract1">			
 			</td>
 			</tr>
-			</table>
-			<table class="table table-condensed">
+
 			<tr>
   			<td>
   				<div class="input-group">
@@ -99,21 +94,18 @@
 					<button class="btn btn-default" type="button" ngf-select ng-model="file2" name="file2"><i class="fa fa-search"></i> Sfoglia...</button>
 				</span>
 				</div>
-			</td>
-			<td>
+
 			<select class="form-control" id="tipoComponente" ng-model="tipoComponente2">
 				 <!-- <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option> -->
 				 <option value="ALLEGATO">Allegato</option>
 				 <option value="ANNOTAZIONE">Annotazione</option>
 				 <option value="ANNESSO">Annesso</option>
 			</select>			
-			</td>
-			<td>
+
 			<input type="text" class="form-control" id="abstract" placeholder="descrizione" ng-model="abstract2">			
 			</td>
 			</tr>
-			</table>
-			<table class="table table-condensed">
+
 			<tr>
   			<td>
   				<div class="input-group">
@@ -122,16 +114,14 @@
 					<button class="btn btn-default" type="button" ngf-select ng-model="file3" name="file3"><i class="fa fa-search"></i> Sfoglia...</button>
 				</span>
 				</div>
-			</td>
-			<td>
+
 			<select class="form-control" id="tipoComponente" ng-model="tipoComponente3">
 				 <!-- <option value="PRINCIPALE" ng-disabled="$ctrl.hasPrincipale">Principale</option> -->
 				 <option value="ALLEGATO">Allegato</option>
 				 <option value="ANNOTAZIONE">Annotazione</option>
 				 <option value="ANNESSO">Annesso</option>
 			</select>			
-			</td>
-			<td>
+
 			<input type="text" class="form-control" id="abstract" placeholder="descrizione" ng-model="abstract3">			
 			</td>
 			</tr>

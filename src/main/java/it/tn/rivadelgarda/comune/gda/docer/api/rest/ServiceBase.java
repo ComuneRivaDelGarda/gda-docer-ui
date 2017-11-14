@@ -1,5 +1,6 @@
 package it.tn.rivadelgarda.comune.gda.docer.api.rest;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.tn.rivadelgarda.comune.gda.docer.DocerHelper;
+import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
 
 public abstract class ServiceBase {
 
@@ -26,7 +28,7 @@ public abstract class ServiceBase {
 	protected DocerHelper docer = null;
 	protected String token = null;
 
-	protected DocerHelper getDocerHelper(String utente) throws Exception {
+	protected DocerHelper getDocerHelper(String utente) throws IOException, DocerHelperException {
 		if (docer == null) {
 			Properties p = new Properties();
 			// String path =

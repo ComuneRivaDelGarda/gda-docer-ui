@@ -477,6 +477,10 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			}
 		}
 	};
+	
+	$scope.getStampUrl = function(profilo) {
+		return (!$scope.selectedDoc||!$scope.profile.download)?'':'api/docer/documents/'+$scope.selectedDoc.DOCNUM+'/download?&stamp='+angular.toJson(profilo);
+	}
 }])
 /**
  * Controller per POPUP UPLOAD

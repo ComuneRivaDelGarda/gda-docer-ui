@@ -106,8 +106,11 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
     - [x] Pubblicazione
   - [x] verificare ENUM Metadati con Allegato XLS metadati (MIRCO metto in B)
   - [x] metadato originale cartaceo/digitale (B3)
-    - [x] Si esite già il metadato "ARCHIVE_TYPE" e deve esse settato a " PAPER"
+    - [x] MIRCO: Si esite già il metadato "ARCHIVE_TYPE" e deve esse settato a "PAPER"
+    - [ ] MIRCO: Aggiungere parametro webview (archiveType)
+    - [ ] MIRCO: Gestire parametro da webview a DocerHelper per invio metadato a Docer
   - [ ] invio in conservazione (C)
+    - [x] MIRCO: archiviaDocumento (predisposto in libreria helper)
   - [ ] Test e validazione
   - [ ] chiamate rest da Python
   - [ ] Uso del metadato “Originale cartaceo" (permessi mix tra originali cartacei e digitali in stesso protocollo??)

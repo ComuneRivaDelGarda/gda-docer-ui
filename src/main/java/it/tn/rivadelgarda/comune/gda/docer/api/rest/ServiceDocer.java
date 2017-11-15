@@ -48,6 +48,7 @@ import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.StampData;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
+import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.ARCHIVE_TYPE_VALUES;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.TIPO_COMPONENTE_VALUES;
 
 @Api(value = "Docer API")
@@ -85,115 +86,115 @@ public class ServiceDocer extends ServiceBase {
 		return response;
 	}
 
-	@ApiOperation(value = "/documents", notes = "permette di recuperare la lista dei Documenti contenuti in una Folder del DMS")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "success", response = String.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "error") })
-	@GET
-	@Path("/documents/{id}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocuments(@ApiParam(value = "documentId della folder") @PathParam("id") String folderId,
-			@QueryParam("utente") String utente) {
-		Response response = null;
-		logger.debug("{}", uriInfo.getAbsolutePath());
-		logger.debug("id={}", folderId);
-		logger.debug("utente={}", utente);
+//	@ApiOperation(value = "/documents", notes = "permette di recuperare la lista dei Documenti contenuti in una Folder del DMS")
+//	@ApiResponses(value = {
+//			@ApiResponse(code = 200, message = "success", response = String.class, responseContainer = "List"),
+//			@ApiResponse(code = 500, message = "error") })
+//	@GET
+//	@Path("/documents/{id}")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response getFolderDocuments(@ApiParam(value = "documentId della folder") @PathParam("id") String folderId,
+//			@QueryParam("utente") String utente) {
+//		Response response = null;
+//		logger.debug("{}", uriInfo.getAbsolutePath());
+//		logger.debug("id={}", folderId);
+//		logger.debug("utente={}", utente);
+//
+//		try (DocerHelper docer = getDocerHelper(utente)) {
+//
+//			if (StringUtils.isNoneBlank(folderId)) {
+//				List<String> documents = docer.getFolderDocuments(folderId);
+//				String json = new Gson().toJson(documents);
+//				response = Response.ok(json).build();
+//			}
+//			// else {
+//			// // TEST CARTELLA PREDEFINITA
+//			// String path =
+//			// restServletContext.getRealPath("/WEB-INF/test-docer");
+//			// File[] directories = new File(path).listFiles();
+//			// List<DocumentResponse> responseData =
+//			// DocumentResponse.fromFiles(directories);
+//			// response = Response.ok(responseData).build();
+//			// }
+//		} catch (Exception ex) {
+//			logger.error("INTERNAL_SERVER_ERROR", ex);
+//			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+//					.type(MediaType.TEXT_PLAIN).build();
+//		}
+//		return response;
+//	}
 
-		try (DocerHelper docer = getDocerHelper(utente)) {
+//	@ApiOperation(value = "/profiles", notes = "ritorna l'elenco dei medatadi dei documents di una folder")
+//	@ApiResponses(value = {
+//			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
+//			@ApiResponse(code = 500, message = "error") })
+//	@GET
+//	@Path("/documents/{id}/profiles")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response getFolderDocumentsProfiles(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
+//		Response response = null;
+//		try (DocerHelper docer = getDocerHelper(utente)) {
+//			logger.debug("{}", uriInfo.getAbsolutePath());
+//			logger.debug("id={}", folderId);
+//			logger.debug("utente={}", utente);
+//
+//			if (StringUtils.isNoneBlank(folderId)) {
+//				List<Map<String, String>> data = new ArrayList<>();
+//				List<Map<String, String>> childDocuments = docer.getProfileDocumentMapByParentFolder(folderId);
+//				data.addAll(childDocuments);
+//				String json = new Gson().toJson(data);
+//				response = Response.ok(json).build();
+//			}
+//			// else {
+//			// // TEST CARTELLA PREDEFINITA
+//			// String path =
+//			// restServletContext.getRealPath("/WEB-INF/test-docer");
+//			// File[] directories = new File(path).listFiles();
+//			// List<DocumentResponse> responseData =
+//			// DocumentResponse.fromFiles(directories);
+//			// response = Response.ok(responseData).build();
+//			// }
+//		} catch (Exception ex) {
+//			logger.error("INTERNAL_SERVER_ERROR", ex);
+//			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+//					.type(MediaType.TEXT_PLAIN).build();
+//		}
+//		return response;
+//	}
 
-			if (StringUtils.isNoneBlank(folderId)) {
-				List<String> documents = docer.getFolderDocuments(folderId);
-				String json = new Gson().toJson(documents);
-				response = Response.ok(json).build();
-			}
-			// else {
-			// // TEST CARTELLA PREDEFINITA
-			// String path =
-			// restServletContext.getRealPath("/WEB-INF/test-docer");
-			// File[] directories = new File(path).listFiles();
-			// List<DocumentResponse> responseData =
-			// DocumentResponse.fromFiles(directories);
-			// response = Response.ok(responseData).build();
-			// }
-		} catch (Exception ex) {
-			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
-		}
-		return response;
-	}
-
-	@ApiOperation(value = "/profiles", notes = "ritorna l'elenco dei medatadi dei documents di una folder")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "error") })
-	@GET
-	@Path("/documents/{id}/profiles")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocumentsProfiles(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
-		Response response = null;
-		try (DocerHelper docer = getDocerHelper(utente)) {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("id={}", folderId);
-			logger.debug("utente={}", utente);
-
-			if (StringUtils.isNoneBlank(folderId)) {
-				List<Map<String, String>> data = new ArrayList<>();
-				List<Map<String, String>> childDocuments = docer.getProfileDocumentMapByParentFolder(folderId);
-				data.addAll(childDocuments);
-				String json = new Gson().toJson(data);
-				response = Response.ok(json).build();
-			}
-			// else {
-			// // TEST CARTELLA PREDEFINITA
-			// String path =
-			// restServletContext.getRealPath("/WEB-INF/test-docer");
-			// File[] directories = new File(path).listFiles();
-			// List<DocumentResponse> responseData =
-			// DocumentResponse.fromFiles(directories);
-			// response = Response.ok(responseData).build();
-			// }
-		} catch (Exception ex) {
-			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
-		}
-		return response;
-	}
-
-	@ApiOperation(value = "/childs", notes = "tutti le folder + tutti i profili")
-	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
-			@ApiResponse(code = 500, message = "error") })
-	@GET
-	@Path("/documents/{id}/childs")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getFolderDocumentsChilds(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
-		Response response = null;
-		logger.debug("{}", uriInfo.getAbsolutePath());
-		logger.debug("id={}", folderId);
-		logger.debug("utente={}", utente);
-
-		try (DocerHelper docer = getDocerHelper(utente)) {
-			if (StringUtils.isNoneBlank(folderId)) {
-				List<Map<String, String>> data = new ArrayList<>();
-
-				List<Map<String, String>> childFolders = docer.searchFolders(null, folderId);
-				data.addAll(childFolders);
-
-				List<Map<String, String>> childDocuments = docer.getProfileDocumentMapByParentFolder(folderId);
-				data.addAll(childDocuments);
-
-				String json = new Gson().toJson(data);
-				response = Response.ok(json).build();
-			}
-		} catch (Exception ex) {
-			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
-		}
-		return response;
-	}
+//	@ApiOperation(value = "/childs", notes = "tutti le folder + tutti i profili")
+//	@ApiResponses(value = {
+//			@ApiResponse(code = 200, message = "success", response = Map.class, responseContainer = "List"),
+//			@ApiResponse(code = 500, message = "error") })
+//	@GET
+//	@Path("/documents/{id}/childs")
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response getFolderDocumentsChilds(@PathParam("id") String folderId, @QueryParam("utente") String utente) {
+//		Response response = null;
+//		logger.debug("{}", uriInfo.getAbsolutePath());
+//		logger.debug("id={}", folderId);
+//		logger.debug("utente={}", utente);
+//
+//		try (DocerHelper docer = getDocerHelper(utente)) {
+//			if (StringUtils.isNoneBlank(folderId)) {
+//				List<Map<String, String>> data = new ArrayList<>();
+//
+//				List<Map<String, String>> childFolders = docer.searchFolders(null, folderId);
+//				data.addAll(childFolders);
+//
+//				List<Map<String, String>> childDocuments = docer.getProfileDocumentMapByParentFolder(folderId);
+//				data.addAll(childDocuments);
+//
+//				String json = new Gson().toJson(data);
+//				response = Response.ok(json).build();
+//			}
+//		} catch (Exception ex) {
+//			logger.error("INTERNAL_SERVER_ERROR", ex);
+//			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+//					.type(MediaType.TEXT_PLAIN).build();
+//		}
+//		return response;
+//	}
 
 	@ApiOperation(value = "/profile", notes = "profilo di un documento")
 	@ApiResponses(value = {
@@ -423,6 +424,7 @@ public class ServiceDocer extends ServiceBase {
 			@ApiParam(name = "abstract", value = "ABSTRACT da impostare come metadato document", required = false) @FormDataParam("abstract") String abstractDocumento,
 			@ApiParam(name = "tipoComponente", value = "TIPO_COMPONENTE da impostare come metadato document", required = true) @FormDataParam("tipoComponente") String tipoComponente,
 			@ApiParam(name = "utente", value = "utente accesso DOCER", required = false) @FormDataParam("utente") String utente,
+			@ApiParam(name = "archiveType", value = "ARCHIVE_TYPE verso DOCER", required = false) @FormDataParam("archiveType") String paramArchiveType,
 			@FormDataParam("file") InputStream fileInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
 		Response response = null;
@@ -434,6 +436,7 @@ public class ServiceDocer extends ServiceBase {
 			logger.debug("tipoComponente={}", tipoComponente);
 			logger.debug("acl={}", acl);
 			logger.debug("utente={}", utente);
+			logger.debug("archiveType={}", paramArchiveType);
 
 			final String fileName = fileDisposition.getFileName();
 
@@ -451,6 +454,12 @@ public class ServiceDocer extends ServiceBase {
 			} catch (Exception ex) {
 				throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
 			}
+			ARCHIVE_TYPE_VALUES archiveTypeVal = null;
+			try {
+				archiveTypeVal = ARCHIVE_TYPE_VALUES.valueOf(paramArchiveType);
+			} catch (Exception ex) {
+				throw new DocerHelperException("Archive Type '" + paramArchiveType + "' non valido.");
+			}
 			Map<String, Integer> aclMap = new HashMap<String, Integer>();
 			try {
 				if (StringUtils.isNotBlank(acl)) {
@@ -466,7 +475,7 @@ public class ServiceDocer extends ServiceBase {
 				logger.debug("invio file '{}' a docer", fileName);
 //				String timestamp = String.valueOf(new Date().getTime());
 				final byte[] fileIn = IOUtils.toByteArray(fileInputStream);
-				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName, fileIn, tipoComponenteVal, abstractDocumento, externalId);
+				String documentId = docer.createDocumentTypeDocumentoAndRelateToExternalId(fileName, fileIn, tipoComponenteVal, archiveTypeVal, abstractDocumento, externalId);
 				logger.debug("creato in docer con id {}", documentId);
 				if (aclMap != null && !aclMap.isEmpty()) {
 					docer.setACLDocumentConvert(documentId, aclMap);
@@ -485,83 +494,83 @@ public class ServiceDocer extends ServiceBase {
 		return response;
 	}
 
-	@ApiOperation(value = "/upload", notes = "upload di un document su una folder", consumes = MediaType.MULTIPART_FORM_DATA)
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "success"),
-			@ApiResponse(code = 500, message = "error") })
-	@POST
-	@Path("/documents/{folderId}/upload")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response uploadOnFolder(@PathParam("folderId") String folderId,
-			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente,
-			@FormDataParam("utente") String utente, @FormDataParam("file") InputStream fileInputStream,
-			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
-		// public Response upload(@FormDataParam("file") InputStream file,
-		// @FormDataParam("file") FormDataContentDisposition fileDisposition) {
-		Response response = null;
-		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
-		try {
-			logger.debug("{}", uriInfo.getAbsolutePath());
-			logger.debug("folderId={}", folderId);
-			logger.debug("abstract={}", abstractDocumento);
-			logger.debug("tipoComponente={}", tipoComponente);
-			logger.debug("utente={}", utente);
-			// logger.debug("{}", new Gson().toJson(allegatoRequest));
-
-			// AllegatoPec allegato = MessaggioPecBL.saveFile(getContextEmf(),
-			// allegatoRequest, file);
-			final String fileName = fileDisposition.getFileName();
-
-			// String filePath =
-			// restServletContext.getRealPath("/WEB-INF/test-docer/" +
-			// fileName);
-			// File f = new File(filePath);
-			// FileUtils.copyInputStreamToFile(fileInputStream, f);
-
-			try (DocerHelper docer = getDocerHelper(utente)) {
-				logger.debug("invio file '{}' a docer", fileName);
-
-				// gestione del tipo componente passato
-				TIPO_COMPONENTE_VALUES tipoComponenteVal = null;
-				try {
-					tipoComponenteVal = TIPO_COMPONENTE_VALUES.valueOf(tipoComponente);
-				} catch (Exception ex) {
-					throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
-				}
-
-				// String documentId = docer.createDocument(fileName, f,
-				// TIPO_COMPONENTE.PRINCIPALE, titolo);
-//				String timestamp = String.valueOf(new Date().getTime());
-				String documentId = docer.createDocumentTypeDocumento(fileName, IOUtils.toByteArray(fileInputStream),
-						tipoComponenteVal, abstractDocumento, null);
-				logger.debug("creato in docer con id {}", documentId);
-				try {
-					docer.addToFolderDocument(folderId, documentId);
-					logger.debug("aggiunto document {} a folder {}", documentId, folderId);
-				} catch (Exception ex) {
-					// nel caso si verifichi un errore nel collegamento
-					// document-folder elimino il documen appena creato
-					docer.deleteDocument(documentId);
-					// restituisco errore originale
-					throw ex;
-				}
-				
-				responseData.setId(documentId);
-			}
-			
-			response = Response.ok(responseData).build();
-			
-			// } catch (PecException ex) {
-			// logger.error("PRECONDITION_FAILED", ex);
-			// response =
-			// Response.status(Response.Status.PRECONDITION_FAILED).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
-		} catch (Exception ex) {
-			logger.error("INTERNAL_SERVER_ERROR", ex);
-			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
-					.type(MediaType.TEXT_PLAIN).build();
-		}
-		return response;
-	}
+//	@ApiOperation(value = "/upload", notes = "upload di un document su una folder", consumes = MediaType.MULTIPART_FORM_DATA)
+//	@ApiResponses(value = { @ApiResponse(code = 200, message = "success"),
+//			@ApiResponse(code = 500, message = "error") })
+//	@POST
+//	@Path("/documents/{folderId}/upload")
+//	@Consumes(MediaType.MULTIPART_FORM_DATA)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response uploadOnFolder(@PathParam("folderId") String folderId,
+//			@FormDataParam("abstract") String abstractDocumento, @FormDataParam("tipoComponente") String tipoComponente,
+//			@FormDataParam("utente") String utente, @FormDataParam("file") InputStream fileInputStream,
+//			@FormDataParam("file") FormDataContentDisposition fileDisposition) {
+//		// public Response upload(@FormDataParam("file") InputStream file,
+//		// @FormDataParam("file") FormDataContentDisposition fileDisposition) {
+//		Response response = null;
+//		UploadAllegatoResponse responseData = new UploadAllegatoResponse();
+//		try {
+//			logger.debug("{}", uriInfo.getAbsolutePath());
+//			logger.debug("folderId={}", folderId);
+//			logger.debug("abstract={}", abstractDocumento);
+//			logger.debug("tipoComponente={}", tipoComponente);
+//			logger.debug("utente={}", utente);
+//			// logger.debug("{}", new Gson().toJson(allegatoRequest));
+//
+//			// AllegatoPec allegato = MessaggioPecBL.saveFile(getContextEmf(),
+//			// allegatoRequest, file);
+//			final String fileName = fileDisposition.getFileName();
+//
+//			// String filePath =
+//			// restServletContext.getRealPath("/WEB-INF/test-docer/" +
+//			// fileName);
+//			// File f = new File(filePath);
+//			// FileUtils.copyInputStreamToFile(fileInputStream, f);
+//
+//			try (DocerHelper docer = getDocerHelper(utente)) {
+//				logger.debug("invio file '{}' a docer", fileName);
+//
+//				// gestione del tipo componente passato
+//				TIPO_COMPONENTE_VALUES tipoComponenteVal = null;
+//				try {
+//					tipoComponenteVal = TIPO_COMPONENTE_VALUES.valueOf(tipoComponente);
+//				} catch (Exception ex) {
+//					throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
+//				}
+//
+//				// String documentId = docer.createDocument(fileName, f,
+//				// TIPO_COMPONENTE.PRINCIPALE, titolo);
+////				String timestamp = String.valueOf(new Date().getTime());
+//				String documentId = docer.createDocumentTypeDocumento(fileName, IOUtils.toByteArray(fileInputStream),
+//						tipoComponenteVal, abstractDocumento, null);
+//				logger.debug("creato in docer con id {}", documentId);
+//				try {
+//					docer.addToFolderDocument(folderId, documentId);
+//					logger.debug("aggiunto document {} a folder {}", documentId, folderId);
+//				} catch (Exception ex) {
+//					// nel caso si verifichi un errore nel collegamento
+//					// document-folder elimino il documen appena creato
+//					docer.deleteDocument(documentId);
+//					// restituisco errore originale
+//					throw ex;
+//				}
+//				
+//				responseData.setId(documentId);
+//			}
+//			
+//			response = Response.ok(responseData).build();
+//			
+//			// } catch (PecException ex) {
+//			// logger.error("PRECONDITION_FAILED", ex);
+//			// response =
+//			// Response.status(Response.Status.PRECONDITION_FAILED).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
+//		} catch (Exception ex) {
+//			logger.error("INTERNAL_SERVER_ERROR", ex);
+//			response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage())
+//					.type(MediaType.TEXT_PLAIN).build();
+//		}
+//		return response;
+//	}
 
 	@ApiOperation(value = "/upload", notes = "upload di un versione di document", consumes = MediaType.MULTIPART_FORM_DATA)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "success"),

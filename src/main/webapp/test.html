@@ -45,7 +45,9 @@
 						<div class="form-group">
 							<label for="acl">acl</label>
 							<input class="form-control" id="acl">
-							<span class="help-block text-justify">permette di impostare le ACL DOCER (mappa chiave valore es: {'MIRCO':1,'GRUPPO-TEST:2})</span>							
+							<p class="help-block text-justify">permette di impostare le ACL DOCER (mappa chiave valore es:)
+								<pre>{'MIRCO':1,'GRUPPO-TEST:2}</pre>
+							</p>
 						</div>
 						
 						<div class="form-group">
@@ -58,7 +60,8 @@
 							<label for="stamp">stamp</label>
 							<input class="form-control" id="stamp">
 							<p class="help-block">json generazione stamp (dati per generazione watermark) es:
-								<pre>[{"description":"profilo1","offsetx":10,"offsety":10,"rotation":0,"rows":["riga1","riga2","riga3"]},{"description":"profilo2","offsetx":15,"offsety":15,"rotation":45,"rows":["rigaA","rigaB","rigaC"]}]
+								<pre>
+									[{"description":"profilo1","offsetx":10,"offsety":10,"rotation":0,"rows":["riga1","riga2","riga3"]},{"description":"profilo2","offsetx":15,"offsety":15,"rotation":45,"rows":["rigaA","rigaB","rigaC"]}]
 								</pre>
 							</p>
 						</div>
@@ -109,8 +112,10 @@
 						'GRUPPO-TEST' : 2
 					};
 					// queryString.push('acl=' + encodeURI(JSON.stringify(acl)));
-					queryString.push('acl=' + encodeURIComponent(JSON.stringify(acl)));
-
+					// queryString.push('acl=' + encodeURIComponent(JSON.stringify(acl)));
+					if ($.trim($('#acl').val()))
+						queryString.push('acl=' + encodeURIComponent($('#acl').val()));
+					
 					if ($.trim($('#utente').val()))
 						queryString.push('utente=' + $.trim($('#utente').val()));
 					if ($.trim($('#stamp').val()))

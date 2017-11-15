@@ -64,9 +64,14 @@
 						</div>
 						
 						<div class="form-group">
-							<label for="utente">f</label>
+							<label for="f">f</label>
 							<input class="form-control" id="f" value="">
 							<span class="help-block text-justify">specifica il nome del file da usare per il downloadAll</span>							
+						</div>
+						<div class="form-group">
+							<label for="archiveType">archiveType</label>
+							<input class="form-control" id="archiveType" value="">
+							<span class="help-block text-justify">specifica il tipo di archivio</span>							
 						</div>
 												
 						<button type="submit" class="btn btn-success btn-block">Aggiorna</button>
@@ -113,6 +118,8 @@
 					
 					if ($.trim($('#f').val()))
 						queryString.push('f=' + $.trim($('#f').val()));
+					if ($.trim($('#archiveType').val()))
+						queryString.push('archiveType=' + $.trim($('#archiveType').val()));
 						
 					// $('#iframeApp').attr('src', '');
 					var src = 'index.html#?' + queryString.join('&');

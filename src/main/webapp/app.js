@@ -148,14 +148,11 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
         $log.debug('fileNameZip='+fileNameZip);
         SessionService.fileNameZip = $scope.fileNameZip;
 	}
-	/* file name zip data */
-	$scope.archiveType = "";
-	SessionService.archiveType = "";
+	/* archiveType data */
 	if ($location.search().archiveType) {
         var archiveType = decodeURIComponent($location.search().archiveType);
-        $scope.archiveType = archiveType;
         $log.debug('archiveType='+archiveType);
-        SessionService.archiveType = $scope.archiveType;
+        SessionService.archiveType = archiveType;
 	}
 	
 	// elenco dei documenti della cartella
@@ -172,6 +169,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 	$scope.isLoadingVersioni = false;
 	
 	$scope.loadData = function() {
+		$scope.unselectCurrentDoc();
 		if (!$scope.profile.view) {
 			$log.debug('not profile view');
 			return;
@@ -238,7 +236,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 			}, function (documents) {
 				$scope.isLoadingData = false;
 				$log.debug('documents loaded');
-				if (documents) {
+				$log.debug('documents='+angular.toJson(documents));
+				if (documents && documents.length > 0) {
 					$scope.docs = documents;
 					$scope.hasDocs = true;
 					$log.debug('hasDocs='+$scope.hasDocs);
@@ -276,10 +275,12 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
 		$log.debug("selectDoc");
 		// se stesso file lo deseleziono
 		// TODO: se seleziono da file a cartella, da file a file, stesso file
-		if ($scope.selectedDoc && $scope.selectedDoc.DOCNUM === doc.DOCNUM)
-			return;
-		else
+		if ($scope.selectedDoc && $scope.selectedDoc.DOCNUM === doc.DOCNUM) {
 			$scope.unselectCurrentDoc();
+			return;
+		} else {
+			$scope.unselectCurrentDoc();
+		}
 		
 //			// $scope.selectedDoc.selected = false; // equivale a doc.selected = false
 //			// $scope.resetSelection();
@@ -549,7 +550,7 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
     			acl : SessionService.acl,
     			utente: SessionService.utente,
     			file : null,
-    			archiveType : Sessione.archiveType
+    			archiveType : SessionService.archiveType
     		};
     	}
     	
@@ -616,7 +617,8 @@ var gdadocerapp = angular.module('GDADocerApp', ['ngResource', 'ui.bootstrap', '
     	toaster.pop({
             type: 'error',
             title: 'Errore caricamento file',
-            body: 'Errore: ' + resp.status + ' - ' + resp.data,
+            // body: 'Errore: ' + resp.status + ' - ' + resp.data,
+            body: '' + resp.data,
             showCloseButton: true
         });
     }

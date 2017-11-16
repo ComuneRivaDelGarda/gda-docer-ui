@@ -48,8 +48,8 @@ import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.StampData;
 import it.tn.rivadelgarda.comune.gda.docer.api.rest.data.UploadAllegatoResponse;
 import it.tn.rivadelgarda.comune.gda.docer.exceptions.DocerHelperException;
 import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento;
-import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.ARCHIVE_TYPE_VALUES;
-import it.tn.rivadelgarda.comune.gda.docer.keys.MetadatiDocumento.TIPO_COMPONENTE_VALUES;
+import it.tn.rivadelgarda.comune.gda.docer.values.ARCHIVE_TYPE;
+import it.tn.rivadelgarda.comune.gda.docer.values.TIPO_COMPONENTE;
 
 @Api(value = "Docer API")
 @Path("/docer")
@@ -448,15 +448,15 @@ public class ServiceDocer extends ServiceBase {
 
 			// VERIFICA PARAMETRI
 			// gestione del tipo componente passato
-			TIPO_COMPONENTE_VALUES tipoComponenteVal = null;
+			TIPO_COMPONENTE tipoComponenteVal = null;
 			try {
-				tipoComponenteVal = TIPO_COMPONENTE_VALUES.valueOf(tipoComponente);
+				tipoComponenteVal = TIPO_COMPONENTE.valueOf(tipoComponente);
 			} catch (Exception ex) {
 				throw new DocerHelperException("Tipo Componente '" + tipoComponente + "' non valido.");
 			}
-			ARCHIVE_TYPE_VALUES archiveTypeVal = null;
+			ARCHIVE_TYPE archiveTypeVal = null;
 			try {
-				archiveTypeVal = ARCHIVE_TYPE_VALUES.valueOf(paramArchiveType);
+				archiveTypeVal = ARCHIVE_TYPE.valueOf(paramArchiveType);
 			} catch (Exception ex) {
 				throw new DocerHelperException("Archive Type '" + paramArchiveType + "' non valido.");
 			}

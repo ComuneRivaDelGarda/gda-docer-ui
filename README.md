@@ -83,7 +83,8 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
     - [x] API Helper
     - [ ] usato in GDA
   - [ ] Supporto per l’introduzione dell’helper nei contesti rimanenti
-    - [ ] Albo
+    - [ ] Albo Pretorio
+      - [ ] da ritestare
     - [x] GDA-PEC
       - [ ] da Testare
     - [x] Protocollazione Esterna (gda-ws gda-documentale)

@@ -114,7 +114,7 @@ Viene utilizzato angular 1.4 altrimenti abbiamo un problema con WebView ()
     - [x] MIRCO: archiviaDocumento (predisposto in libreria helper)
   - [ ] Test e validazione
   - [ ] chiamate rest da Python
-  - [ ] Uso del metadato “Originale cartaceo" (permessi mix tra originali cartacei e digitali in stesso protocollo??)
+  - [ ] Uso del metadato “Originale cartaceo" (sono permessi mix tra originali cartacei e digitali in stesso protocollo??)
   - [ ] Gestione hash x stampa registro protocollo
     - [x] Calcolo DOC_HASH automatico Helper
     - [ ] stampa del protocollato il giorno tot (elenco HASH da external_id)
